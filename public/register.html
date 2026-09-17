@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar — Austin Store Marketplace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-icon"><i class="fas fa-store"></i></div>
+      <h1>Buat Akun</h1>
+      <p>Daftar gratis, belanja atau buka lapak di Austin Store</p>
+    </div>
+
+    <div id="alert-box"></div>
+
+    <form id="register-form" autocomplete="off">
+      <div class="form-group">
+        <label class="form-label">Nama Lengkap</label>
+        <input type="text" class="form-control" id="full_name" placeholder="Nama kamu" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" placeholder="min. 3 karakter, huruf & angka" required>
+        <p class="form-hint">Hanya huruf kecil, angka, dan underscore.</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" placeholder="email@kamu.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-group">
+          <input type="password" class="form-control" id="password" placeholder="min. 6 karakter" required>
+          <span class="input-addon" id="toggle-pass" style="cursor:pointer"><i class="fas fa-eye" id="eye-icon" style="pointer-events:none"></i></span>
+        </div>
+      </div>
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAADsmh6EEBbs8ichh" data-callback="onTurnstileSuccess"></div>
+      <button type="submit" class="btn btn-primary btn-full btn-lg mt-8" id="reg-btn" disabled>
+        <i class="fas fa-user-plus"></i> Daftar Sekarang
+      </button>
+    </form>
+
+    <div class="divider"></div>
+    <p class="text-sm text-muted" style="text-align:center;margin-bottom:12px">atau</p>
+    <div id="google-signin-box" style="display:flex;justify-content:center"></div>
+
+    <div class="divider"></div>
+    <p class="text-sm text-muted" style="text-align:center">
+      Sudah punya akun? <a href="/login" id="login-link" style="color:var(--primary);font-weight:600">Masuk</a>
+    </p>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  (() => {
+    const r = Auth.getSafeRedirect();
+    if (r) document.getElementById('login-link').href = `/login?redirect=${encodeURIComponent(r)}`;
+  })();
+
+  (async () => {
+    const branding = await API.get('/api/public/branding');
+    if (!branding.success || !branding.google_client_id) return;
+
+    function initGoogleButton() {
+      if (!window.google || !window.google.accounts) {
+        document.getElementById('google-signin-box').innerHTML =
+          '<p class="text-sm text-muted" style="text-align:center">Google Sign-In tidak tersedia — kemungkinan diblokir ad-blocker/VPN filter di perangkat kamu.</p>';
+        return;
+      }
+      google.accounts.id.initialize({
+        client_id: branding.google_client_id,
+        callback: onGoogleCredential,
+        itp_support: true,
+        use_fedcm_for_button: true,
+      });
+      google.accounts.id.renderButton(document.getElementById('google-signin-box'), {
+        theme: 'outline', size: 'large', width: 320, text: 'signup_with',
+      });
+    }
+
+    if (window.google && window.google.accounts) {
+      initGoogleButton();
+    } else {
+      const gsiScript = document.createElement('script');
+      gsiScript.src = 'https://accounts.google.com/gsi/client';
+      gsiScript.async = true;
+      gsiScript.onload = initGoogleButton;
+      gsiScript.onerror = () => {
+        document.getElementById('google-signin-box').innerHTML =
+          '<p class="text-sm text-muted" style="text-align:center">Gagal memuat tombol Google — kemungkinan diblokir ad-blocker/VPN filter di perangkat kamu. Coba nonaktifkan sementara atau pakai browser lain.</p>';
+      };
+      document.head.appendChild(gsiScript);
+    }
+  })();
+
+  async function onGoogleCredential(response) {
+    const alertBox = document.getElementById('alert-box');
+    alertBox.innerHTML = '';
+    const res = await API.post('/api/auth/google', { credential: response.credential });
+    if (res.success) {
+      Toast.success(res.message);
+      setTimeout(() => window.location.href = Auth.getSafeRedirect() || res.redirect, 500);
+    } else {
+      alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ${res.message}</div>`;
+    }
+  }
+
+  function onTurnstileSuccess() {
+    document.getElementById('reg-btn').disabled = false;
+  }
+
+  function togglePass() {
+    const inp = document.getElementById('password');
+    const icon = document.getElementById('eye-icon');
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      icon.className = 'fas fa-eye-slash';
+    } else {
+      inp.type = 'password';
+      icon.className = 'fas fa-eye';
+    }
+  }
+
+  const toggleBtn = document.getElementById('toggle-pass');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      togglePass();
+    });
+  }
+
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('reg-btn');
+    const alertBox = document.getElementById('alert-box');
+    alertBox.innerHTML = '';
+    btnLoading(btn, true);
+
+    const res = await API.post('/api/auth/register', {
+      full_name: document.getElementById('full_name').value,
+      username: document.getElementById('username').value,
+      email: document.getElementById('email').value,
+      password: document.getElementById('password').value,
+      'cf-turnstile-response': document.querySelector('[name="cf-turnstile-response"]')?.value || '',
+    });
+
+    btnLoading(btn, false);
+    if (res.success) {
+      Toast.success('Registrasi berhasil!');
+      setTimeout(() => window.location.href = Auth.getSafeRedirect() || res.redirect, 600);
+    } else {
+      alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ${res.message}</div>`;
+      if (window.turnstile) {
+        turnstile.reset();
+        document.getElementById('reg-btn').disabled = true;
+      }
+    }
+  });
+</script>
+</body>
+</html>
