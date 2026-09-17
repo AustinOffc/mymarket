@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Premium — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .appprem-search-wrap { position: relative; margin-bottom: 14px; }
+    .appprem-search-wrap input { padding-left: 38px; }
+    .appprem-search-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+    .appprem-list { display: flex; flex-direction: column; gap: 10px; max-height: 420px; overflow-y: auto; margin-bottom: 20px; }
+    .appprem-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 14px 16px; cursor: pointer; transition: border-color .15s, transform .15s;
+    }
+    .appprem-item:hover { border-color: var(--primary); transform: translateX(2px); }
+    .appprem-item.selected { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary) inset; background: var(--primary-light); }
+    .appprem-item .item-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .appprem-item .item-icon {
+      width: 40px; height: 40px; border-radius: 10px; background: var(--primary-light);
+      color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
+    }
+    .appprem-item.selected .item-icon { background: #fff; }
+    .appprem-item .item-name { font-weight: 700; font-size: 13.5px; }
+    .appprem-item .item-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .appprem-item .item-price { font-family: var(--font-mono); font-weight: 700; color: var(--primary); white-space: nowrap; text-align: right; }
+
+    .appprem-summary {
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 2px solid var(--primary); border-radius: var(--radius);
+      padding: 20px; box-shadow: var(--shadow-md); margin-bottom: 24px;
+    }
+    .appprem-summary .qty-stepper { display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+    .appprem-summary .qty-stepper button { width: 38px; height: 38px; border: none; background: var(--bg-hover); cursor: pointer; font-size: 16px; }
+    .appprem-summary .qty-stepper input { width: 56px; text-align: center; border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); height: 38px; font-weight: 700; }
+
+    .account-box {
+      background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 14px; margin-bottom: 10px;
+    }
+    .account-box .acc-idx {
+      font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .3px;
+      margin-bottom: 10px;
+    }
+    .account-box .acc-field { margin-bottom: 10px; }
+    .account-box .acc-field:last-child { margin-bottom: 0; }
+    .account-box .acc-label {
+      display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: .3px; margin-bottom: 5px; font-weight: 600;
+    }
+    .account-box .acc-value-row {
+      display: flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 9px 10px;
+    }
+    .account-box .acc-value {
+      flex: 1; min-width: 0; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.5;
+      word-break: break-all; white-space: pre-wrap;
+    }
+    .account-box .acc-copy-btn {
+      flex-shrink: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-hover);
+      color: var(--text-muted); cursor: pointer; font-size: 13px; transition: all .15s;
+    }
+    .account-box .acc-copy-btn:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
+    .account-box .acc-copy-btn:active { transform: scale(.92); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><i class="fas fa-store"></i></div>
+        <span>Austin Store</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">App Premium</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <div class="card-header" style="padding:0 0 14px 0;border:none">
+        <div><span class="eyebrow">App Premium</span><h2 style="font-size:17px">Auto Order Aplikasi Premium</h2></div>
+        <button class="btn btn-outline btn-sm" id="refresh-products-btn"><i class="fas fa-rotate"></i> Refresh</button>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-muted);margin:-8px 0 14px">
+        <i class="fas fa-circle-info"></i> Pilih produk, selesaikan pesanan dalam hitungan detik — akun hasil pembelian otomatis tersimpan di Riwayat Order di bawah.
+      </p>
+
+      <div class="appprem-search-wrap">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" class="form-control" id="search-input" placeholder="Cari nama produk / aplikasi...">
+      </div>
+
+      <div class="appprem-list" id="product-list"><div class="empty-state">Memuat katalog...</div></div>
+
+      <div id="summary-wrap"></div>
+
+      <div class="card-header" style="padding:26px 0 14px 0;border:none">
+        <span class="card-title">Riwayat Order App Premium</span>
+      </div>
+      <div class="table-wrapper">
+        <table class="table" id="hist-table">
+          <thead><tr><th>Waktu</th><th>Produk</th><th>Qty</th><th>Harga</th><th>Status</th><th></th></tr></thead>
+          <tbody id="hist-body"><tr><td colspan="6" class="table-empty">Memuat...</td></tr></tbody>
+        </table>
+      </div>
+      <div id="hist-pagination" style="margin-top:14px"></div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="account-modal-overlay">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-key" style="color:var(--primary);margin-right:8px"></i>Detail Akun</span>
+      <button class="modal-close" id="account-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="account-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="account-modal-close-btn">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+let products = [];
+let filteredProducts = [];
+let selectedItem = null;
+let qty = 1;
+let histPage = 1;
+
+document.getElementById('account-modal-close').addEventListener('click', () => Modal.close('account-modal-overlay'));
+document.getElementById('account-modal-close-btn').addEventListener('click', () => Modal.close('account-modal-overlay'));
+
+function renderAccountsHtml(accounts, note) {
+  if (!accounts || !accounts.length) {
+    return `<p class="text-sm text-muted">${note ? escapeHtml(note) : 'Akun sedang diproses, cek lagi beberapa saat lagi.'}</p>`;
+  }
+  const field = (label, value) => {
+    if (!value || value === '-') return '';
+    const safe = escapeHtml(value);
+    const esc = safe.replace(/'/g, "\\'");
+    return `
+      <div class="acc-field">
+        <span class="acc-label">${label}</span>
+        <div class="acc-value-row">
+          <span class="acc-value">${safe}</span>
+          <button type="button" class="acc-copy-btn" onclick="copyText('${esc}', '${label}')" title="Salin ${label}"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>`;
+  };
+  return accounts.map((a, i) => `
+    <div class="account-box">
+      ${accounts.length > 1 ? `<div class="acc-idx">Akun #${i + 1}</div>` : ''}
+      ${field('Username/Email', a.username)}
+      ${field('Password/Kode', a.password)}
+      ${field('Catatan', a.note)}
+    </div>
+  `).join('');
+}
+
+function openAccountModal(title, accounts, note) {
+  document.getElementById('account-modal-body').innerHTML = `<p style="font-weight:700;margin-bottom:10px">${escapeHtml(title)}</p>${renderAccountsHtml(accounts, note)}`;
+  Modal.open('account-modal-overlay');
+}
+
+async function loadProducts() {
+  const list = document.getElementById('product-list');
+  list.innerHTML = '<div class="empty-state">Memuat katalog...</div>';
+  const res = await API.get('/api/appprem/products');
+  if (!res.success) {
+    list.innerHTML = `<div class="empty-state"><i class="fas fa-triangle-exclamation"></i> ${escapeHtml(res.message || 'Gagal memuat katalog')}</div>`;
+    return;
+  }
+  products = res.data || [];
+  applyFilter();
+}
+
+function applyFilter() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  filteredProducts = q ? products.filter(p => p.name.toLowerCase().includes(q)) : products;
+  renderProductList();
+}
+
+function renderProductList() {
+  const list = document.getElementById('product-list');
+  if (!filteredProducts.length) {
+    list.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i> Tidak ada produk yang cocok</div>';
+    return;
+  }
+  list.innerHTML = filteredProducts.map(p => `
+    <div class="appprem-item ${selectedItem && selectedItem.item_id === p.item_id ? 'selected' : ''}" data-item-id="${escapeAttr(p.item_id)}">
+      <div class="item-left">
+        <div class="item-icon">${p.logo ? `<img src="${escapeAttr(p.logo)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:10px">` : '<i class="fas fa-crown"></i>'}</div>
+        <div>
+          <div class="item-name">${escapeHtml(p.name)}</div>
+          <div class="item-meta">${p.stock != null ? `Sisa: ${p.stock}` : 'Instan · 1 per order'}</div>
+        </div>
+      </div>
+      <div class="item-price">${formatRupiah(p.price)}</div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('product-list').addEventListener('click', (e) => {
+  const el = e.target.closest('.appprem-item');
+  if (!el) return;
+  const item = products.find(p => p.item_id === el.dataset.itemId);
+  if (!item) return;
+  selectedItem = item;
+  qty = 1;
+  renderProductList();
+  renderSummary();
+});
+
+document.getElementById('search-input').addEventListener('input', applyFilter);
+document.getElementById('refresh-products-btn').addEventListener('click', loadProducts);
+
+function renderSummary() {
+  const wrap = document.getElementById('summary-wrap');
+  if (!selectedItem) { wrap.innerHTML = ''; return; }
+  const maxQty = selectedItem.max_qty || 1;
+  const total = selectedItem.price * qty;
+  wrap.innerHTML = `
+    <div class="appprem-summary">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0">
+          ${selectedItem.logo ? `<img src="${escapeAttr(selectedItem.logo)}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:10px;flex-shrink:0">` : ''}
+          <div>
+            <div style="font-weight:700;font-size:15px">${escapeHtml(selectedItem.name)}</div>
+            <div class="text-xs text-muted">${formatRupiah(selectedItem.price)} / item</div>
+          </div>
+        </div>
+      </div>
+      ${selectedItem.note ? `
+        <div style="background:var(--bg-hover);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px">
+          <div class="text-xs text-muted" style="font-weight:700;margin-bottom:6px"><i class="fas fa-circle-info"></i> Informasi Layanan</div>
+          <div class="text-sm" style="white-space:pre-line">${escapeHtml(selectedItem.note)}</div>
+        </div>
+      ` : ''}
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <span class="text-sm">Jumlah</span>
+        <div class="qty-stepper">
+          <button type="button" id="qty-minus" ${maxQty <= 1 ? 'disabled' : ''}>−</button>
+          <input type="text" id="qty-input" value="${qty}" readonly>
+          <button type="button" id="qty-plus" ${maxQty <= 1 ? 'disabled' : ''}>+</button>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:14px;margin-bottom:14px">
+        <span class="text-sm text-muted">Total Tagihan</span>
+        <span style="font-family:var(--font-mono);font-weight:700;font-size:18px">${formatRupiah(total)}</span>
+      </div>
+      <div style="margin-bottom:14px">
+        <label class="text-xs text-muted" style="display:block;margin-bottom:6px">Kode Voucher (opsional)</label>
+        <input type="text" class="form-control" id="appprem-voucher-code" placeholder="Masukkan kode voucher" style="text-transform:uppercase">
+      </div>
+      <button class="btn btn-primary" style="width:100%" id="buy-btn"><i class="fas fa-bolt"></i> Beli Sekarang</button>
+      <div id="order-result" style="margin-top:14px"></div>
+    </div>
+  `;
+
+  document.getElementById('qty-minus').addEventListener('click', () => { if (qty > 1) { qty--; renderSummary(); } });
+  document.getElementById('qty-plus').addEventListener('click', () => { if (qty < maxQty) { qty++; renderSummary(); } });
+  document.getElementById('buy-btn').addEventListener('click', submitOrder);
+}
+
+async function submitOrder() {
+  if (!Auth.requireLogin('Masuk dulu untuk melakukan order')) return;
+  const btn = document.getElementById('buy-btn');
+  btnLoading(btn, true);
+  const res = await API.post('/api/appprem/order', {
+    item_id: selectedItem.item_id,
+    qty,
+    voucher_code: (document.getElementById('appprem-voucher-code')?.value || '').trim() || undefined,
+  });
+  btnLoading(btn, false);
+  if (!res.success) { Toast.error(res.message); return; }
+
+  Toast.success(res.message);
+  const d = res.data;
+  document.getElementById('order-result').innerHTML = `
+    <div class="card-header" style="padding:0 0 8px;border:none"><span style="font-weight:700;font-size:13px">${statusBadge(d.status === 'success' ? 'success' : 'processing')} Hasil Order</span></div>
+    ${renderAccountsHtml(d.accounts, d.status !== 'success' ? 'Sedang diproses, cek lagi di Riwayat Order di bawah.' : '')}
+  `;
+  selectedItem = null;
+  loadProducts();
+  loadHistory(1);
+  Auth.checkOptional().then(r => r && Auth.renderUserInfo(r.user, r.wallet));
+}
+
+async function loadHistory(page) {
+  histPage = page;
+  const tbody = document.getElementById('hist-body');
+  if (!Auth.currentUser) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="table-empty"><i class="fas fa-lock" style="font-size:32px;margin-bottom:10px;display:block;color:var(--text-muted)"></i>Masuk untuk melihat riwayat order</div></td></tr>`;
+    document.getElementById('hist-pagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Memuat...</td></tr>';
+  const res = await API.get(`/api/appprem/history?page=${page}&limit=10`);
+  if (!res.success) {
+    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Gagal memuat riwayat</td></tr>';
+    return;
+  }
+  const rows = res.data || [];
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="table-empty"><i class="fas fa-inbox" style="font-size:32px;margin-bottom:10px;display:block;color:var(--text-muted)"></i>Belum ada riwayat App Premium</div></td></tr>`;
+    document.getElementById('hist-pagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = rows.map(o => `
+    <tr class="appprem-hist-row" data-id="${o.id}">
+      <td>${formatDate(o.createdAt)}</td>
+      <td class="cell-wrap">${escapeHtml(o.product_name)}</td>
+      <td>${o.qty}</td>
+      <td>${formatRupiah(o.price)}</td>
+      <td>${statusBadge(o.status === 'success' ? 'success' : (o.status === 'refunded' ? 'cancel' : (o.status === 'processing' ? 'processing' : 'failed')))}</td>
+      <td><button class="btn btn-outline btn-sm view-account-btn" data-id="${o.id}"><i class="fas fa-eye"></i> Lihat</button></td>
+    </tr>
+  `).join('');
+  window._appPremRows = rows;
+  renderPagination('hist-pagination', res.page, res.pages, (p) => loadHistory(p));
+}
+
+document.getElementById('hist-body').addEventListener('click', async (e) => {
+  const btn = e.target.closest('.view-account-btn');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  let row = (window._appPremRows || []).find(r => r.id === id);
+  if (!row) return;
+  if (row.status === 'processing') {
+    const res = await API.get(`/api/appprem/status/${id}`);
+    if (res.success) row = res.data;
+  }
+  openAccountModal(row.product_name, row.accounts, row.status === 'processing' ? 'Masih diproses, coba cek lagi beberapa saat lagi.' : '');
+});
+
+async function init() {
+  const res = await Auth.checkOptional();
+  if (res) { Auth.renderUserInfo(res.user, res.wallet); } else { Auth.renderGuestUI(); }
+  await loadProducts();
+  await loadHistory(1);
+}
+init();
+</script>
+</body>
+</html>
