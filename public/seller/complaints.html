@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Komplain Masuk — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Dashboard Seller</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-arrow-left"></i></span> Kembali ke Dashboard Utama</div>
+      <div class="nav-item" data-href="/seller"><span class="nav-icon"><i class="fas fa-chart-pie"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/seller/stock"><span class="nav-icon"><i class="fas fa-boxes-stacked"></i></span> Kelola Stok</div>
+      <div class="nav-item active" data-href="/seller/complaints"><span class="nav-icon"><i class="fas fa-triangle-exclamation"></i></span> Komplain Masuk</div>
+      <div class="nav-item" data-href="/seller/vouchers"><span class="nav-icon"><i class="fas fa-ticket"></i></span> Voucher &amp; Diskon</div>
+      <div class="nav-item" data-href="/seller/flashsale"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Flash Sale</div>
+      <div class="nav-item" data-href="/seller/withdraw"><span class="nav-icon"><i class="fas fa-upload"></i></span> Withdraw</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Seller</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Komplain Masuk</div>
+      <div class="topbar-actions">
+        <div class="user-avatar" data-user-avatar style="cursor:pointer" onclick="location.href='/profile'"></div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="card mb-16">
+        <div class="card-body" style="font-size:12.5px;color:var(--text-muted)">
+          <i class="fas fa-circle-info"></i> Ini komplain yang diajukan buyer atas order dari toko kamu. Keputusan (setujui/tolak) sepenuhnya ada di tangan owner — kamu di sini hanya bisa memantau statusnya. Selama komplain masih <b>menunggu</b>, dana hasil order itu masih tertahan.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><i class="fas fa-triangle-exclamation" style="color:var(--warning)"></i> Daftar Komplain</span>
+          <select class="form-select" id="status-filter" style="max-width:180px">
+            <option value="">Semua Status</option>
+            <option value="pending">Menunggu</option>
+            <option value="approved">Disetujui</option>
+            <option value="rejected">Ditolak</option>
+          </select>
+        </div>
+        <div id="complaint-list" class="card-body"><div class="loading-spinner"></div></div>
+        <div class="pagination" id="pagination-wrap" style="display:none">
+          <span class="pagination-info" id="page-info"></span>
+          <div class="pagination-nav" id="pagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/custom-select.js"></script>
+<script>
+function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str == null ? '' : String(str); return d.innerHTML; }
+
+let currentPage = 1;
+
+async function loadComplaints(page = 1) {
+  currentPage = page;
+  const status = document.getElementById('status-filter').value;
+  const list = document.getElementById('complaint-list');
+  list.innerHTML = '<div class="loading-spinner"></div>';
+  document.getElementById('pagination-wrap').style.display = 'none';
+
+  const res = await API.get(`/api/seller/complaints?page=${page}&limit=10${status ? `&status=${status}` : ''}`);
+  if (!res.success || !res.data.length) {
+    list.innerHTML = `<div class="table-empty"><i class="fas fa-inbox" style="font-size:36px;margin-bottom:12px;display:block;color:var(--text-muted)"></i><p>Belum ada komplain masuk</p></div>`;
+    return;
+  }
+
+  list.innerHTML = res.data.map(c => `
+    <div style="padding:12px 0;border-bottom:1px solid var(--border-soft)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+        <div>
+          <div style="font-weight:700;font-size:13.5px">${escapeHtml(c.variant_name)}</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">${formatDate(c.createdAt)}</div>
+        </div>
+        ${statusBadge(c.status === 'open' ? 'pending' : c.status)}
+      </div>
+      <div style="font-size:12.5px;margin-top:8px;color:var(--text)">${escapeHtml(c.reason)}</div>
+      ${c.resolution_note ? `<div style="font-size:11.5px;margin-top:6px;padding:8px;background:var(--bg-soft);border-radius:8px;color:var(--text-muted)"><i class="fas fa-comment"></i> Catatan owner: ${escapeHtml(c.resolution_note)}</div>` : ''}
+      <div style="font-size:12px;margin-top:6px;color:var(--text-muted)">Nominal: <b>${formatRupiah(c.price)}</b></div>
+    </div>
+  `).join('');
+
+  if (res.pages > 1) {
+    document.getElementById('pagination-wrap').style.display = 'flex';
+    document.getElementById('page-info').textContent = `Halaman ${res.page} dari ${res.pages} (${res.total} total)`;
+    renderPagination('pagination', res.page, res.pages, loadComplaints);
+  }
+}
+
+document.getElementById('status-filter').addEventListener('change', () => loadComplaints(1));
+
+(async function init() {
+  const meRes = await API.get('/api/auth/me');
+  if (!meRes.success) { window.location.href = '/login'; return; }
+  if (!['seller', 'owner'].includes(meRes.user.role)) { window.location.href = '/dashboard'; return; }
+  Auth.renderUserInfo(meRes.user, meRes.wallet);
+  loadComplaints(1);
+})();
+</script>
+</body>
+</html>
