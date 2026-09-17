@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .co-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border-soft); }
+    .co-item:last-child { border-bottom: none; }
+    .co-item-thumb { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: var(--bg-soft); }
+    .co-item-thumb-placeholder { display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 18px; }
+    .co-item-info { flex: 1; min-width: 0; }
+    .co-item-name { font-weight: 700; font-size: 13.5px; }
+    .co-item-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+    .co-item-subtotal { font-family: var(--font-mono); font-weight: 700; font-size: 13px; white-space: nowrap; }
+
+    .pay-method-option { display: flex; align-items: center; gap: 14px; padding: 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); margin-bottom: 12px; transition: border-color .15s ease; }
+    .pay-method-option:last-child { margin-bottom: 0; }
+    .pay-method-option.disabled { opacity: .5; }
+    .pay-method-icon { width: 42px; height: 42px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+    .pay-method-info { flex: 1; min-width: 0; }
+    .pay-method-title { font-weight: 700; font-size: 14px; }
+    .pay-method-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+    .pay-method-option .btn { flex-shrink: 0; }
+
+    .co-credential-item { padding: 12px; border: 2px dashed var(--primary); border-radius: var(--radius-sm); background: var(--primary-light); margin-bottom: 10px; }
+    .co-credential-item:last-child { margin-bottom: 0; }
+    .co-credential-title { font-weight: 700; font-size: 12.5px; margin-bottom: 6px; }
+    .co-credential-value { font-family: var(--font-mono); font-size: 13px; word-break: break-all; }
+    .co-credential-fail { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--danger-light); color: var(--danger); font-size: 12.5px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Checkout</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" id="notif-bell"><i class="fas fa-bell"></i></button>
+          <span class="notif-badge" id="notif-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div style="max-width:560px;margin:0 auto">
+        <button class="btn btn-outline btn-sm mb-16" onclick="history.length > 1 ? history.back() : location.href='/order'"><i class="fas fa-arrow-left"></i> Kembali</button>
+
+        <div id="co-loading" class="loading-spinner" style="margin:60px auto;display:block"></div>
+
+        <div id="co-error" class="empty-state" style="display:none;text-align:center;padding:60px 20px;color:var(--text-muted)">
+          <i class="fas fa-triangle-exclamation" style="font-size:36px;display:block;margin-bottom:10px"></i>
+          <p id="co-error-text">Sesi checkout tidak ditemukan</p>
+          <button class="btn btn-primary mt-16" onclick="location.href='/order'">Kembali ke Marketplace</button>
+        </div>
+
+        <div id="co-content" style="display:none">
+
+                    <div class="card mb-16">
+            <div class="card-header"><span class="card-title"><i class="fas fa-receipt" style="color:var(--primary)"></i> Ringkasan Pesanan</span></div>
+            <div class="card-body" id="co-items"></div>
+          </div>
+
+                    <div class="card mb-16" id="co-voucher-section" style="display:none">
+            <div class="card-header"><span class="card-title"><i class="fas fa-ticket" style="color:var(--primary)"></i> Kode Voucher</span></div>
+            <div class="card-body">
+              <div style="display:flex;gap:8px">
+                <input class="form-control" id="co-voucher-input" placeholder="Masukkan kode voucher" style="text-transform:uppercase">
+                <button class="btn btn-outline btn-sm" id="co-btn-apply-voucher" style="white-space:nowrap">Terapkan</button>
+              </div>
+              <div id="co-voucher-result" class="text-xs" style="margin-top:8px"></div>
+            </div>
+          </div>
+
+          <div class="card mb-16">
+            <div class="card-body">
+              <div id="co-voucher-discount-row" style="display:none;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span class="text-muted text-sm"><i class="fas fa-ticket"></i> Diskon Voucher</span>
+                <span class="text-sm" style="color:var(--success)" id="co-voucher-discount-value">-Rp 0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="text-muted text-sm">Total Pembayaran</span>
+                <span class="cart-summary-total" id="co-total">Rp 0</span>
+              </div>
+            </div>
+          </div>
+
+                    <div class="card mb-16" id="co-method-section">
+            <div class="card-header"><span class="card-title"><i class="fas fa-wallet" style="color:var(--primary)"></i> Pilih Metode Pembayaran</span></div>
+            <div class="card-body">
+              <div class="pay-method-option" id="method-saldo">
+                <div class="pay-method-icon"><i class="fas fa-wallet"></i></div>
+                <div class="pay-method-info">
+                  <div class="pay-method-title">Saldo AustinPay</div>
+                  <div class="pay-method-sub" id="saldo-balance-text">Saldo: Rp 0</div>
+                </div>
+                <button class="btn btn-primary btn-sm" id="btn-pay-saldo"><i class="fas fa-bolt"></i> Bayar</button>
+              </div>
+              <div class="pay-method-option" id="method-qris">
+                <div class="pay-method-icon"><i class="fas fa-qrcode"></i></div>
+                <div class="pay-method-info">
+                  <div class="pay-method-title">QRIS</div>
+                  <div class="pay-method-sub">Dana, GoPay, OVO, ShopeePay, m-Banking, dll</div>
+                </div>
+                <button class="btn btn-outline btn-sm" id="btn-pay-qris"><i class="fas fa-qrcode"></i> Bayar</button>
+              </div>
+            </div>
+          </div>
+
+                    <div class="card mb-16" id="qris-section" style="display:none">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-qrcode" style="color:var(--primary)"></i> Scan QRIS untuk Bayar</span>
+            </div>
+            <div class="card-body">
+              <div class="qr-container">
+                <p class="text-muted text-sm mb-8">Bayar tepat sebesar:</p>
+                <div class="qr-amount" id="qr-amount">Rp 0</div>
+                <p class="text-sm mb-16" style="color:var(--warning)"><i class="fas fa-exclamation-triangle"></i> Bayar sesuai nominal (ada kode unik)</p>
+
+                <div class="qr-box">
+                  <div id="qr-canvas" style="display:flex;justify-content:center;align-items:center;min-height:220px"></div>
+                  <div id="qr-loading" style="padding:20px;text-align:center;color:#888;font-size:13px"><i class="fas fa-spinner fa-spin"></i> Memuat QRIS...</div>
+                </div>
+
+                <div class="qr-timer" id="qr-timer"><i class="far fa-clock"></i> 15:00</div>
+                <div class="qr-status-polling" id="polling-status">
+                  <div class="polling-dot"></div>
+                  <span>Menunggu pembayaran...</span>
+                </div>
+
+                <button class="btn btn-outline btn-full mt-16" id="btn-cancel-qris">
+                  <i class="fas fa-ban"></i> Batalkan
+                </button>
+
+                <div id="qr-cancelled" style="display:none" class="mt-16">
+                  <div class="alert alert-warning"><i class="fas fa-ban"></i> Checkout telah dibatalkan.</div>
+                  <button class="btn btn-outline btn-full" onclick="location.href='/order'">Kembali ke Marketplace</button>
+                </div>
+
+                <div id="qr-expired" style="display:none" class="mt-16">
+                  <div class="alert alert-danger"><i class="fas fa-times-circle"></i> QRIS sudah kadaluarsa.</div>
+                  <button class="btn btn-outline btn-full" onclick="location.reload()">Buat Ulang Checkout</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+                    <div class="card" id="co-success-section" style="display:none">
+            <div class="card-header"><span class="card-title"><i class="fas fa-circle-check" style="color:var(--success)"></i> Pembayaran Berhasil</span></div>
+            <div class="card-body">
+              <div id="co-credentials"></div>
+              <button class="btn btn-primary btn-full mt-16" onclick="location.href='/history'">Lihat Riwayat</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+<script>
+const sessionId = new URLSearchParams(location.search).get('session');
+let session = null;
+let pollInterval = null;
+let timerInterval = null;
+let checkoutSocket = null;
+
+async function init() {
+  const res = await Auth.check();
+  if (!res) return;
+  Auth.renderUserInfo(res.user, res.wallet);
+
+  if (!sessionId) { location.href = '/order'; return; }
+  connectCheckoutSocket();
+  await loadSession();
+}
+
+function connectCheckoutSocket() {
+  if (checkoutSocket) return;
+  checkoutSocket = io(window.API_BASE_URL, { path: '/socket.io', withCredentials: true, reconnection: true });
+  checkoutSocket.on('checkout:update', (payload) => {
+    if (!payload || payload.session_id !== sessionId) return;
+    if (payload.status === 'fulfilled') { clearInterval(pollInterval); clearInterval(timerInterval); loadSession(); }
+  });
+}
+
+async function loadSession() {
+  const res = await API.get(`/api/checkout/${sessionId}`);
+  document.getElementById('co-loading').style.display = 'none';
+
+  if (!res.success) {
+    document.getElementById('co-error-text').textContent = res.message || 'Sesi checkout tidak ditemukan';
+    document.getElementById('co-error').style.display = 'block';
+    return;
+  }
+  session = res.data;
+  document.getElementById('co-content').style.display = 'block';
+  renderItems();
+  renderVoucherSection();
+
+  document.querySelectorAll('[data-balance]').forEach(el => el.textContent = formatRupiah(session.balance));
+  document.getElementById('saldo-balance-text').textContent = `Saldo: ${formatRupiah(session.balance)}`;
+
+  const saldoInsufficient = session.balance < session.total;
+  const methodSaldo = document.getElementById('method-saldo');
+  const btnPaySaldo = document.getElementById('btn-pay-saldo');
+  methodSaldo.classList.toggle('disabled', saldoInsufficient);
+  btnPaySaldo.disabled = saldoInsufficient;
+  btnPaySaldo.innerHTML = saldoInsufficient ? 'Saldo Tidak Cukup' : '<i class="fas fa-bolt"></i> Bayar';
+
+  if (session.status === 'fulfilled') {
+    showSuccess(session.result);
+    return;
+  }
+  if (session.status === 'expired') { showExpired(); return; }
+  if (session.status === 'cancelled') { showCancelled(); return; }
+
+  if (session.payment_method === 'qris' && session.qr_string) {
+    showQRIS(session);
+  }
+}
+
+function renderVoucherSection() {
+  const section = document.getElementById('co-voucher-section');
+  if (!session.voucher_supported || session.status !== 'awaiting_payment') {
+    section.style.display = 'none';
+    document.getElementById('co-voucher-discount-row').style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+
+  const preview = session.voucher_preview;
+  const resultEl = document.getElementById('co-voucher-result');
+  const input = document.getElementById('co-voucher-input');
+  const discountRow = document.getElementById('co-voucher-discount-row');
+
+  if (preview && !preview.error) {
+    input.value = preview.code;
+    resultEl.innerHTML = `<span style="color:var(--success)"><i class="fas fa-circle-check"></i> Voucher "${escapeHtml(preview.code)}" diterapkan, hemat ${formatRupiah(preview.discount)}</span> <button class="btn btn-outline btn-sm" id="co-btn-remove-voucher" style="margin-left:6px">Hapus</button>`;
+    discountRow.style.display = 'flex';
+    document.getElementById('co-voucher-discount-value').textContent = `-${formatRupiah(preview.discount)}`;
+    const removeBtn = document.getElementById('co-btn-remove-voucher');
+    if (removeBtn) removeBtn.addEventListener('click', () => applyVoucher(''));
+  } else {
+    discountRow.style.display = 'none';
+    if (preview && preview.error) {
+      resultEl.innerHTML = `<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> ${escapeHtml(preview.error)}</span>`;
+    } else {
+      resultEl.innerHTML = '';
+    }
+  }
+}
+
+async function applyVoucher(codeOverride) {
+  const input = document.getElementById('co-voucher-input');
+  const code = codeOverride !== undefined ? codeOverride : input.value.trim();
+  const btn = document.getElementById('co-btn-apply-voucher');
+  const resultEl = document.getElementById('co-voucher-result');
+
+  btnLoading(btn, true);
+  const res = await API.post(`/api/checkout/${sessionId}/voucher`, { code: code || undefined });
+  btnLoading(btn, false);
+
+  if (!res.success) {
+    resultEl.innerHTML = `<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> ${escapeHtml(res.message || 'Voucher tidak valid')}</span>`;
+    return;
+  }
+  session.voucher_preview = res.data.voucher_preview;
+  session.total = res.data.total;
+  if (!code) input.value = '';
+  renderVoucherSection();
+  document.getElementById('co-total').textContent = formatRupiah(session.total);
+
+  const saldoInsufficient = session.balance < session.total;
+  const methodSaldo = document.getElementById('method-saldo');
+  const btnPaySaldo = document.getElementById('btn-pay-saldo');
+  methodSaldo.classList.toggle('disabled', saldoInsufficient);
+  btnPaySaldo.disabled = saldoInsufficient;
+  btnPaySaldo.innerHTML = saldoInsufficient ? 'Saldo Tidak Cukup' : '<i class="fas fa-bolt"></i> Bayar';
+}
+
+document.getElementById('co-btn-apply-voucher').addEventListener('click', () => applyVoucher());
+
+function renderItems() {
+  document.getElementById('co-items').innerHTML = session.items.map(item => `
+    <div class="co-item">
+      ${item.image_url ? `<img src="${escapeAttr(item.image_url)}" class="co-item-thumb" alt="" onerror="this.style.display='none'">` : `<div class="co-item-thumb co-item-thumb-placeholder"><i class="fas fa-box"></i></div>`}
+      <div class="co-item-info">
+        <div class="co-item-name">${escapeHtml(item.name)}</div>
+        <div class="co-item-meta">${item.quantity} x ${formatRupiah(item.locked_unit_price != null ? item.locked_unit_price : item.unit_price)}</div>
+      </div>
+      <div class="co-item-subtotal">${formatRupiah((item.locked_unit_price != null ? item.locked_unit_price : item.unit_price) * item.quantity)}</div>
+    </div>
+  `).join('');
+  document.getElementById('co-total').textContent = formatRupiah(session.total);
+}
+
+document.getElementById('btn-pay-saldo').addEventListener('click', async (e) => {
+  if (!await showConfirm(`Bayar ${formatRupiah(session.total)} pakai saldo?`, { title: 'Konfirmasi Pembayaran', okText: 'Bayar' })) return;
+  btnLoading(e.target, true);
+  const res = await API.post(`/api/checkout/${sessionId}/pay`, { method: 'saldo' });
+  btnLoading(e.target, false);
+
+  if (!res.success) {
+    Toast.error(res.message || 'Pembayaran gagal');
+    await loadSession();
+    return;
+  }
+  Toast.success(res.message || 'Checkout berhasil!');
+  showSuccess(res.data.results);
+  document.getElementById('co-method-section').style.display = 'none';
+  document.getElementById('co-voucher-section').style.display = 'none';
+  const meRes = await Auth.check();
+  if (meRes) Auth.renderUserInfo(meRes.user, meRes.wallet);
+});
+
+document.getElementById('btn-pay-qris').addEventListener('click', async (e) => {
+  btnLoading(e.target, true);
+  const res = await API.post(`/api/checkout/${sessionId}/pay`, { method: 'qris' });
+  btnLoading(e.target, false);
+
+  if (!res.success) { Toast.error(res.message || 'Gagal membuat QRIS'); return; }
+  session.payment_method = 'qris';
+  session.qr_string = res.data.qr_string;
+  session.qr_image = res.data.qr_image;
+  session.expired_at = res.data.expired_at;
+  session.transaction_id = res.data.transaction_id;
+  showQRIS({ qr_string: res.data.qr_string, qr_image: res.data.qr_image, expired_at: res.data.expired_at, amount: res.data.amount });
+});
+
+function showQRIS(data) {
+  document.getElementById('co-method-section').style.display = 'none';
+  document.getElementById('co-voucher-section').style.display = 'none';
+  document.getElementById('qris-section').style.display = 'block';
+  document.getElementById('qr-amount').textContent = formatRupiah(data.amount || session.total);
+
+  const qrCanvas = document.getElementById('qr-canvas');
+  const qrLoading = document.getElementById('qr-loading');
+  qrCanvas.innerHTML = '';
+  const qrSource = data.qr_string;
+  if (qrSource) {
+    try {
+      new QRCode(qrCanvas, {
+        text: qrSource,
+        width: 220,
+        height: 220,
+        colorDark: '#111111',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M,
+      });
+      qrLoading.style.display = 'none';
+      qrCanvas.style.display = 'flex';
+    } catch (e) {
+      qrLoading.textContent = 'Gagal generate QR. Silakan coba lagi.';
+    }
+  } else if (data.qr_image) {
+    qrCanvas.innerHTML = '<img src="' + data.qr_image + '" style="width:220px;height:220px" alt="QRIS">';
+    qrLoading.style.display = 'none';
+  } else {
+    qrLoading.textContent = 'QRIS tidak tersedia.';
+  }
+
+  clearInterval(timerInterval);
+  const expiredAt = new Date(data.expired_at).getTime();
+  timerInterval = setInterval(() => {
+    const diff = Math.max(0, expiredAt - Date.now());
+    const min = Math.floor(diff / 60000);
+    const sec = Math.floor((diff % 60000) / 1000);
+    document.getElementById('qr-timer').innerHTML = `<i class="far fa-clock"></i> ${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    if (diff <= 0) { clearInterval(timerInterval); clearInterval(pollInterval); pollStatus(); }
+  }, 1000);
+
+  clearInterval(pollInterval);
+  pollInterval = setInterval(pollStatus, 20000);
+}
+
+async function pollStatus() {
+  const res = await API.get(`/api/checkout/${sessionId}/status`);
+  if (!res.success) return;
+  if (res.status === 'fulfilled') { clearInterval(pollInterval); clearInterval(timerInterval); showSuccess(res.data.result); }
+  else if (res.status === 'expired') { clearInterval(pollInterval); clearInterval(timerInterval); showExpired(); }
+  else if (res.status === 'cancelled') { clearInterval(pollInterval); clearInterval(timerInterval); showCancelled(); }
+}
+
+document.getElementById('btn-cancel-qris').addEventListener('click', async (e) => {
+  if (!await showConfirm('Batalkan checkout ini?', { title: 'Batalkan Checkout', okText: 'Batalkan', danger: true })) return;
+  btnLoading(e.target, true);
+  const res = await API.post(`/api/checkout/${sessionId}/cancel`);
+  btnLoading(e.target, false);
+  if (!res.success) { Toast.error(res.message || 'Gagal membatalkan'); await pollStatus(); return; }
+  clearInterval(pollInterval); clearInterval(timerInterval);
+  showCancelled();
+});
+
+function showSuccess(results) {
+  document.getElementById('qris-section').style.display = 'none';
+  document.getElementById('co-method-section').style.display = 'none';
+  document.getElementById('co-voucher-section').style.display = 'none';
+  document.getElementById('co-success-section').style.display = 'block';
+
+  const list = Array.isArray(results) ? results : [];
+  document.getElementById('co-credentials').innerHTML = list.map(r => {
+    if (r.success) {
+      return `
+        <div class="co-credential-item">
+          <div class="co-credential-title">${escapeHtml(r.data.variant_name)} — ${formatRupiah(r.data.price)}</div>
+          <div class="co-credential-value">${escapeHtml(r.data.credential)}</div>
+        </div>
+      `;
+    }
+    return `<div class="co-credential-fail"><i class="fas fa-triangle-exclamation"></i> ${escapeHtml(r.message || 'Gagal diproses')}</div>`;
+  }).join('') || `<div class="text-muted text-sm">Order sedang diproses...</div>`;
+
+  Toast.success('Pembayaran berhasil! Akun kamu sudah bisa dilihat di riwayat.');
+}
+
+function showExpired() {
+  document.getElementById('polling-status').style.display = 'none';
+  document.getElementById('btn-cancel-qris').style.display = 'none';
+  document.getElementById('qr-timer').innerHTML = '<i class="fas fa-times-circle"></i> Expired';
+  document.getElementById('qr-expired').style.display = 'block';
+}
+
+function showCancelled() {
+  document.getElementById('polling-status').style.display = 'none';
+  document.getElementById('btn-cancel-qris').style.display = 'none';
+  document.getElementById('qr-timer').style.display = 'none';
+  document.getElementById('qr-cancelled').style.display = 'block';
+}
+
+init();
+</script>
+</body>
+</html>
