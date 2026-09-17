@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesan — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .room-list { display: flex; flex-direction: column; gap: 2px; }
+    .room-item { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: var(--radius); cursor: pointer; transition: background .15s; }
+    .room-item:hover { background: var(--bg-soft); }
+    .room-avatar { width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--coral)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #052430; flex-shrink: 0; overflow: hidden; }
+    .room-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .room-body { flex: 1; min-width: 0; }
+    .room-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .room-name { font-weight: 700; font-size: 14px; }
+    .room-time { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+    .room-preview { font-size: 12.5px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+    .room-unread-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+    .role-tag { font-size: 10px; padding: 1px 7px; border-radius: 20px; background: var(--bg-soft); color: var(--text-muted); margin-left: 6px; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Pesan</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="card" style="padding:8px">
+        <div id="room-list" class="room-list"><div class="loading-spinner" style="margin:40px auto"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+let myUserId = null;
+
+async function init() {
+  const res = await Auth.check();
+  if (!res) return;
+  Auth.renderUserInfo(res.user, res.wallet);
+  myUserId = res.user.id;
+  await loadRooms();
+}
+
+async function loadRooms() {
+  const list = document.getElementById('room-list');
+  const res = await API.get('/api/seller-chat/rooms');
+  if (!res.success || !res.data.length) {
+    list.innerHTML = `<div class="empty-state" style="padding:50px 20px;text-align:center;color:var(--text-muted)"><i class="fas fa-comment-slash" style="font-size:32px;display:block;margin-bottom:10px"></i>Belum ada percakapan.<br>Chat penjual dari halaman produk untuk mulai bertanya.</div>`;
+    return;
+  }
+  list.innerHTML = res.data.map(r => {
+    const c = r.counterpart;
+    const isSeller = r.seller && r.seller.id === myUserId;
+    return `
+    <div class="room-item" data-open="${r.id}">
+      <div class="room-avatar">${c && c.avatar ? `<img src="${escapeAttr(c.avatar)}" alt="">` : escapeHtml((c ? c.name : '?')[0].toUpperCase())}</div>
+      <div class="room-body">
+        <div class="room-top">
+          <span class="room-name">${escapeHtml(c ? c.name : 'User')}${isSeller ? '<span class="role-tag">Buyer</span>' : '<span class="role-tag">Seller</span>'}</span>
+          <span class="room-time">${formatDate(r.last_message_at, false)}</span>
+        </div>
+        <div class="room-preview">${escapeHtml(r.last_message || 'Belum ada pesan')}</div>
+      </div>
+      ${r.unread ? '<div class="room-unread-dot"></div>' : ''}
+    </div>
+  `;
+  }).join('');
+  list.querySelectorAll('[data-open]').forEach(el => {
+    el.addEventListener('click', () => { location.href = `/seller-chat/${el.dataset.open}`; });
+  });
+}
+
+init();
+</script>
+</body>
+</html>
