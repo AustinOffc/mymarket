@@ -60,7 +60,10 @@
       "source": "/uploads/:path*",
       "destination": "https://api.mymarket.web.id/uploads/:path*"
     },
-
+    
+    { "source": "/api/:path*", "destination": "https://api.mymarket.web.id/api/:path*" },
+{ "source": "/socket.io/:path*", "destination": "https://api.mymarket.web.id/socket.io/:path*" },
+    
     { "source": "/((?!.*\\.).*)", "destination": "/404.html" }
   ],
 
