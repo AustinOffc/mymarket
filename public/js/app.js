@@ -4,7 +4,7 @@
 // '/api/...' harus jadi URL absolut ke domain backend (lewat tunnel HTTPS),
 // bukan path relatif lagi. Ini SATU-SATUNYA tempat yang perlu diubah kalau
 // domain tunnel/backend berganti.
-window.API_BASE_URL = 'https://api.mymarket.web.id'; // GANTI sesuai domain tunnel backend Anda
+window.API_BASE_URL = ''; // GANTI sesuai domain tunnel backend Anda
 function apiUrl(path) {
   if (!path) return window.API_BASE_URL;
   if (/^https?:\/\//i.test(path)) return path; // sudah URL absolut, biarkan
