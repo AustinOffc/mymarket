@@ -418,6 +418,18 @@ document.addEventListener('click', e => {
   if (e.target.classList.contains('modal-overlay') && !e.target.classList.contains('gdlg-overlay')) e.target.classList.remove('open');
 });
 
+// Modals, the sidebar, dropdowns and side panels are all shown/hidden with a shared
+// '.open' class. When a page is restored from the browser back/forward cache (e.g.
+// swiping/tapping back), the DOM comes back exactly as it was left — so any overlay
+// that was open right before navigating away flashes back on top of the page. Since
+// the underlying page state (cart contents, auth, etc.) may also be stale on a bfcache
+// restore, force a fresh load instead of silently reusing the cached snapshot.
+window.addEventListener('pageshow', (e) => {
+  if (!e.persisted) return;
+  document.querySelectorAll('.open').forEach(el => el.classList.remove('open'));
+  window.location.reload();
+});
+
 // Glass-themed replacement for native confirm()/alert() so popups match the app theme
 // instead of the browser's default (unstyled) dialog.
 const Dialog = {
