@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nomor OTP — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .nokos-offer-list { display: flex; flex-direction: column; gap: 10px; }
+    .nokos-offer {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 14px 16px; cursor: pointer; transition: border-color .15s, transform .15s;
+    }
+    .nokos-offer:hover { border-color: var(--primary); transform: translateX(2px); }
+    .nokos-offer.best { border-color: var(--success); box-shadow: 0 0 0 1px var(--success) inset; }
+    .nokos-offer .offer-left { display: flex; align-items: center; gap: 12px; }
+    .nokos-offer .offer-icon {
+      width: 40px; height: 40px; border-radius: 10px; background: var(--primary-light);
+      color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
+    }
+    .nokos-offer .offer-name { font-weight: 700; font-size: 14px; }
+    .nokos-offer .offer-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+    .nokos-offer .offer-price { font-family: var(--font-mono); font-weight: 700; color: var(--primary); white-space: nowrap; text-align: right; }
+    .nokos-offer .offer-stock { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .server-pill {
+      display: inline-block; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+      background: var(--primary-light); color: var(--primary); margin-left: 6px; vertical-align: middle;
+    }
+    .best-pill { background: var(--success); color: #fff; }
+
+    .nokos-server-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .server-tab-btn {
+      flex: 1; text-align: center; padding: 10px 8px; border-radius: var(--radius-sm);
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border); color: var(--text-muted);
+      font-weight: 700; font-size: 13px; cursor: pointer; transition: all .15s;
+    }
+    .server-tab-btn:hover { border-color: var(--primary); color: var(--text); }
+    .server-tab-btn.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+    .server-tab-btn.maint { opacity: .55; }
+    .server-tab-btn .maint-note { display: block; font-size: 10px; font-weight: 500; margin-top: 2px; }
+    .nokos-selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    @media (max-width: 560px) { .nokos-selector-grid { grid-template-columns: 1fr; } }
+    .nokos-selector-grid .form-group { margin-bottom: 0; }
+    .nokos-selector-grid .form-control:disabled { opacity: .55; cursor: not-allowed; }
+
+    .otp-panel {
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 2px solid var(--primary); border-radius: var(--radius);
+      padding: 20px; box-shadow: var(--shadow-md); margin-bottom: 24px;
+    }
+    .otp-panel.state-completed { border-color: var(--success); }
+    .otp-panel.state-refunded { border-color: var(--text-muted); opacity: .85; }
+    .otp-panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+    .otp-panel-title { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+    .otp-panel-title i { color: var(--primary); }
+    .otp-timer { font-family: var(--font-mono); font-size: 13px; color: var(--text-muted); }
+    .otp-timer.danger { color: var(--danger); font-weight: 700; }
+    .otp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .otp-field-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 3px; }
+    .otp-field-value { font-weight: 700; font-size: 14px; font-family: var(--font-mono); word-break: break-all; }
+    .otp-field-copyable { display: flex; align-items: center; gap: 8px; }
+    .otp-copy-btn {
+      flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--bg-card); color: var(--text-muted); cursor: pointer; display: inline-flex;
+      align-items: center; justify-content: center; font-size: 12px; transition: var(--transition);
+    }
+    .otp-copy-btn:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
+    .hist-num-cell { display: flex; align-items: center; gap: 6px; }
+    .otp-code-box {
+      background: var(--primary-light); border: 1px dashed var(--primary); border-radius: var(--radius-sm);
+      padding: 16px; text-align: center; margin-top: 6px;
+    }
+    .otp-code-box .code { font-size: 30px; font-weight: 800; letter-spacing: .12em; font-family: var(--font-mono); color: var(--primary); }
+    .otp-waiting { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 13px; padding: 10px 0; }
+    .otp-waiting .dot-pulse { width: 9px; height: 9px; border-radius: 50%; background: var(--primary); animation: dotpulse 1.2s infinite ease-in-out; }
+    @keyframes dotpulse { 0%,100%{ opacity:.3; transform:scale(.8);} 50%{ opacity:1; transform:scale(1);} }
+
+    .nokos-hist-row td { vertical-align: middle; }
+    .otp-code-inline { font-family: var(--font-mono); font-weight: 700; }
+
+    .api-error-detail { margin-top: 12px; }
+    .api-error-detail .btn { font-size: 12px; }
+    .api-error-json {
+      display: none; text-align: left; margin-top: 10px; padding: 12px;
+      background: var(--bg-body); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-family: var(--font-mono); font-size: 11.5px; line-height: 1.5; color: var(--text-muted);
+      max-height: 320px; overflow: auto; white-space: pre-wrap; word-break: break-all;
+    }
+    .api-error-json.open { display: block; }
+
+    .offer-pager {
+      display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px;
+    }
+    .offer-pager .btn { min-width: 96px; }
+    .offer-pager .offer-pager-label { font-size: 12.5px; color: var(--text-muted); font-family: var(--font-mono); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><i class="fas fa-store"></i></div>
+        <span>Austin Store</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item active" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Nomor OTP</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+            <div id="otp-panel-wrap" style="display:none"></div>
+
+      <div class="card-header" style="padding:0 0 14px 0;border:none">
+        <div><span class="eyebrow">Nomor OTP</span><h2 style="font-size:17px" id="selector-title">Pilih Server, Negara &amp; Layanan</h2></div>
+        <button class="btn btn-outline btn-sm" id="refresh-offers-btn"><i class="fas fa-rotate"></i> Refresh</button>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-muted);margin:-8px 0 14px">
+        <i class="fas fa-circle-info"></i> Pilih server, negara, lalu layanan — daftar nomor yang bisa dibeli akan muncul otomatis, Auto-refund jika OTP tidak masuk dalam 5 menit.
+      </p>
+
+      <div class="nokos-server-tabs" id="server-tabs"></div>
+
+      <div class="nokos-selector-grid">
+        <div class="form-group">
+          <label class="form-label">Negara</label>
+          <input type="text" class="form-control" id="country-input" list="country-datalist" placeholder="Cari / pilih negara..." autocomplete="off" disabled>
+          <datalist id="country-datalist"></datalist>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Layanan</label>
+          <input type="text" class="form-control" id="service-input" list="service-datalist" placeholder="Cari / pilih layanan..." autocomplete="off" disabled>
+          <datalist id="service-datalist"></datalist>
+        </div>
+      </div>
+
+      <div class="nokos-offer-list" id="offer-list"></div>
+      <div class="offer-pager" id="offer-pager" style="display:none"></div>
+
+      <div class="card-header" style="padding:26px 0 14px 0;border:none">
+        <span class="card-title">Riwayat Nomor OTP</span>
+      </div>
+      <div class="table-wrapper">
+        <table class="table" id="hist-table">
+          <thead><tr><th>Waktu</th><th>Server</th><th>Layanan</th><th>Nomor</th><th>Kode OTP</th><th>Harga</th><th>Status</th></tr></thead>
+          <tbody id="hist-body"><tr><td colspan="7" class="table-empty">Memuat...</td></tr></tbody>
+        </table>
+      </div>
+      <div id="hist-pagination" style="margin-top:14px"></div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="order-modal-overlay">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-sim-card" style="color:var(--primary);margin-right:8px"></i>Konfirmasi Order</span>
+      <button class="modal-close" id="order-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="order-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="order-modal-cancel">Batal</button>
+      <button class="btn btn-primary" id="order-modal-confirm"><i class="fas fa-bolt"></i> Order</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+let SERVERS = [];
+
+function renderApiError(icon, message, res) {
+  const debug = res && res.debug;
+  const detailId = 'err-detail-' + Math.random().toString(36).slice(2, 9);
+  const detailHtml = debug ? `
+    <div class="api-error-detail">
+      <button type="button" class="btn btn-outline btn-sm error-detail-toggle-btn" data-target="${detailId}">
+        <i class="fas fa-code"></i> Lihat Detail Respon Server
+      </button>
+      <pre class="api-error-json" id="${detailId}">${escapeHtml(JSON.stringify(debug, null, 2))}</pre>
+    </div>
+  ` : '';
+  return `<div class="empty-state"><i class="${icon}"></i>${escapeHtml(message)}${detailHtml}</div>`;
+}
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.error-detail-toggle-btn');
+  if (!btn) return;
+  const target = document.getElementById(btn.dataset.target);
+  if (target) target.classList.toggle('open');
+});
+
+let offers = [];
+let selectedOffer = null;
+let activeOrder = null;
+let pollTimer = null;
+let histPage = 1;
+
+let curServer = null;
+let services = [];      
+let countries = [];     
+let curServiceId = null, curServiceName = null;
+let curCountryId = null, curCountryName = null;
+
+async function init() {
+  const res = await Auth.checkOptional();
+  if (res) { Auth.renderUserInfo(res.user, res.wallet); } else { Auth.renderGuestUI(); }
+
+  const srvRes = await API.get('/api/nokos/servers');
+  SERVERS = (srvRes.success && Array.isArray(srvRes.data)) ? srvRes.data : [];
+
+  if (!SERVERS.length) {
+    document.getElementById('server-tabs').innerHTML = '';
+    document.getElementById('offer-list').innerHTML = renderApiError('fas fa-triangle-exclamation', 'Semua server Nomor OTP sedang tidak tersedia. Coba lagi beberapa saat lagi.', null);
+    await loadActiveOrder();
+    await loadHistory(1);
+    return;
+  }
+
+  renderServerTabs();
+  await loadActiveOrder();
+  await selectServer(SERVERS[0].key);
+  await loadHistory(1);
+}
+
+function renderServerTabs() {
+  const wrap = document.getElementById('server-tabs');
+  wrap.innerHTML = SERVERS.map((s) => `
+    <div class="server-tab-btn" data-server="${s.key}">${escapeHtml(s.label)}</div>
+  `).join('');
+  wrap.querySelectorAll('.server-tab-btn').forEach((el) => {
+    el.addEventListener('click', () => selectServer(el.dataset.server));
+  });
+}
+
+async function selectServer(serverKey) {
+  curServer = serverKey;
+  document.querySelectorAll('.server-tab-btn').forEach((el) => {
+    el.classList.toggle('active', el.dataset.server === serverKey);
+  });
+
+  const countryInput = document.getElementById('country-input');
+  const serviceInput = document.getElementById('service-input');
+  countryInput.value = '';
+  serviceInput.value = '';
+  countryInput.disabled = true;
+  serviceInput.disabled = true;
+  curServiceId = curServiceName = curCountryId = curCountryName = null;
+  offers = [];
+  document.getElementById('offer-list').innerHTML = '<div class="loading-spinner"></div>';
+
+  const svcRes = await API.get(`/api/nokos/services?server=${encodeURIComponent(serverKey)}`);
+  if (!svcRes.success || !svcRes.data || !svcRes.data.length) {
+    document.getElementById('offer-list').innerHTML = renderApiError('fas fa-triangle-exclamation', svcRes.message || 'Gagal memuat daftar layanan server ini', svcRes);
+    document.getElementById('offer-pager').style.display = 'none';
+    return;
+  }
+  services = svcRes.data;
+  document.getElementById('service-datalist').innerHTML = services.map((s) => `<option value="${escapeAttr(s.name)}">`).join('');
+  serviceInput.disabled = false;
+
+  const defaultService = services[0]; 
+  curServiceId = defaultService.id;
+  curServiceName = defaultService.name;
+  serviceInput.value = defaultService.name;
+
+  await loadCountriesForCurrentService({ keepSelection: false });
+}
+
+async function loadCountriesForCurrentService({ keepSelection }) {
+  const countryInput = document.getElementById('country-input');
+  const prevCountryId = keepSelection ? curCountryId : null;
+  countryInput.disabled = true;
+  document.getElementById('offer-list').innerHTML = '<div class="loading-spinner"></div>';
+
+  const res = await API.get(`/api/nokos/countries?server=${encodeURIComponent(curServer)}&service_id=${encodeURIComponent(curServiceId)}`);
+  if (!res.success || !res.data || !res.data.length) {
+    countries = [];
+    document.getElementById('offer-list').innerHTML = renderApiError('fas fa-triangle-exclamation', res.message || 'Gagal memuat daftar negara', res);
+    document.getElementById('offer-pager').style.display = 'none';
+    return;
+  }
+  countries = res.data;
+  document.getElementById('country-datalist').innerHTML = countries.map((c) => `<option value="${escapeAttr(c.name)}">`).join('');
+  countryInput.disabled = false;
+
+  let target = prevCountryId ? countries.find((c) => c.id === prevCountryId) : null;
+  if (!target) target = countries[0];
+  curCountryId = target.id;
+  curCountryName = target.name;
+  countryInput.value = target.name;
+
+  await loadOffers();
+}
+
+document.getElementById('country-input').addEventListener('input', (e) => {
+  const match = countries.find((c) => c.name.toLowerCase() === e.target.value.trim().toLowerCase());
+  if (!match || match.id === curCountryId) return;
+  curCountryId = match.id;
+  curCountryName = match.name;
+  loadOffers();
+});
+
+document.getElementById('service-input').addEventListener('input', async (e) => {
+  const match = services.find((s) => s.name.toLowerCase() === e.target.value.trim().toLowerCase());
+  if (!match || match.id === curServiceId) return;
+  curServiceId = match.id;
+  curServiceName = match.name;
+  if (curServer === 'smscode') {
+    await loadOffers();
+  } else {
+    await loadCountriesForCurrentService({ keepSelection: true });
+  }
+});
+
+const OFFER_PAGE_SIZE = 10;
+let offerPage = 1;
+
+async function loadOffers() {
+  const list = document.getElementById('offer-list');
+  const pager = document.getElementById('offer-pager');
+  if (!curServer || !curServiceId || !curCountryId) return;
+  list.innerHTML = '<div class="loading-spinner"></div>';
+  pager.style.display = 'none';
+  const res = await API.get(`/api/nokos/offers?server=${encodeURIComponent(curServer)}&service_id=${encodeURIComponent(curServiceId)}&country_id=${encodeURIComponent(curCountryId)}`);
+  if (!res.success) {
+    list.innerHTML = renderApiError('fas fa-triangle-exclamation', res.message || 'Gagal memuat daftar nomor OTP', res);
+    return;
+  }
+  offers = res.data || [];
+  offerPage = 1;
+  if (!offers.length) {
+    list.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i>Stok ${escapeHtml(curServiceName)} • ${escapeHtml(curCountryName)} sedang habis di server ini, coba pilih negara/layanan lain atau refresh.</div>`;
+    return;
+  }
+  renderOfferList();
+}
+
+function renderOfferList() {
+  const list = document.getElementById('offer-list');
+  const pager = document.getElementById('offer-pager');
+  const totalPages = Math.max(1, Math.ceil(offers.length / OFFER_PAGE_SIZE));
+  if (offerPage > totalPages) offerPage = totalPages;
+  const start = (offerPage - 1) * OFFER_PAGE_SIZE;
+  const pageItems = offers.slice(start, start + OFFER_PAGE_SIZE);
+
+  const isWa = /whatsapp/i.test(curServiceName || '');
+  list.innerHTML = pageItems.map((o, i) => {
+    const globalIdx = start + i;
+    return `
+    <div class="nokos-offer ${globalIdx === 0 ? 'best' : ''}" data-idx="${globalIdx}">
+      <div class="offer-left">
+        <div class="offer-icon"><i class="${isWa ? 'fab fa-whatsapp' : 'fas fa-sim-card'}"></i></div>
+        <div>
+          <div class="offer-name">${escapeHtml(curServiceName)}${globalIdx === 0 ? ' <span class="server-pill best-pill">Termurah</span>' : ''}</div>
+          <div class="offer-meta"><i class="fas fa-flag"></i> ${escapeHtml(curCountryName)}${o.rate != null ? ` &middot; Sukses ${escapeHtml(String(o.rate))}%` : ''}</div>
+        </div>
+      </div>
+      <div>
+        <div class="offer-price">${formatRupiah(o.price)}</div>
+        <div class="offer-stock">Stok ${escapeHtml(String(o.stock))}</div>
+      </div>
+    </div>
+  `;
+  }).join('');
+  list.querySelectorAll('.nokos-offer').forEach((el) => {
+    el.addEventListener('click', () => openOrderModal(offers[Number(el.dataset.idx)]));
+  });
+
+  if (totalPages <= 1) {
+    pager.style.display = 'none';
+    pager.innerHTML = '';
+    return;
+  }
+  pager.style.display = 'flex';
+  pager.innerHTML = `
+    <button type="button" class="btn btn-outline btn-sm" id="offer-page-prev" ${offerPage === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i> Kembali</button>
+    <span class="offer-pager-label">Halaman ${offerPage} / ${totalPages}</span>
+    <button type="button" class="btn btn-outline btn-sm" id="offer-page-next" ${offerPage === totalPages ? 'disabled' : ''}>Lanjut <i class="fas fa-chevron-right"></i></button>
+  `;
+  document.getElementById('offer-page-prev').addEventListener('click', () => {
+    if (offerPage > 1) { offerPage--; renderOfferList(); }
+  });
+  document.getElementById('offer-page-next').addEventListener('click', () => {
+    if (offerPage < totalPages) { offerPage++; renderOfferList(); }
+  });
+}
+
+document.getElementById('refresh-offers-btn').addEventListener('click', loadOffers);
+
+function openOrderModal(offer) {
+  if (activeOrder) {
+    Toast.warning('Kamu masih punya order Nomor OTP yang aktif. Tunggu sampai selesai/expired dulu.');
+    return;
+  }
+  const serverLabel = SERVERS.find((s) => s.key === curServer)?.label || curServer;
+  selectedOffer = {
+    server: curServer,
+    server_label: serverLabel,
+    service_id: curServiceId,
+    service_name: curServiceName,
+    country_id: curCountryId,
+    country_name: curCountryName,
+    provider_id: offer.provider_id,
+    price: offer.price,
+    stock: offer.stock,
+  };
+  document.getElementById('order-modal-body').innerHTML = `
+    <div class="card" style="padding:14px;border-color:var(--primary);margin-bottom:14px">
+      <div style="font-weight:700"><i class="fab fa-whatsapp" style="color:var(--primary)"></i> ${escapeHtml(selectedOffer.service_name)} <span class="server-pill">${escapeHtml(serverLabel)}</span></div>
+      <div style="font-size:12.5px;color:var(--text-muted);margin-top:4px">${escapeHtml(selectedOffer.country_name)}</div>
+      <div style="margin-top:8px;font-family:var(--font-mono);font-weight:700;color:var(--primary);font-size:18px">${formatRupiah(selectedOffer.price)}</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kode Voucher (opsional)</label>
+      <input type="text" class="form-control" id="nokos-voucher-code" placeholder="Masukkan kode voucher" style="text-transform:uppercase">
+    </div>
+    <p style="font-size:12px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> Saldo akan langsung terpotong. Nomor & kode OTP akan muncul otomatis di panel atas begitu SMS masuk. Kalau OTP tidak masuk dalam <b>5 menit</b>, saldo otomatis dikembalikan.</p>
+  `;
+  document.getElementById('order-modal-overlay').classList.add('open');
+}
+document.getElementById('order-modal-close').addEventListener('click', () => document.getElementById('order-modal-overlay').classList.remove('open'));
+document.getElementById('order-modal-cancel').addEventListener('click', () => document.getElementById('order-modal-overlay').classList.remove('open'));
+
+document.getElementById('order-modal-confirm').addEventListener('click', async (e) => {
+  if (!Auth.requireLogin('Masuk dulu untuk order nomor OTP')) return;
+  if (!selectedOffer) return;
+  e.target.classList.add('btn-loading');
+  e.target.disabled = true;
+  const res = await API.post('/api/nokos/order', {
+    server: selectedOffer.server,
+    service_id: selectedOffer.service_id,
+    country_id: selectedOffer.country_id,
+    provider_id: selectedOffer.provider_id,
+    service_name: selectedOffer.service_name,
+    country_name: selectedOffer.country_name,
+    voucher_code: (document.getElementById('nokos-voucher-code')?.value || '').trim() || undefined,
+  });
+  e.target.classList.remove('btn-loading');
+  e.target.disabled = false;
+  document.getElementById('order-modal-overlay').classList.remove('open');
+
+  if (!res.success) {
+    Toast.error(res.message || 'Order gagal');
+    if (res.debug) console.warn('[Nokos] Detail respon server saat order gagal:', res.debug);
+    return;
+  }
+  Toast.success('Order berhasil! Menunggu OTP masuk...');
+  activeOrder = res.data;
+  renderOtpPanel();
+  startPolling();
+  loadOffers();
+  loadHistory(1);
+
+  const meRes = await Auth.checkOptional();
+  if (meRes) Auth.renderUserInfo(meRes.user, meRes.wallet);
+});
+
+async function loadActiveOrder() {
+  if (!Auth.currentUser) return;
+  const res = await API.get('/api/nokos/active');
+  if (res.success && res.data) {
+    activeOrder = res.data;
+    renderOtpPanel();
+    startPolling();
+  }
+}
+
+function fmtCountdown(ms) {
+  if (ms <= 0) return '00:00';
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
+
+function renderOtpPanel() {
+  const wrap = document.getElementById('otp-panel-wrap');
+  if (!activeOrder) { wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
+  const o = activeOrder;
+  wrap.style.display = 'block';
+
+  let stateClass = 'state-active';
+  let bodyHtml = '';
+
+  if (o.status === 'completed') {
+    stateClass = 'state-completed';
+    bodyHtml = `
+      <div class="otp-grid">
+        <div><div class="otp-field-label">Nomor</div><div class="otp-field-value otp-field-copyable"><span>${escapeHtml(o.phone_number || '-')}</span>${o.phone_number ? `<button type="button" class="otp-copy-btn" onclick="copyText('${escapeHtml(o.phone_number)}', 'Nomor')" title="Salin nomor"><i class="fas fa-copy"></i></button>` : ''}</div></div>
+        <div><div class="otp-field-label">Layanan</div><div class="otp-field-value" style="font-family:inherit">${escapeHtml(o.service_name)}</div></div>
+        <div><div class="otp-field-label">Harga</div><div class="otp-field-value">${formatRupiah(o.price)}</div></div>
+      </div>
+      <div class="otp-code-box"><div class="otp-field-label">Kode OTP Diterima</div><div class="code">${escapeHtml(o.otp_code || '-')}</div></div>
+    `;
+    stopPolling();
+  } else if (o.status === 'refunded') {
+    stateClass = 'state-refunded';
+    bodyHtml = `
+      <div class="otp-grid">
+        <div><div class="otp-field-label">Layanan</div><div class="otp-field-value" style="font-family:inherit">${escapeHtml(o.service_name)}</div></div>
+        <div><div class="otp-field-label">Harga Dikembalikan</div><div class="otp-field-value">${formatRupiah(o.price)}</div></div>
+      </div>
+      <div class="otp-waiting"><i class="fas fa-rotate-left"></i> OTP tidak masuk dalam 5 menit — saldo sudah otomatis dikembalikan.</div>
+    `;
+    stopPolling();
+  } else {
+    bodyHtml = `
+      <div class="otp-grid">
+        <div><div class="otp-field-label">Nomor</div><div class="otp-field-value otp-field-copyable"><span>${escapeHtml(o.phone_number || 'Menunggu nomor...')}</span>${o.phone_number ? `<button type="button" class="otp-copy-btn" onclick="copyText('${escapeHtml(o.phone_number)}', 'Nomor')" title="Salin nomor"><i class="fas fa-copy"></i></button>` : ''}</div></div>
+        <div><div class="otp-field-label">Layanan</div><div class="otp-field-value" style="font-family:inherit">${escapeHtml(o.service_name)}</div></div>
+        <div><div class="otp-field-label">Harga</div><div class="otp-field-value">${formatRupiah(o.price)}</div></div>
+      </div>
+      <div class="otp-waiting"><span class="dot-pulse"></span> Menunggu SMS OTP masuk...</div>
+    `;
+  }
+
+  wrap.innerHTML = `
+    <div class="otp-panel ${stateClass}">
+      <div class="otp-panel-head">
+        <div class="otp-panel-title"><i class="fas fa-sim-card"></i> Order &amp; OTP <span class="server-pill">${escapeHtml(o.server_label)}</span></div>
+        ${o.status === 'active' ? `<div class="otp-timer" id="otp-timer-val">${fmtCountdown(new Date(o.expiresAt).getTime() - Date.now())}</div>` : ''}
+      </div>
+      ${bodyHtml}
+    </div>
+  `;
+}
+
+let countdownTimer = null;
+const OTP_POLL_INTERVAL_MS = 9000;
+function startPolling() {
+  stopPolling();
+  if (countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = setInterval(tickCountdown, 1000);
+  tickCountdown();
+  pollTimer = setInterval(async () => {
+    if (!activeOrder || activeOrder.status !== 'active') { stopPolling(); return; }
+    const res = await API.get(`/api/nokos/status/${activeOrder.id}`);
+    if (!res.success) return;
+    const prevStatus = activeOrder.status;
+    activeOrder = res.data;
+    renderOtpPanel();
+    if (prevStatus === 'active' && activeOrder.status === 'completed') {
+      Toast.success('Kode OTP sudah masuk!');
+      loadHistory(1);
+    } else if (prevStatus === 'active' && activeOrder.status === 'refunded') {
+      Toast.warning('OTP tidak masuk, saldo sudah dikembalikan.');
+      const meRes = await Auth.checkOptional();
+      if (meRes) Auth.renderUserInfo(meRes.user, meRes.wallet);
+      loadOffers();
+      loadHistory(1);
+    }
+  }, OTP_POLL_INTERVAL_MS);
+}
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+}
+function tickCountdown() {
+  const timerEl = document.getElementById('otp-timer-val');
+  if (!timerEl || !activeOrder || activeOrder.status !== 'active') return;
+  const remain = new Date(activeOrder.expiresAt).getTime() - Date.now();
+  timerEl.textContent = fmtCountdown(remain);
+  timerEl.classList.toggle('danger', remain < 60000);
+}
+
+async function loadHistory(page) {
+  histPage = page;
+  const tbody = document.getElementById('hist-body');
+  if (!Auth.currentUser) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="table-empty"><i class="fas fa-lock" style="font-size:32px;margin-bottom:10px;display:block;color:var(--text-muted)"></i>Masuk untuk melihat riwayat Nomor OTP</div></td></tr>`;
+    document.getElementById('hist-pagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Memuat...</td></tr>`;
+  const res = await API.get(`/api/nokos/history?page=${page}&limit=10`);
+  if (!res.success) {
+    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Gagal memuat riwayat</td></tr>`;
+    return;
+  }
+  const rows = res.data || [];
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="table-empty"><i class="fas fa-inbox" style="font-size:32px;margin-bottom:10px;display:block;color:var(--text-muted)"></i>Belum ada riwayat Nomor OTP</div></td></tr>`;
+    document.getElementById('hist-pagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = rows.map((o) => `
+    <tr class="nokos-hist-row">
+      <td>${formatDate(o.createdAt)}</td>
+      <td><span class="server-pill">${escapeHtml(o.server_label)}</span></td>
+      <td class="cell-wrap">${escapeHtml(o.service_name)}<div style="font-size:11px;color:var(--text-muted)">${escapeHtml(o.country_name || '')}</div></td>
+      <td>${o.phone_number ? `<div class="hist-num-cell"><span>${escapeHtml(o.phone_number)}</span><button type="button" class="otp-copy-btn" onclick="copyText('${escapeHtml(o.phone_number)}', 'Nomor')" title="Salin nomor"><i class="fas fa-copy"></i></button></div>` : '-'}</td>
+      <td class="otp-code-inline">${escapeHtml(o.otp_code || '-')}</td>
+      <td>${formatRupiah(o.price_sell)}</td>
+      <td>${statusBadge(o.status === 'completed' ? 'success' : (o.status === 'refunded' ? 'cancel' : (o.status === 'active' ? 'processing' : 'failed')))}</td>
+    </tr>
+  `).join('');
+
+  renderPagination('hist-pagination', res.page, res.pages, (p) => loadHistory(p));
+}
+
+init();
+</script>
+</body>
+</html>
