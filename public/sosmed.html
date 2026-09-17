@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sosial Media — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .sm-readonly { background: var(--bg-soft); color: var(--text-muted); cursor: default; }
+    .sm-note-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+    .sm-note-list li { font-size: 12px; color: var(--text-muted); }
+    .sm-total-box {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: var(--primary-light); border: 1px solid var(--primary); border-radius: var(--radius-sm);
+      padding: 14px 16px; margin: 16px 0;
+    }
+    .sm-total-box .label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .sm-total-box .value { font-family: var(--font-mono); font-weight: 700; color: var(--primary); font-size: 20px; }
+    .sm-hint { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+    .sm-warn { font-size: 12px; color: var(--danger); margin-top: 5px; }
+    select.form-control:disabled, input.form-control:disabled { opacity: .6; cursor: not-allowed; }
+    .sm-server-tabs { display: flex; gap: 8px; margin-bottom: 4px; }
+    .sm-server-tabs .server-tab-btn {
+      flex: 1; text-align: center; padding: 10px 8px; border-radius: var(--radius-sm);
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border); color: var(--text-muted);
+      font-weight: 700; font-size: 13px; cursor: pointer; transition: all .15s;
+    }
+    .sm-server-tabs .server-tab-btn:hover { border-color: var(--primary); color: var(--text); }
+    .sm-server-tabs .server-tab-btn.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><i class="fas fa-store"></i></div>
+        <span>Austin Store</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item active" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Buyer</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Sosial Media</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="card mb-24">
+        <div class="card-header">
+          <span class="card-title"><i class="fas fa-share-nodes" style="color:var(--primary)"></i> Order Sosial Media</span>
+        </div>
+        <div style="padding:20px">
+
+          <div class="form-group">
+            <label class="form-label">1. Server</label>
+            <div class="sm-server-tabs" id="sm-server-tabs">
+              <div class="server-tab-btn active" data-server="1">Server 1</div>
+              <div class="server-tab-btn" data-server="2">Server 2</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">2. Kategori</label>
+            <select class="form-control" id="sm-category">
+              <option value="">- Pilih Satu -</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">3. Layanan</label>
+            <select class="form-control" id="sm-service" disabled>
+              <option value="">- Pilih Satu -</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Deskripsi</label>
+            <textarea class="form-control sm-readonly" id="sm-desc" rows="3" readonly placeholder="Pilih layanan dulu"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Harga / 1000</label>
+            <input type="text" class="form-control sm-readonly" id="sm-price" readonly value="Rp 0">
+          </div>
+
+          <div style="display:flex;gap:14px;flex-wrap:wrap">
+            <div class="form-group" style="flex:1;min-width:140px">
+              <label class="form-label">Minimal Order</label>
+              <input type="text" class="form-control sm-readonly" id="sm-min" readonly value="0">
+            </div>
+            <div class="form-group" style="flex:1;min-width:140px">
+              <label class="form-label">Maximal Order</label>
+              <input type="text" class="form-control sm-readonly" id="sm-max" readonly value="0">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Data Tujuan</label>
+            <input type="text" class="form-control" id="sm-target" placeholder="Masukkan link / username / data tujuan" disabled>
+            <p class="sm-warn"><i class="fas fa-triangle-exclamation"></i> Jangan doubel input pada target yang sama.</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Jumlah</label>
+            <input type="number" class="form-control" id="sm-quantity" placeholder="Masukkan jumlah" disabled min="1">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Kode Voucher (opsional)</label>
+            <input type="text" class="form-control" id="sm-voucher-code" placeholder="Masukkan kode voucher" style="text-transform:uppercase">
+          </div>
+
+          <div class="sm-total-box">
+            <span class="label">Total Harga</span>
+            <span class="value" id="sm-total">Rp 0</span>
+          </div>
+
+          <div style="display:flex;gap:12px">
+            <button class="btn btn-outline" style="flex:1" id="sm-reset">Reset</button>
+            <button class="btn btn-primary" style="flex:1" id="sm-order"><i class="fas fa-paper-plane"></i> Order</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><i class="fas fa-circle-info" style="color:var(--primary)"></i> Informasi</span>
+        </div>
+        <div style="padding:18px 20px;font-size:13px;line-height:1.7;color:var(--text-muted)">
+          <p><b style="color:var(--text)">Langkah-langkah membuat pesanan:</b></p>
+          <ul style="margin:6px 0 14px 18px">
+            <li>Pilih salah satu Kategori.</li>
+            <li>Pilih salah satu Layanan yang ingin dipesan.</li>
+            <li>Masukkan Data Tujuan sesuai ketentuan layanan (link/username/dll).</li>
+            <li>Masukkan Jumlah pesanan yang diinginkan (sesuai Minimal/Maximal Order).</li>
+            <li>Klik Order untuk membuat pesanan baru.</li>
+          </ul>
+          <p><b style="color:var(--text)">Ketentuan:</b></p>
+          <ul style="margin:6px 0 0 18px">
+            <li>Pastikan akun/link target tidak private, kesalahan pengguna tidak ada refund.</li>
+            <li>Proses pesanan sosial media tidak secepat Topup Game.</li>
+            <li>Jangan input target yang sama dua kali sebelum pesanan sebelumnya selesai.</li>
+            <li>Jika terjadi kegagalan sistem (bukan kesalahan input), saldo otomatis dikembalikan.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="result-modal-overlay">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-circle-check" style="color:var(--success);margin-right:8px"></i>Order Terkirim</span>
+      <button class="modal-close" id="result-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="result-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary btn-full" id="result-modal-ok">Selesai</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/custom-select.js"></script>
+<script>
+let smCategories = [];
+let smServices = [];
+let smSelectedService = null;
+
+let smServer = '1';
+let smCategoriesReqId = 0;
+let smServicesReqId = 0;
+
+function currentServer() {
+  return smServer;
+}
+
+async function loadCategories() {
+  const catSelect = document.getElementById('sm-category');
+  const reqId = ++smCategoriesReqId;
+  catSelect.innerHTML = `<option value="">Memuat kategori...</option>`;
+  const data = await API.get(`/api/socmed/categories?server=${currentServer()}`);
+  if (reqId !== smCategoriesReqId) return; // respons lama/basi, sudah ada request lebih baru
+  if (!data.success || !data.data.length) {
+    catSelect.innerHTML = `<option value="">Belum ada kategori tersedia</option>`;
+    Toast.error(data.message || 'Gagal memuat kategori sosial media');
+    return;
+  }
+  smCategories = data.data;
+  catSelect.innerHTML = `<option value="">- Pilih Satu -</option>` +
+    smCategories.map(c => `<option value="${escapeAttr(c.key)}">${escapeHtml(c.name)}</option>`).join('');
+}
+
+async function init() {
+  const res = await Auth.checkOptional();
+  if (res) { Auth.renderUserInfo(res.user, res.wallet); } else { Auth.renderGuestUI(); }
+  await loadCategories();
+}
+
+document.querySelectorAll('#sm-server-tabs .server-tab-btn').forEach((el) => {
+  el.addEventListener('click', async () => {
+    if (el.dataset.server === smServer) return;
+    smServer = el.dataset.server;
+    document.querySelectorAll('#sm-server-tabs .server-tab-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.server === smServer);
+    });
+    resetServiceFields();
+    smServicesReqId++;
+    document.getElementById('sm-service').disabled = true;
+    document.getElementById('sm-service').innerHTML = `<option value="">- Pilih Satu -</option>`;
+    await loadCategories();
+  });
+});
+
+const serviceSelect = document.getElementById('sm-service');
+const descEl = document.getElementById('sm-desc');
+const priceEl = document.getElementById('sm-price');
+const minEl = document.getElementById('sm-min');
+const maxEl = document.getElementById('sm-max');
+const targetEl = document.getElementById('sm-target');
+const qtyEl = document.getElementById('sm-quantity');
+const totalEl = document.getElementById('sm-total');
+
+document.getElementById('sm-category').addEventListener('change', async (e) => {
+  resetServiceFields();
+  const key = e.target.value;
+  const reqId = ++smServicesReqId;
+  if (!key) { serviceSelect.disabled = true; serviceSelect.innerHTML = `<option value="">- Pilih Satu -</option>`; return; }
+
+  serviceSelect.disabled = true;
+  serviceSelect.innerHTML = `<option value="">Memuat layanan...</option>`;
+  const res = await API.get(`/api/socmed/categories/${encodeURIComponent(key)}/services?server=${currentServer()}`);
+  if (reqId !== smServicesReqId) return; // respons lama/basi, sudah ada request lebih baru
+  if (!res.success || !res.data.items.length) {
+    serviceSelect.innerHTML = `<option value="">Layanan tidak tersedia</option>`;
+    Toast.error(res.message || 'Gagal memuat layanan');
+    return;
+  }
+  smServices = res.data.items;
+  serviceSelect.innerHTML = `<option value="">- Pilih Satu -</option>` +
+    smServices.map(s => `<option value="${escapeAttr(s.id)}">${escapeHtml(s.name)}</option>`).join('');
+  serviceSelect.disabled = false;
+});
+
+serviceSelect.addEventListener('change', (e) => {
+  const id = e.target.value;
+  if (!id) { resetServiceFields(); return; }
+  const svc = smServices.find(s => String(s.id) === String(id));
+  if (!svc) return;
+  smSelectedService = svc;
+
+  descEl.value = svc.note && svc.note.length ? svc.note.join('\n') : 'Tidak ada deskripsi';
+  priceEl.value = formatRupiah(svc.price_per_1000);
+  minEl.value = svc.min;
+  maxEl.value = svc.max || '-';
+  targetEl.disabled = false;
+  qtyEl.disabled = false;
+  qtyEl.min = svc.min;
+  if (svc.max) qtyEl.max = svc.max;
+  qtyEl.placeholder = `Min ${svc.min}${svc.max ? ', Max ' + svc.max : ''}`;
+  updateTotal();
+});
+
+function resetServiceFields() {
+  smSelectedService = null;
+  descEl.value = '';
+  descEl.placeholder = 'Pilih layanan dulu';
+  priceEl.value = 'Rp 0';
+  minEl.value = '0';
+  maxEl.value = '0';
+  targetEl.value = '';
+  targetEl.disabled = true;
+  qtyEl.value = '';
+  qtyEl.disabled = true;
+  totalEl.textContent = 'Rp 0';
+}
+
+qtyEl.addEventListener('input', updateTotal);
+
+function updateTotal() {
+  if (!smSelectedService) { totalEl.textContent = 'Rp 0'; return; }
+  const qty = parseInt(qtyEl.value, 10) || 0;
+  const total = Math.ceil((smSelectedService.price_per_1000 / 1000) * qty);
+  totalEl.textContent = formatRupiah(total);
+}
+
+document.getElementById('sm-reset').addEventListener('click', () => {
+  const catSelect = document.getElementById('sm-category');
+  if (catSelect.options.length) catSelect.value = '';
+  smServicesReqId++;
+  serviceSelect.disabled = true;
+  serviceSelect.innerHTML = `<option value="">- Pilih Satu -</option>`;
+  resetServiceFields();
+});
+
+document.getElementById('sm-order').addEventListener('click', async (e) => {
+  if (!Auth.requireLogin('Masuk dulu untuk order layanan sosial media')) return;
+  const catKey = document.getElementById('sm-category').value;
+  if (!catKey || !smSelectedService) { Toast.error('Pilih kategori & layanan dulu'); return; }
+  const target = targetEl.value.trim();
+  if (!target) { Toast.error('Data tujuan wajib diisi'); return; }
+  const qty = parseInt(qtyEl.value, 10);
+  if (!qty || qty <= 0) { Toast.error('Jumlah tidak valid'); return; }
+  if (qty < smSelectedService.min) { Toast.error(`Jumlah minimal order ${smSelectedService.min}`); return; }
+  if (smSelectedService.max && qty > smSelectedService.max) { Toast.error(`Jumlah maksimal order ${smSelectedService.max}`); return; }
+
+  const okOrder = await showConfirm(`Order "${smSelectedService.name}" x${qty} senilai ${formatRupiah(Math.ceil((smSelectedService.price_per_1000 / 1000) * qty))}?\n\nSaldo akan langsung terpotong dan pesanan diteruskan otomatis. Pastikan data tujuan sudah benar.`, { title: 'Konfirmasi Order', okText: 'Order' });
+  if (!okOrder) return;
+
+  e.target.classList.add('btn-loading');
+  e.target.disabled = true;
+  const res = await API.post('/api/socmed/order', {
+    server: currentServer(),
+    category_key: catKey,
+    service_id: smSelectedService.id,
+    target,
+    quantity: qty,
+    voucher_code: (document.getElementById('sm-voucher-code')?.value || '').trim() || undefined,
+  });
+  e.target.classList.remove('btn-loading');
+  e.target.disabled = false;
+
+  if (!res.success) {
+    Toast.error(res.message || 'Order gagal');
+    return;
+  }
+  Toast.success('Order berhasil dikirim!');
+  document.getElementById('result-modal-body').innerHTML = `
+    <p style="margin-bottom:10px"><b>${escapeHtml(smSelectedService.name)}</b> x${qty} — ${formatRupiah(res.data.price)}</p>
+    <p style="font-size:12.5px;color:var(--text-muted)">TrxID: <code>${escapeHtml(res.data.trxid || '-')}</code></p>
+    <p style="font-size:12.5px;color:var(--text-muted)">Status: <b>${escapeHtml(res.data.status || 'waiting')}</b></p>
+    <p style="margin-top:10px;font-size:12px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> Proses sosial media butuh waktu, tidak secepat Topup Game.</p>
+  `;
+  document.getElementById('result-modal-overlay').classList.add('open');
+
+  const meRes = await Auth.checkOptional();
+  if (meRes) Auth.renderUserInfo(meRes.user, meRes.wallet);
+});
+
+document.getElementById('result-modal-close').addEventListener('click', () => document.getElementById('result-modal-overlay').classList.remove('open'));
+document.getElementById('result-modal-ok').addEventListener('click', () => {
+  document.getElementById('result-modal-overlay').classList.remove('open');
+  document.getElementById('sm-reset').click();
+});
+
+init();
+</script>
+</body>
+</html>
