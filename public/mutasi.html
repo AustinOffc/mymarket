@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mutasi Saldo — Austin Store Marketplace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item active" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:#ef4444"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Mutasi Saldo</div>
+      <div class="topbar-actions">
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" id="notif-bell"><i class="fas fa-bell"></i></button>
+          <span class="notif-badge" id="notif-badge"></span>
+        </div>
+        <button class="btn-icon" id="theme-toggle"><i class="fas fa-moon"></i></button>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+            <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" id="tab-all" onclick="switchTab('all')">Semua</button>
+        <button class="btn btn-outline btn-sm" id="tab-deposit" onclick="switchTab('deposit')">Deposit</button>
+        <button class="btn btn-outline btn-sm" id="tab-withdraw" onclick="switchTab('withdraw')">Withdraw</button>
+      </div>
+
+            <div class="card mb-16">
+        <div class="card-body" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:1;min-width:160px">
+            <label class="form-label">Cari</label>
+            <input type="text" class="form-control" id="search-input" placeholder="Cari transaksi...">
+          </div>
+          <div>
+            <label class="form-label">Dari</label>
+            <input type="date" class="form-control" id="date-from">
+          </div>
+          <div>
+            <label class="form-label">Sampai</label>
+            <input type="date" class="form-control" id="date-to">
+          </div>
+          <div>
+            <label class="form-label">Status</label>
+            <select class="form-control" id="status-filter">
+              <option value="">Semua Status</option>
+              <option value="success">Berhasil</option>
+              <option value="pending">Pending</option>
+              <option value="failed">Gagal</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="loadData(1)"><i class="fas fa-search"></i> Filter</button>
+          <button class="btn btn-outline" onclick="exportCSV()"><i class="fas fa-file-alt"></i> Export CSV</button>
+        </div>
+      </div>
+
+            <div class="card">
+        <div class="card-header">
+          <span class="card-title" id="table-title">Semua Transaksi</span>
+          <span class="text-muted text-sm" id="total-info"></span>
+        </div>
+        <div class="table-wrapper">
+          <table class="table" id="main-table">
+            <thead id="table-head"></thead>
+            <tbody id="table-body">
+              <tr><td colspan="6"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span class="pagination-info" id="page-info"></span>
+          <div class="pagination-nav" id="pagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="rating-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-star" style="color:var(--warning);margin-right:8px"></i>Beri Rating</span>
+      <button class="modal-close" onclick="Modal.close('rating-modal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-sm text-muted mb-16">Gimana pengalaman order kamu? Rating & ulasan ini akan tampil publik di halaman produk.</p>
+      <div id="rating-stars-input" style="display:flex;gap:8px;justify-content:center;font-size:28px;color:var(--warning);margin-bottom:18px;cursor:pointer">
+        <i class="far fa-star" data-star="1"></i>
+        <i class="far fa-star" data-star="2"></i>
+        <i class="far fa-star" data-star="3"></i>
+        <i class="far fa-star" data-star="4"></i>
+        <i class="far fa-star" data-star="5"></i>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ulasan (opsional)</label>
+        <textarea class="form-control" id="rating-comment" rows="3" maxlength="500" placeholder="Ceritakan pengalaman kamu..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="Modal.close('rating-modal')">Batal</button>
+      <button class="btn btn-primary" id="rating-submit-btn" onclick="submitRating()"><i class="fas fa-paper-plane"></i> Kirim Rating</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/custom-select.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+<script src="/js/chat.js"></script>
+<script src="/js/cs.js"></script>
+<script>
+let currentTab = 'all';
+let currentPage = 1;
+
+const TABS = {
+  all: { label: 'Semua Transaksi', endpoint: '/api/user/transactions', cols: ['Deskripsi','Tipe','Nominal','Status','Tanggal','Aksi'] },
+  deposit: { label: 'Riwayat Deposit', endpoint: '/api/deposit/history', cols: ['ID Transaksi','Nominal','Fee','Status','Tanggal'] },
+  withdraw: { label: 'Riwayat Withdraw', endpoint: '/api/withdraw/history', cols: ['Metode','Rekening','Nominal','Status','Tanggal'] },
+};
+
+async function init() {
+  const res = await Auth.check();
+  if (!res) return;
+  Auth.renderUserInfo(res.user, res.wallet);
+
+  const params = new URLSearchParams(location.search);
+  const tab = params.get('tab');
+  if (tab && TABS[tab]) currentTab = tab;
+  updateTabUI();
+  loadData(1);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  currentPage = 1;
+  document.getElementById('search-input').value = '';
+  document.getElementById('date-from').value = '';
+  document.getElementById('date-to').value = '';
+  document.getElementById('status-filter').value = '';
+  updateTabUI();
+  loadData(1);
+}
+
+function updateTabUI() {
+  Object.keys(TABS).forEach(t => {
+    const btn = document.getElementById(`tab-${t}`);
+    btn.className = t === currentTab ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+  });
+  document.getElementById('table-title').textContent = TABS[currentTab].label;
+  const cols = TABS[currentTab].cols;
+  document.getElementById('table-head').innerHTML = `<tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>`;
+}
+
+async function loadData(page = 1) {
+  currentPage = page;
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = `<tr><td colspan="6"><div class="loading-spinner"></div></td></tr>`;
+
+  const params = new URLSearchParams({ page, limit: 15 });
+  const search = document.getElementById('search-input').value;
+  const dateFrom = document.getElementById('date-from').value;
+  const dateTo = document.getElementById('date-to').value;
+  const status = document.getElementById('status-filter').value;
+  if (search) params.append('search', search);
+  if (dateFrom) params.append('date_from', dateFrom);
+  if (dateTo) params.append('date_to', dateTo);
+  if (status) params.append('status', status);
+
+  const res = await API.get(`${TABS[currentTab].endpoint}?${params}`);
+
+  if (!res.success) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">Gagal memuat data</td></tr>`;
+    return;
+  }
+
+  document.getElementById('total-info').textContent = `${res.total} data`;
+  document.getElementById('page-info').textContent = `Halaman ${res.page} dari ${res.pages || 1} (${res.total} total)`;
+
+  if (!res.data.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="table-empty"><i class="fas fa-inbox" style="font-size:36px;margin-bottom:12px;display:block;color:var(--text-muted)"></i><p>Tidak ada data ditemukan</p></div></td></tr>`;
+    renderPagination('pagination', 1, 1, () => {});
+    return;
+  }
+
+  tbody.innerHTML = res.data.map(row => renderRow(row)).join('');
+  renderPagination('pagination', res.page, res.pages, loadData);
+}
+
+function renderRow(row) {
+  if (currentTab === 'all') {
+    const iconCls = row.type === 'deposit' ? 'fas fa-download' : row.type === 'withdraw' ? 'fas fa-upload' : 'fas fa-sync';
+    const color = row.type === 'deposit' ? 'var(--success)' : 'var(--danger)';
+    const canRate = row.type === 'order' && row.status === 'success' && !row.reviewed;
+    return `<tr>
+      <td class="cell-wrap"><div style="font-size:13px"><i class="${iconCls}"></i> ${row.description || '-'}</div></td>
+      <td><span class="badge badge-secondary" style="text-transform:capitalize">${row.type}</span></td>
+      <td style="font-weight:700;color:${color}">${row.type==='deposit'?'+':'−'}${formatRupiah(row.amount)}</td>
+      <td>${statusBadge(row.status)}</td>
+      <td class="text-muted text-xs">${formatDate(row.createdAt)}</td>
+      <td>${canRate ? `<button class="btn btn-outline btn-sm" data-rate-order="${row.ref_id}"><i class="fas fa-star"></i> Rating</button>` : ''}</td>
+    </tr>`;
+  }
+  if (currentTab === 'deposit') {
+    return `<tr>
+      <td><code style="font-size:11px">${(row.transaction_id||'').substring(0,24)}...</code></td>
+      <td style="font-weight:700;color:var(--success)">+${formatRupiah(row.amount)}</td>
+      <td class="text-muted">${formatRupiah(row.fee||0)}</td>
+      <td>${statusBadge(row.status)}</td>
+      <td class="text-muted text-xs">${formatDate(row.createdAt)}</td>
+    </tr>`;
+  }
+  if (currentTab === 'withdraw') {
+    return `<tr>
+      <td><strong>${row.method}</strong></td>
+      <td><code style="font-size:12px">${row.account_number}</code><br><span class="text-xs text-muted">${row.account_name}</span></td>
+      <td style="font-weight:700;color:var(--danger)">−${formatRupiah(row.amount)}</td>
+      <td>${statusBadge(row.status)}${row.reject_reason ? `<br><span class="text-xs text-muted">${row.reject_reason}</span>` : ''}</td>
+      <td class="text-muted text-xs">${formatDate(row.createdAt)}</td>
+    </tr>`;
+  }
+}
+
+let ratingOrderId = null;
+let ratingValue = 0;
+
+function openRatingModal(orderId) {
+  ratingOrderId = orderId;
+  ratingValue = 0;
+  document.getElementById('rating-stars-input').querySelectorAll('i').forEach(s => s.className = 'far fa-star');
+  document.getElementById('rating-comment').value = '';
+  Modal.open('rating-modal');
+}
+
+document.getElementById('table-body').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-rate-order]');
+  if (btn) openRatingModal(btn.dataset.rateOrder);
+});
+
+document.getElementById('rating-stars-input').addEventListener('click', (e) => {
+  const star = e.target.closest('[data-star]');
+  if (!star) return;
+  ratingValue = Number(star.dataset.star);
+  document.getElementById('rating-stars-input').querySelectorAll('i').forEach(s => {
+    s.className = Number(s.dataset.star) <= ratingValue ? 'fas fa-star' : 'far fa-star';
+  });
+});
+
+async function submitRating() {
+  if (!ratingValue) { Toast.warning('Pilih rating bintang dulu'); return; }
+  const btn = document.getElementById('rating-submit-btn');
+  btnLoading(btn, true);
+  const res = await API.post(`/api/orders/${ratingOrderId}/review`, {
+    rating: ratingValue,
+    comment: document.getElementById('rating-comment').value.trim(),
+  });
+  btnLoading(btn, false);
+  if (!res.success) { Toast.error(res.message); return; }
+  Toast.success(res.message);
+  Modal.close('rating-modal');
+  loadData(currentPage);
+}
+
+function exportCSV() {
+  const typeMap = { all: 'transactions', deposit: 'deposits', withdraw: 'withdraws' };
+  window.open(`/api/user/export?type=${typeMap[currentTab]}`, '_blank');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') loadData(1);
+  });
+});
+
+init();
+</script>
+</body>
+</html>
