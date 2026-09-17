@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deposit — Austin Store Marketplace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item active" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:#ef4444"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Deposit</div>
+      <div class="topbar-actions">
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" id="notif-bell"><i class="fas fa-bell"></i></button>
+          <span class="notif-badge" id="notif-badge"></span>
+        </div>
+        <button class="btn-icon" id="theme-toggle"><i class="fas fa-moon"></i></button>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div style="max-width:560px;margin:0 auto">
+
+                <div class="card mb-16">
+          <div class="card-body" style="display:flex;align-items:center;gap:16px">
+            <div class="stat-icon green"><i class="fas fa-wallet"></i></div>
+            <div>
+              <div class="stat-label">Saldo Tersedia</div>
+              <div style="font-size:20px;font-weight:700" data-balance>Rp 0</div>
+            </div>
+          </div>
+        </div>
+
+                <div class="card" id="form-section">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-download" style="color:var(--success)"></i> Top Up Saldo</span>
+          </div>
+          <div class="card-body">
+            <div id="form-alert"></div>
+
+            <div class="form-group">
+              <label class="form-label">Nominal Deposit</label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="amount" placeholder="0" min="1" style="padding-right:60px">
+                <span class="input-addon" style="font-size:12px;font-weight:600;right:12px">IDR</span>
+              </div>
+              <p class="form-hint" id="fee-hint">Masukkan nominal deposit</p>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px">
+              <button class="btn btn-outline btn-sm" onclick="setAmount(10000)">Rp 10K</button>
+              <button class="btn btn-outline btn-sm" onclick="setAmount(25000)">Rp 25K</button>
+              <button class="btn btn-outline btn-sm" onclick="setAmount(50000)">Rp 50K</button>
+              <button class="btn btn-outline btn-sm" onclick="setAmount(100000)">Rp 100K</button>
+              <button class="btn btn-outline btn-sm" onclick="setAmount(250000)">Rp 250K</button>
+              <button class="btn btn-outline btn-sm" onclick="setAmount(500000)">Rp 500K</button>
+            </div>
+
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              <span>Pembayaran via <strong>QRIS</strong> — bisa dibayar dari Dana, GoPay, OVO, ShopeePay, m-Banking, dll.</span>
+            </div>
+
+            <button class="btn btn-primary btn-full btn-lg" id="deposit-btn" onclick="createDeposit()">
+              <i class="fas fa-qrcode"></i> Buat QRIS &amp; Bayar
+            </button>
+          </div>
+        </div>
+
+                <div class="card mt-16" id="qris-section" style="display:none">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-qrcode" style="color:var(--primary)"></i> Scan QRIS untuk Bayar</span>
+            <button class="btn btn-outline btn-sm" onclick="resetForm()"><i class="fas fa-arrow-left"></i> Kembali</button>
+          </div>
+          <div class="card-body">
+            <div class="qr-container">
+              <p class="text-muted text-sm mb-8">Bayar tepat sebesar:</p>
+              <div class="qr-amount" id="qr-amount">Rp 0</div>
+              <p class="text-sm mb-16" style="color:var(--warning)"><i class="fas fa-exclamation-triangle"></i> Bayar sesuai nominal (ada kode unik)</p>
+
+              <div class="qr-box">
+                <div id="qr-canvas" style="display:flex;justify-content:center;align-items:center;min-height:220px"></div>
+                <div id="qr-loading" style="padding:20px;text-align:center;color:#888;font-size:13px"><i class="fas fa-spinner fa-spin"></i> Memuat QRIS...</div>
+              </div>
+
+              <div class="qr-timer" id="qr-timer"><i class="far fa-clock"></i> 15:00</div>
+              <div class="qr-status-polling" id="polling-status">
+                <div class="polling-dot"></div>
+                <span>Menunggu pembayaran...</span>
+              </div>
+
+              <button class="btn btn-outline btn-full mt-16" id="cancel-deposit-btn" onclick="cancelDeposit()">
+                <i class="fas fa-ban"></i> Batalkan Deposit
+              </button>
+
+              <div id="qr-cancelled" style="display:none" class="mt-16">
+                <div class="alert alert-warning"><i class="fas fa-ban"></i> Deposit telah dibatalkan.</div>
+                <button class="btn btn-outline btn-full" onclick="resetForm()">Buat Transaksi Baru</button>
+              </div>
+
+              <div id="qr-success" style="display:none" class="mt-16">
+                <div class="alert alert-success" style="justify-content:center;font-size:16px;font-weight:700">
+                  <i class="fas fa-check-circle"></i> Pembayaran Berhasil! Saldo sudah ditambahkan.
+                </div>
+                <button class="btn btn-primary btn-full" onclick="location.href='/dashboard'">Kembali ke Dashboard</button>
+              </div>
+
+              <div id="qr-expired" style="display:none" class="mt-16">
+                <div class="alert alert-danger"><i class="fas fa-times-circle"></i> QRIS sudah kadaluarsa. Silakan buat transaksi baru.</div>
+                <button class="btn btn-outline btn-full" onclick="resetForm()">Buat Transaksi Baru</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+                <div class="card mt-24">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-history" style="color:var(--primary)"></i> Riwayat Deposit Terbaru</span>
+            <a href="/history?tab=deposit" style="font-size:13px;color:var(--primary)">Lihat Semua</a>
+          </div>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead><tr><th>ID Transaksi</th><th>Nominal</th><th>Status</th><th>Waktu</th></tr></thead>
+              <tbody id="deposit-history"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+<script src="/js/chat.js"></script>
+<script src="/js/cs.js"></script>
+<script>
+let currentDeposit = null;
+let pollInterval = null;
+let timerInterval = null;
+let depositSocket = null;
+
+function connectDepositSocket() {
+  if (depositSocket) return;
+  depositSocket = io(window.API_BASE_URL, { path: '/socket.io', withCredentials: true, reconnection: true });
+  depositSocket.on('deposit:update', (payload) => {
+    if (!currentDeposit || !payload || payload.transaction_id !== currentDeposit.transaction_id) return;
+    if (payload.status === 'paid') {
+      clearInterval(pollInterval); clearInterval(timerInterval); showSuccess();
+    } else if (payload.status === 'cancel') {
+      clearInterval(pollInterval); clearInterval(timerInterval); showCancelled();
+    } else if (payload.status === 'expired') {
+      clearInterval(pollInterval); clearInterval(timerInterval); showExpired();
+    }
+  });
+}
+
+async function init() {
+  const res = await Auth.check();
+  if (!res) return;
+  Auth.renderUserInfo(res.user, res.wallet);
+  connectDepositSocket();
+  const me = await API.get('/api/auth/me');
+  if (me.wallet) {
+    document.querySelectorAll('[data-balance]').forEach(el => el.textContent = formatRupiah(me.wallet.balance));
+  }
+  loadHistory();
+}
+
+function setAmount(val) {
+  document.getElementById('amount').value = val;
+}
+
+async function createDeposit() {
+  const amount = parseInt(document.getElementById('amount').value);
+  const alertBox = document.getElementById('form-alert');
+  alertBox.innerHTML = '';
+
+  if (!amount || amount < 1) {
+    alertBox.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Masukkan nominal deposit yang valid</div>';
+    return;
+  }
+
+  const btn = document.getElementById('deposit-btn');
+  btnLoading(btn, true);
+
+  const res = await API.post('/api/deposit/create', { amount });
+  btnLoading(btn, false);
+
+  if (!res.success) {
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    return;
+  }
+
+  currentDeposit = res.deposit;
+  showQRIS(res.deposit);
+}
+
+function showQRIS(deposit) {
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('qris-section').style.display = 'block';
+  document.getElementById('qr-amount').textContent = formatRupiah(deposit.amount);
+
+  const qrCanvas = document.getElementById('qr-canvas');
+  const qrLoading = document.getElementById('qr-loading');
+  qrCanvas.innerHTML = '';
+  const qrSource = deposit.qr_string || deposit.payment_url;
+  if (qrSource) {
+    try {
+      new QRCode(qrCanvas, {
+        text: qrSource,
+        width: 220,
+        height: 220,
+        colorDark: '#111111',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M,
+      });
+      qrLoading.style.display = 'none';
+      qrCanvas.style.display = 'flex';
+    } catch(e) {
+      qrLoading.textContent = 'Gagal generate QR. Silakan coba lagi.';
+      console.error('QR browser error:', e);
+    }
+  } else if (deposit.qr_image) {
+    qrCanvas.innerHTML = '<img src="' + deposit.qr_image + '" style="width:220px;height:220px" alt="QRIS">';
+    qrLoading.style.display = 'none';
+  } else {
+    qrLoading.textContent = 'QRIS tidak tersedia.';
+  }
+
+  const expiredAt = new Date(deposit.expired_at).getTime();
+  timerInterval = setInterval(() => {
+    const diff = Math.max(0, expiredAt - Date.now());
+    const min = Math.floor(diff / 60000);
+    const sec = Math.floor((diff % 60000) / 1000);
+    document.getElementById('qr-timer').innerHTML = `<i class="far fa-clock"></i> ${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    if (diff <= 0) { clearInterval(timerInterval); clearInterval(pollInterval); showExpired(); }
+  }, 1000);
+
+  pollInterval = setInterval(() => pollStatus(deposit.transaction_id), 20000);
+}
+
+async function pollStatus(transactionId) {
+  const res = await API.get(`/api/deposit/check/${transactionId}`);
+  if (res.success && res.status === 'paid') {
+    clearInterval(pollInterval); clearInterval(timerInterval); showSuccess();
+  } else if (res.status === 'cancel') {
+    clearInterval(pollInterval); clearInterval(timerInterval); showCancelled();
+  } else if (res.status === 'expired') {
+    clearInterval(pollInterval); clearInterval(timerInterval); showExpired();
+  }
+}
+
+function showSuccess() {
+  document.getElementById('polling-status').style.display = 'none';
+  document.getElementById('cancel-deposit-btn').style.display = 'none';
+  document.getElementById('qr-timer').style.display = 'none';
+  document.getElementById('qr-success').style.display = 'block';
+  Toast.success('Deposit berhasil! Saldo sudah ditambahkan.');
+}
+
+function showExpired() {
+  document.getElementById('polling-status').style.display = 'none';
+  document.getElementById('cancel-deposit-btn').style.display = 'none';
+  document.getElementById('qr-timer').innerHTML = '<i class="fas fa-times-circle"></i> Expired';
+  document.getElementById('qr-expired').style.display = 'block';
+}
+
+function showCancelled() {
+  document.getElementById('polling-status').style.display = 'none';
+  document.getElementById('cancel-deposit-btn').style.display = 'none';
+  document.getElementById('qr-timer').style.display = 'none';
+  document.getElementById('qr-cancelled').style.display = 'block';
+  Toast.success('Deposit dibatalkan.');
+}
+
+async function cancelDeposit() {
+  if (!currentDeposit) return;
+  const btn = document.getElementById('cancel-deposit-btn');
+  btnLoading(btn, true);
+
+  const res = await API.post(`/api/deposit/cancel/${currentDeposit.transaction_id}`);
+  btnLoading(btn, false);
+
+  if (!res.success) {
+    Toast.error(res.message || 'Gagal membatalkan deposit');
+    pollStatus(currentDeposit.transaction_id);
+    return;
+  }
+
+  clearInterval(pollInterval); clearInterval(timerInterval);
+  showCancelled();
+}
+
+function resetForm() {
+  clearInterval(pollInterval); clearInterval(timerInterval);
+  currentDeposit = null;
+  document.getElementById('form-section').style.display = 'block';
+  document.getElementById('qris-section').style.display = 'none';
+  document.getElementById('qr-success').style.display = 'none';
+  document.getElementById('qr-expired').style.display = 'none';
+  document.getElementById('qr-cancelled').style.display = 'none';
+  document.getElementById('cancel-deposit-btn').style.display = 'block';
+  document.getElementById('polling-status').style.display = 'flex';
+  document.getElementById('qr-canvas').innerHTML = '';
+  document.getElementById('qr-loading').style.display = 'block';
+  document.getElementById('qr-loading').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat QRIS...';
+  document.getElementById('amount').value = '';
+  document.getElementById('form-alert').innerHTML = '';
+  loadHistory();
+}
+
+async function loadHistory() {
+  const res = await API.get('/api/deposit/history?limit=5');
+  const tbody = document.getElementById('deposit-history');
+  if (!res.success || !res.data.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="table-empty">Belum ada riwayat deposit</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = res.data.map(d => `
+    <tr>
+      <td><code style="font-size:11px">${(d.transaction_id||'').substring(0,20)}...</code></td>
+      <td><strong>${formatRupiah(d.amount)}</strong></td>
+      <td>${statusBadge(d.status)}</td>
+      <td class="text-muted text-xs">${formatDate(d.createdAt)}</td>
+    </tr>
+  `).join('');
+}
+
+init();
+</script>
+</body>
+</html>
