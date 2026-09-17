@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toko — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .store-header {
+      display: flex; align-items: center; gap: 16px; padding: 20px;
+      border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      margin-bottom: 22px; flex-wrap: wrap;
+    }
+    .store-avatar {
+      width: 68px; height: 68px; border-radius: 50%; flex-shrink: 0; overflow: hidden;
+      background: linear-gradient(135deg, var(--primary), var(--coral));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 800; color: #052430;
+    }
+    .store-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .store-header-info { flex: 1; min-width: 200px; }
+    .store-name { font-size: 19px; font-weight: 800; margin-bottom: 4px; }
+    .store-meta { font-size: 12.5px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .store-meta .rating-stars { color: var(--warning); }
+    .store-header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .store-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+    .store-stat { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); text-align: center; }
+    .store-stat-num { font-size: 18px; font-weight: 800; }
+    .store-stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: .04em; }
+
+    .store-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+    .store-tab {
+      padding: 10px 16px; font-size: 13.5px; font-weight: 700; color: var(--text-muted);
+      cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    }
+    .store-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .rating-summary { display: flex; align-items: center; gap: 18px; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 18px; flex-wrap: wrap; }
+    .rating-summary-num { font-size: 34px; font-weight: 800; }
+    .rating-summary .rating-stars { font-size: 16px; }
+
+    .review-item { padding: 14px 0; border-bottom: 1px solid var(--border-soft); }
+    .review-item:last-child { border-bottom: none; }
+    .review-head { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
+    .review-head .rating-stars { color: var(--warning); font-size: 11px; margin-left: 4px; }
+    .review-date { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+    .review-comment { font-size: 13px; color: var(--text); margin-top: 6px; }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item active" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Toko</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <button class="btn btn-outline btn-sm mb-16" onclick="history.length > 1 ? history.back() : location.href='/order'"><i class="fas fa-arrow-left"></i> Kembali</button>
+
+      <div id="store-loading" class="loading-spinner" style="margin:60px auto;display:block"></div>
+      <div id="store-content" style="display:none">
+        <div class="store-header">
+          <div class="store-avatar" id="store-avatar"></div>
+          <div class="store-header-info">
+            <div class="store-name" id="store-name"></div>
+            <div class="store-meta" id="store-meta"></div>
+          </div>
+          <div class="store-header-actions">
+            <button class="btn btn-outline" id="btn-chat-store"><i class="fas fa-comment-dots"></i> Chat Toko</button>
+          </div>
+        </div>
+
+        <div class="store-stats">
+          <div class="store-stat">
+            <div class="store-stat-num" id="stat-products">0</div>
+            <div class="store-stat-label">Produk</div>
+          </div>
+          <div class="store-stat">
+            <div class="store-stat-num" id="stat-sold">0</div>
+            <div class="store-stat-label">Terjual</div>
+          </div>
+          <div class="store-stat">
+            <div class="store-stat-num" id="stat-rating">0</div>
+            <div class="store-stat-label">Rating</div>
+          </div>
+        </div>
+
+        <div class="store-tabs">
+          <div class="store-tab active" data-tab="products">Produk</div>
+          <div class="store-tab" data-tab="reviews">Ulasan</div>
+        </div>
+
+        <div id="tab-products">
+          <div class="game-grid mb-24" id="store-products"></div>
+        </div>
+
+        <div id="tab-reviews" style="display:none">
+          <div class="rating-summary" id="rating-summary"></div>
+          <div id="review-list"></div>
+          <div class="pagination"><span class="pagination-info" id="review-page-info"></span><div class="pagination-nav" id="review-pagination"></div></div>
+        </div>
+      </div>
+      <div id="store-notfound" class="empty-state" style="display:none"><i class="fas fa-shop-slash" style="font-size:36px;display:block;margin-bottom:10px"></i>Toko tidak ditemukan</div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+const sellerId = location.pathname.split('/').filter(Boolean)[1];
+let store = null;
+let reviewPage = 1;
+
+async function init() {
+  const res = await Auth.checkOptional();
+  if (res) { Auth.renderUserInfo(res.user, res.wallet); } else { Auth.renderGuestUI(); }
+
+  if (!sellerId) { location.href = '/order'; return; }
+
+  const data = await API.get(`/api/sellers/${sellerId}/public`);
+  document.getElementById('store-loading').style.display = 'none';
+  if (!data.success) {
+    document.getElementById('store-notfound').style.display = 'block';
+    return;
+  }
+  store = data.data;
+  document.getElementById('store-content').style.display = 'block';
+  render();
+}
+
+function render() {
+  document.title = `${store.name} — Austin Store`;
+
+  document.getElementById('store-avatar').innerHTML = store.avatar
+    ? `<img src="${escapeAttr(store.avatar)}" alt="">`
+    : escapeHtml((store.name || '?')[0].toUpperCase());
+
+  document.getElementById('store-name').textContent = store.name;
+  document.getElementById('store-meta').innerHTML = `
+    ${store.rating_count > 0 ? `<span class="rating-stars">${renderStars(store.rating_average)}</span> ${store.rating_average} (${store.rating_count} ulasan) &middot; ` : ''}
+    Bergabung ${formatDate(store.member_since, false)}
+  `;
+
+  document.getElementById('stat-products').textContent = store.products.length;
+  document.getElementById('stat-sold').textContent = store.sold_count;
+  document.getElementById('stat-rating').textContent = store.rating_count > 0 ? store.rating_average.toFixed(1) : '-';
+
+  const grid = document.getElementById('store-products');
+  if (store.products.length) {
+    grid.innerHTML = store.products.map(p => `
+      <div class="game-tile" onclick="location.href='/product/${encodeURIComponent(p.id)}'">
+        ${p.image_url ? `<img class="thumb" src="${escapeAttr(p.image_url)}" alt="${escapeAttr(p.name)}">` : `<div class="thumb-fallback"><i class="fas fa-box"></i></div>`}
+        <div class="info">
+          <h4>${escapeHtml(p.name)}</h4>
+          <span class="price-tag">${formatRupiah(p.price)}</span>
+          <span>${p.stock_available > 0 ? p.stock_available + ' stok' : 'Stok habis'}</span>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-box-open"></i>Toko ini belum punya produk aktif</div>`;
+  }
+}
+
+async function loadReviews(page) {
+  reviewPage = page;
+  const list = document.getElementById('review-list');
+  list.innerHTML = '<div class="loading-spinner"></div>';
+  const res = await API.get(`/api/sellers/${sellerId}/reviews?page=${page}&limit=10`);
+  if (!res.success) { list.innerHTML = `<div class="empty-state">Gagal memuat ulasan</div>`; return; }
+
+  const summary = document.getElementById('rating-summary');
+  summary.innerHTML = `
+    <div style="text-align:center">
+      <div class="rating-summary-num">${res.stats.average || 0}</div>
+      <div class="rating-stars">${renderStars(res.stats.average)}</div>
+    </div>
+    <div class="text-muted text-sm">${res.stats.count} ulasan dari pembeli yang sudah order di toko ini</div>
+  `;
+
+  if (!res.data.length) {
+    list.innerHTML = `<div class="empty-state"><i class="fas fa-comment-slash" style="font-size:28px;display:block;margin-bottom:8px"></i>Belum ada ulasan untuk toko ini</div>`;
+    document.getElementById('review-pagination').innerHTML = '';
+    return;
+  }
+
+  list.innerHTML = res.data.map(r => `
+    <div class="review-item">
+      <div class="review-head">
+        ${escapeHtml(r.buyer_name)}
+        <span class="rating-stars">${renderStars(r.rating)}</span>
+        <span class="review-date">${formatDate(r.createdAt, false)}</span>
+      </div>
+      ${r.comment ? `<div class="review-comment">${escapeHtml(r.comment)}</div>` : ''}
+      ${r.seller_reply ? `<div class="review-comment" style="margin-top:8px;padding:10px;background:var(--bg-soft);border-radius:var(--radius-sm);border-left:3px solid var(--primary)"><strong style="color:var(--primary)"><i class="fas fa-store"></i> Balasan Seller:</strong><br>${escapeHtml(r.seller_reply)}</div>` : ''}
+    </div>
+  `).join('');
+  document.getElementById('review-page-info').textContent = `Halaman ${res.page} dari ${res.pages || 1} (${res.total} total)`;
+  renderPagination('review-pagination', res.page, res.pages, loadReviews);
+}
+
+document.querySelectorAll('.store-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.store-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const target = tab.dataset.tab;
+    document.getElementById('tab-products').style.display = target === 'products' ? 'block' : 'none';
+    document.getElementById('tab-reviews').style.display = target === 'reviews' ? 'block' : 'none';
+    if (target === 'reviews' && reviewPage === 1 && !document.getElementById('review-list').innerHTML) {
+      loadReviews(1);
+    }
+  });
+});
+
+document.getElementById('btn-chat-store').addEventListener('click', async (e) => {
+  if (!Auth.requireLogin('Masuk dulu untuk chat dengan toko')) return;
+  if (!store) return;
+  btnLoading(e.target, true);
+  const res = await API.post('/api/seller-chat/room', { seller_id: sellerId });
+  btnLoading(e.target, false);
+  if (!res.success) { Toast.error(res.message || 'Gagal membuka chat'); return; }
+  location.href = `/seller-chat/${res.data.id}`;
+});
+
+init();
+</script>
+</body>
+</html>
