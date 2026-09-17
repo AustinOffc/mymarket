@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Profil — Austin Store Marketplace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item active" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:#ef4444"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Profil Saya</div>
+      <div class="topbar-actions">
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" id="notif-bell"><i class="fas fa-bell"></i></button>
+          <span class="notif-badge" id="notif-badge"></span>
+        </div>
+        <button class="btn-icon" id="theme-toggle"><i class="fas fa-moon"></i></button>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div style="display:grid;gap:20px;align-items:start" id="profile-grid">
+
+                <div>
+          <div class="card mb-16">
+            <div class="card-body" style="text-align:center;padding:32px 20px">
+              <div style="position:relative;display:inline-block;margin-bottom:16px">
+                <div class="user-avatar" id="profile-avatar" style="width:88px;height:88px;font-size:36px;margin:0 auto"></div>
+                <label for="avatar-input" style="position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:12px"><i class="fas fa-pen"></i></label>
+                <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+              </div>
+              <div style="font-size:18px;font-weight:700" id="profile-name">...</div>
+              <div style="font-size:13px;color:var(--text-muted)" id="profile-username">@...</div>
+              <div class="mt-8" id="profile-role"></div>
+              <div class="divider"></div>
+              <div style="font-size:13px;color:var(--text-muted)">Bergabung: <span id="profile-joined">-</span></div>
+            </div>
+          </div>
+
+          <div class="card mb-16" id="seller-apply-card" style="display:none">
+            <div class="card-body">
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px" id="seller-card-title"><i class="fas fa-store" style="color:var(--primary)"></i> Jadi Seller</div>
+              <div id="seller-apply-status"></div>
+            </div>
+          </div>
+
+          <div class="card mb-16" id="reseller-card" style="display:none">
+            <div class="card-body">
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px"><i class="fas fa-crown" style="color:var(--primary)"></i> <span id="reseller-card-title">Reseller/Partner</span></div>
+              <div id="reseller-card-body"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <div style="font-size:13px;font-weight:600;margin-bottom:12px">Saldo Tersedia</div>
+              <div style="font-size:22px;font-weight:800;color:var(--primary)" data-balance>Rp 0</div>
+              <div class="mt-8" style="display:flex;gap:8px">
+                <button class="btn btn-primary btn-sm" onclick="location.href='/deposit'">Top Up</button>
+                <button class="btn btn-outline btn-sm" id="withdraw-btn" onclick="location.href='/withdraw'">Tarik</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+                <div>
+                    <div class="card mb-16">
+            <div class="card-header"><span class="card-title"><i class="fas fa-edit" style="color:var(--primary)"></i> Edit Profil</span></div>
+            <div class="card-body">
+              <div id="profile-alert"></div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Nama Lengkap</label>
+                  <input type="text" class="form-control" id="full_name">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Username</label>
+                  <input type="text" class="form-control" id="username" disabled style="opacity:.6">
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">No. Telepon</label>
+                  <input type="text" class="form-control" id="phone">
+                </div>
+              </div>
+              <button class="btn btn-primary" id="save-profile-btn" onclick="saveProfile()"><i class="fas fa-save"></i> Simpan Perubahan</button>
+            </div>
+          </div>
+
+                    <div class="card mb-16">
+            <div class="card-header"><span class="card-title"><i class="fas fa-lock" style="color:var(--warning)"></i> Ganti Password</span></div>
+            <div class="card-body">
+              <div id="pass-alert"></div>
+              <div class="form-group">
+                <label class="form-label">Password Lama</label>
+                <input type="password" class="form-control" id="old_password">
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Password Baru</label>
+                  <input type="password" class="form-control" id="new_password">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Konfirmasi Password</label>
+                  <input type="password" class="form-control" id="confirm_password">
+                </div>
+              </div>
+              <button class="btn btn-danger" id="change-pass-btn" onclick="changePassword()"><i class="fas fa-key"></i> Ganti Password</button>
+            </div>
+          </div>
+
+                    <div class="card">
+            <div class="card-header"><span class="card-title"><i class="fas fa-shield-alt" style="color:var(--primary)"></i> Aktivitas Login</span></div>
+            <div class="table-wrapper">
+              <table class="table">
+                <thead><tr><th>Waktu</th><th>IP</th><th>Status</th><th>Device</th></tr></thead>
+                <tbody id="login-history"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="seller-apply-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Daftar Sebagai Seller</span>
+      <button class="modal-close" onclick="closeSellerApplyModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="seller-apply-alert"></div>
+      <div class="text-xs text-muted mb-16">Langkah <span id="sa-step-label">1</span> dari 2</div>
+
+            <div id="sa-step-1">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap</label>
+          <input type="text" class="form-control" id="sa-full-name" placeholder="Sesuai KTP">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Alamat</label>
+          <textarea class="form-control" id="sa-address" rows="3" placeholder="Alamat lengkap tempat tinggal"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nomor WhatsApp Aktif</label>
+          <input type="text" class="form-control" id="sa-whatsapp" placeholder="08xxxxxxxxxx">
+        </div>
+      </div>
+
+            <div id="sa-step-2" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Foto Selfie</label>
+          <input type="file" class="form-control" id="sa-selfie" accept="image/*">
+          <div class="text-xs text-muted" style="margin-top:6px">Foto wajah kamu dengan jelas.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Foto Kartu Identitas (KTP)</label>
+          <input type="file" class="form-control" id="sa-idcard" accept="image/*">
+          <div class="text-xs text-muted" style="margin-top:6px">
+            Letakkan KTP di atas kertas putih polos. Di kertas yang sama, tuliskan tangan teks
+            <b>"SELLER MYMARKET"</b> beserta tanda tangan kamu, lalu foto semuanya dalam satu bingkai.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="sa-back-btn" onclick="sellerApplyBack()" style="display:none">Kembali</button>
+      <button class="btn btn-outline" id="sa-cancel-btn" onclick="closeSellerApplyModal()">Batal</button>
+      <button class="btn btn-primary" id="sa-next-btn" onclick="sellerApplyNext()">Lanjut</button>
+      <button class="btn btn-primary" id="sa-submit-btn" onclick="submitSellerApply()" style="display:none"><i class="fas fa-paper-plane"></i> Kirim Pendaftaran</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+<script src="/js/chat.js"></script>
+<script src="/js/cs.js"></script>
+<script src="/js/profile.js"></script>
+</body>
+</html>
