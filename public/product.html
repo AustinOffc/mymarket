@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Produk — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .pd-wrap { display: grid; grid-template-columns: minmax(0,300px) 1fr; gap: 28px; align-items: start; }
+    @media (max-width: 820px) { .pd-wrap { grid-template-columns: 1fr; gap: 18px; } }
+
+    .pd-image { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg-soft); }
+    .pd-image-placeholder { display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--text-muted); }
+    @media (max-width: 820px) { .pd-image, .pd-image-placeholder { max-width: 280px; margin: 0 auto; aspect-ratio: 1/1; } }
+
+    .pd-title { font-size: 19px; font-weight: 800; line-height: 1.3; margin-bottom: 8px; }
+    .pd-rating-row { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px; }
+    .pd-rating-row .rating-stars { color: var(--warning); font-size: 12.5px; }
+    .pd-price { font-family: var(--font-mono); font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 10px; letter-spacing: -.01em; }
+    .pd-stock { font-size: 12.5px; color: var(--text-muted); margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
+    .pd-stock.empty { color: var(--danger); }
+    .pd-actions { display: flex; gap: 8px; margin-bottom: 18px; }
+    .pd-actions .btn { flex: 1; padding: 9px 14px; font-size: 13px; min-width: 0; }
+    .pd-actions .btn i { font-size: 12px; }
+    .pd-desc { white-space: pre-wrap; font-size: 13px; line-height: 1.6; color: var(--text-muted); }
+
+    .seller-card { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); margin-bottom: 20px; transition: border-color .15s ease, background .15s ease; }
+    .seller-card:hover { border-color: var(--primary); background: var(--primary-light); }
+    .seller-avatar { width: 42px; height: 42px; font-size: 15px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--coral)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #052430; flex-shrink: 0; overflow: hidden; }
+    .seller-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .seller-info { flex: 1; min-width: 0; }
+    .seller-name { font-weight: 700; font-size: 14px; }
+    .seller-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+    .seller-meta .rating-stars { color: var(--warning); }
+
+    .rating-summary { display: flex; align-items: center; gap: 16px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 16px; }
+    .rating-summary-num { font-size: 28px; font-weight: 800; line-height: 1; }
+    .rating-summary .rating-stars { font-size: 14px; }
+
+    .review-item { padding: 12px 0; border-bottom: 1px solid var(--border-soft); }
+    .review-item:last-child { border-bottom: none; }
+    .review-head { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; }
+    .review-head .rating-stars { color: var(--warning); font-size: 11px; margin-left: 4px; }
+    .review-date { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+    .review-comment { font-size: 12.5px; color: var(--text-muted); margin-top: 5px; line-height: 1.5; }
+
+    .empty-state { text-align: center; padding: 36px 20px; color: var(--text-muted); font-size: 13px; }
+
+    .pd-image-wrap-rel { position: relative; }
+    .pd-wishlist-btn {
+      position: absolute; top: 10px; right: 10px; width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(10,14,22,.55); backdrop-filter: blur(4px); border: none; color: #fff; font-size: 16px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2;
+    }
+    .pd-wishlist-btn.active { color: var(--coral); }
+    .pd-price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+    .pd-original-price { font-size: 13px; color: var(--text-muted); text-decoration: line-through; }
+    .discount-tag { font-size: 10px; font-weight: 800; background: var(--danger-light); color: var(--danger); border-radius: 6px; padding: 2px 7px; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item active" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Detail Produk</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" onclick="location.href='/cart'" title="Keranjang"><i class="fas fa-cart-shopping"></i></button>
+          <span class="notif-badge" id="cart-badge"></span>
+        </div>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <button class="btn btn-outline btn-sm mb-16" onclick="history.length > 1 ? history.back() : location.href='/order'"><i class="fas fa-arrow-left"></i> Kembali</button>
+
+      <div id="pd-loading" class="loading-spinner" style="margin:60px auto;display:block"></div>
+      <div id="pd-content" style="display:none">
+        <div class="pd-wrap mb-24">
+          <div id="pd-image-wrap"></div>
+          <div>
+            <h1 class="pd-title" id="pd-name"></h1>
+            <div class="pd-rating-row" id="pd-rating-row"></div>
+            <div class="pd-price" id="pd-price"></div>
+            <div class="pd-stock" id="pd-stock"></div>
+            <div class="pd-actions">
+              <button class="btn btn-primary" id="btn-buy"><i class="fas fa-bolt"></i> Order Sekarang</button>
+              <button class="btn btn-outline" id="btn-add-cart-pd" title="Tambah ke Keranjang" style="flex:0 0 auto;width:44px"><i class="fas fa-cart-plus"></i></button>
+              <button class="btn btn-outline" id="btn-chat-seller"><i class="fas fa-comment-dots"></i> Chat Seller</button>
+            </div>
+            <div class="card" style="padding:16px">
+              <div class="text-xs text-muted" style="font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Deskripsi Produk</div>
+              <div class="pd-desc" id="pd-desc"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-header" style="padding:0 0 12px;border:none"><span class="card-title"><i class="fas fa-store" style="color:var(--primary)"></i> Penjual</span></div>
+        <div class="seller-card" id="seller-card"></div>
+
+        <div class="card-header" style="padding:0 0 12px;border:none"><span class="card-title"><i class="fas fa-star" style="color:var(--warning)"></i> Rating & Ulasan</span></div>
+        <div class="rating-summary" id="rating-summary"></div>
+        <div id="review-list"></div>
+        <div class="pagination"><span class="pagination-info" id="review-page-info"></span><div class="pagination-nav" id="review-pagination"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="order-modal-overlay">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-cart-shopping" style="color:var(--primary);margin-right:8px"></i>Konfirmasi Order</span>
+      <button class="modal-close" id="order-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="order-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="order-modal-cancel">Batal</button>
+      <button class="btn btn-primary" id="order-modal-confirm"><i class="fas fa-bolt"></i> Order Sekarang</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="result-modal-overlay">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-circle-check" style="color:var(--success);margin-right:8px"></i>Order Berhasil</span>
+      <button class="modal-close" id="result-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="result-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary btn-full" id="result-modal-ok">Selesai</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+const variantId = location.pathname.split('/').filter(Boolean)[1];
+let product = null;
+let reviewPage = 1;
+
+async function init() {
+  const res = await Auth.checkOptional();
+  if (res) { Auth.renderUserInfo(res.user, res.wallet); } else { Auth.renderGuestUI(); }
+
+  if (!variantId) { location.href = '/order'; return; }
+
+  const data = await API.get(`/api/variants/${variantId}`);
+  document.getElementById('pd-loading').style.display = 'none';
+  if (!data.success) {
+    document.getElementById('pd-content').innerHTML = `<div class="empty-state"><i class="fas fa-box-open" style="font-size:36px;display:block;margin-bottom:10px"></i>${escapeHtml(data.message || 'Produk tidak ditemukan')}</div>`;
+    document.getElementById('pd-content').style.display = 'block';
+    return;
+  }
+  product = data.data;
+  render();
+  loadReviews(1);
+}
+
+function render() {
+  document.getElementById('pd-content').style.display = 'block';
+  document.title = `${product.name} — Austin Store`;
+
+  document.getElementById('pd-image-wrap').innerHTML = `
+    <div class="pd-image-wrap-rel">
+      ${product.image_url
+        ? `<img src="${escapeAttr(product.image_url)}" class="pd-image" alt="${escapeAttr(product.name)}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'pd-image pd-image-placeholder',innerHTML:'<i class=\\'fas fa-box\\'></i>'}))">`
+        : `<div class="pd-image pd-image-placeholder"><i class="fas fa-box"></i></div>`}
+      <button class="pd-wishlist-btn ${product.is_wishlisted ? 'active' : ''}" id="btn-wishlist" title="Wishlist"><i class="${product.is_wishlisted ? 'fas' : 'far'} fa-heart"></i></button>
+    </div>
+  `;
+  document.getElementById('btn-wishlist').addEventListener('click', async () => {
+    if (!Auth.requireLogin('Masuk dulu untuk menyimpan wishlist')) return;
+    const btn = document.getElementById('btn-wishlist');
+    const active = btn.classList.contains('active');
+    const res = active ? await API.request('DELETE', `/api/wishlist/${variantId}`) : await API.post(`/api/wishlist/${variantId}`);
+    if (!res.success) { Toast.error(res.message || 'Gagal update wishlist'); return; }
+    btn.classList.toggle('active', !active);
+    btn.querySelector('i').className = !active ? 'fas fa-heart' : 'far fa-heart';
+  });
+
+  document.getElementById('pd-name').textContent = product.name;
+  document.getElementById('pd-price').innerHTML = `
+    <div class="pd-price-row">
+      <span>${formatRupiah(product.price)}</span>
+      ${product.discount_active ? `<span class="pd-original-price">${formatRupiah(product.original_price)}</span><span class="discount-tag">DISKON</span>` : ''}
+    </div>
+  `;
+
+  document.getElementById('pd-rating-row').innerHTML = product.rating_count > 0
+    ? `<span class="rating-stars">${renderStars(product.rating_average)}</span> <strong>${product.rating_average}</strong> (${product.rating_count} ulasan)`
+    : `<span class="text-muted">Belum ada ulasan</span>`;
+
+  const stockEl = document.getElementById('pd-stock');
+  stockEl.className = `pd-stock ${product.stock_available === 0 ? 'empty' : ''}`;
+  stockEl.innerHTML = `<i class="fas fa-boxes-stacked"></i> ${product.stock_available > 0 ? product.stock_available + ' stok tersedia' : 'Stok habis'}`
+    + (product.min_order_qty > 1 ? ` <span style="margin-left:6px;color:var(--text-muted)">· Min. order ${product.min_order_qty}</span>` : '');
+
+  document.getElementById('pd-desc').textContent = product.description || 'Tidak ada deskripsi tambahan.';
+
+  const btnBuy = document.getElementById('btn-buy');
+  if (product.stock_available === 0) { btnBuy.disabled = true; btnBuy.innerHTML = '<i class="fas fa-ban"></i> Stok Habis'; }
+
+  const s = product.seller;
+  const sellerCard = document.getElementById('seller-card');
+  if (s) {
+    sellerCard.style.cursor = 'pointer';
+    sellerCard.onclick = () => location.href = `/toko/${encodeURIComponent(s.id)}`;
+    sellerCard.innerHTML = `
+      <div class="seller-avatar">${s.avatar ? `<img src="${escapeAttr(s.avatar)}" alt="">` : escapeHtml((s.name || '?')[0].toUpperCase())}</div>
+      <div class="seller-info">
+        <div class="seller-name">${escapeHtml(s.name)}</div>
+        <div class="seller-meta">
+          ${s.rating_count > 0 ? `<span class="rating-stars">${renderStars(s.rating_average)}</span> ${s.rating_average} (${s.rating_count}) &middot; ` : ''}
+          Bergabung ${formatDate(s.member_since, false)}
+        </div>
+      </div>
+    `;
+  } else {
+    sellerCard.innerHTML = `<div class="text-muted text-sm">Info penjual tidak tersedia</div>`;
+  }
+}
+
+async function loadReviews(page) {
+  reviewPage = page;
+  const list = document.getElementById('review-list');
+  list.innerHTML = '<div class="loading-spinner"></div>';
+  const res = await API.get(`/api/variants/${variantId}/reviews?page=${page}&limit=10`);
+  if (!res.success) { list.innerHTML = `<div class="empty-state">Gagal memuat ulasan</div>`; return; }
+
+  const summary = document.getElementById('rating-summary');
+  summary.innerHTML = `
+    <div style="text-align:center">
+      <div class="rating-summary-num">${res.stats.average || 0}</div>
+      <div class="rating-stars">${renderStars(res.stats.average)}</div>
+    </div>
+    <div class="text-muted text-sm">${res.stats.count} ulasan dari pembeli yang sudah order produk ini</div>
+  `;
+
+  if (!res.data.length) {
+    list.innerHTML = `<div class="empty-state"><i class="fas fa-comment-slash" style="font-size:28px;display:block;margin-bottom:8px"></i>Belum ada ulasan untuk produk ini</div>`;
+    document.getElementById('review-pagination').innerHTML = '';
+    return;
+  }
+
+  list.innerHTML = res.data.map(r => `
+    <div class="review-item">
+      <div class="review-head">
+        ${escapeHtml(r.buyer_name)}
+        <span class="rating-stars">${renderStars(r.rating)}</span>
+        <span class="review-date">${formatDate(r.createdAt, false)}</span>
+      </div>
+      ${r.comment ? `<div class="review-comment">${escapeHtml(r.comment)}</div>` : ''}
+      ${r.seller_reply ? `<div class="review-comment" style="margin-top:8px;padding:10px;background:var(--bg-soft);border-radius:var(--radius-sm);border-left:3px solid var(--primary)"><strong style="color:var(--primary)"><i class="fas fa-store"></i> Balasan Seller:</strong><br>${escapeHtml(r.seller_reply)}</div>` : ''}
+    </div>
+  `).join('');
+  document.getElementById('review-page-info').textContent = `Halaman ${res.page} dari ${res.pages || 1} (${res.total} total)`;
+  renderPagination('review-pagination', res.page, res.pages, loadReviews);
+}
+
+document.getElementById('btn-buy').addEventListener('click', async () => {
+  if (!Auth.requireLogin('Masuk dulu untuk melanjutkan order')) return;
+  if (!product || product.stock_available === 0) return;
+  const moq = product.min_order_qty > 1 ? product.min_order_qty : 1;
+  document.getElementById('order-modal-body').innerHTML = `
+    <p style="margin-bottom:10px">Kamu akan order:</p>
+    <div class="card" style="padding:14px;border-color:var(--primary)">
+      <div style="font-weight:700">${escapeHtml(product.name)}</div>
+      ${moq > 1 ? `<div style="font-size:12.5px;color:var(--text-muted);margin-top:4px">Minimal order ${moq} unit — total dihitung otomatis</div>` : ''}
+      <div class="pd-price-row" style="margin-top:6px">
+        <span class="pd-price" id="modal-price" style="font-size:18px">${formatRupiah(product.price * moq)}</span>
+        ${product.discount_active ? `<span class="pd-original-price">${formatRupiah(product.original_price * moq)}</span>` : ''}
+      </div>
+      <div id="modal-flashsale-badge" style="margin-top:6px"></div>
+    </div>
+  `;
+  document.getElementById('order-modal-overlay').classList.add('open');
+
+  API.get(`/api/flashsale/active?variant_id=${variantId}`).then((fsRes) => {
+    if (fsRes.success && fsRes.data) {
+      document.getElementById('modal-price').textContent = formatRupiah(fsRes.data.price_after * moq);
+      document.getElementById('modal-flashsale-badge').innerHTML =
+        `<span class="discount-tag"><i class="fas fa-bolt"></i> ${escapeHtml(fsRes.data.label)} — otomatis diterapkan, hemat ${formatRupiah(fsRes.data.discount)}</span>`;
+    }
+  }).catch(() => {});
+});
+
+document.getElementById('btn-add-cart-pd').addEventListener('click', async (e) => {
+  if (!Auth.requireLogin('Masuk dulu untuk menambah ke keranjang')) return;
+  if (!product) return;
+  btnLoading(e.target, true);
+  const res = await API.post('/api/cart/add', { product_variant_id: variantId, quantity: product.min_order_qty > 1 ? product.min_order_qty : 1 });
+  btnLoading(e.target, false);
+  if (!res.success) { Toast.error(res.message || 'Gagal menambah ke keranjang'); return; }
+  Toast.success('Ditambahkan ke keranjang');
+  CartWidget.refresh();
+});
+document.getElementById('order-modal-close').addEventListener('click', () => document.getElementById('order-modal-overlay').classList.remove('open'));
+document.getElementById('order-modal-cancel').addEventListener('click', () => document.getElementById('order-modal-overlay').classList.remove('open'));
+
+document.getElementById('order-modal-confirm').addEventListener('click', async (e) => {
+  e.target.classList.add('btn-loading');
+  e.target.disabled = true;
+  const res = await API.post('/api/checkout/init', { product_variant_id: variantId, quantity: product.min_order_qty > 1 ? product.min_order_qty : 1 });
+  e.target.classList.remove('btn-loading');
+  e.target.disabled = false;
+
+  if (!res.success) { Toast.error(res.message || 'Gagal membuat sesi checkout'); return; }
+  location.href = `/checkout?session=${encodeURIComponent(res.data.session_id)}`;
+});
+document.getElementById('result-modal-close').addEventListener('click', () => document.getElementById('result-modal-overlay').classList.remove('open'));
+document.getElementById('result-modal-ok').addEventListener('click', () => {
+  document.getElementById('result-modal-overlay').classList.remove('open');
+  location.reload();
+});
+
+document.getElementById('btn-chat-seller').addEventListener('click', async (e) => {
+  if (!Auth.requireLogin('Masuk dulu untuk chat dengan penjual')) return;
+  if (!product || !product.seller) { Toast.error('Info penjual tidak tersedia'); return; }
+  btnLoading(e.target, true);
+  const res = await API.post('/api/seller-chat/room', { seller_id: product.seller.id, product_variant_id: variantId });
+  btnLoading(e.target, false);
+  if (!res.success) { Toast.error(res.message || 'Gagal membuka chat'); return; }
+  location.href = `/seller-chat/${res.data.id}`;
+});
+
+init();
+</script>
+</body>
+</html>
