@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flash Sale — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .form-input, .form-select {
+      width: 100%; padding: 11px 14px; border-radius: var(--radius-sm); border: var(--border-w) solid var(--border-soft);
+      background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit;
+    }
+    .form-input:focus, .form-select:focus { outline: none; border-color: var(--primary); }
+    .fs-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-soft); gap: 10px; flex-wrap: wrap; }
+    .fs-label { font-weight: 800; font-size: 14px; }
+    .fs-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Dashboard Seller</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-arrow-left"></i></span> Kembali ke Dashboard Utama</div>
+      <div class="nav-item" data-href="/seller"><span class="nav-icon"><i class="fas fa-chart-pie"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/seller/stock"><span class="nav-icon"><i class="fas fa-boxes-stacked"></i></span> Kelola Stok</div>
+      <div class="nav-item" data-href="/seller/complaints"><span class="nav-icon"><i class="fas fa-triangle-exclamation"></i></span> Komplain Masuk</div>
+      <div class="nav-item" data-href="/seller/vouchers"><span class="nav-icon"><i class="fas fa-ticket"></i></span> Voucher &amp; Diskon</div>
+      <div class="nav-item active" data-href="/seller/flashsale"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Flash Sale</div>
+      <div class="nav-item" data-href="/seller/withdraw"><span class="nav-icon"><i class="fas fa-upload"></i></span> Withdraw</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Seller</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Flash Sale</div>
+      <div class="topbar-actions">
+        <div class="user-avatar" data-user-avatar style="cursor:pointer" onclick="location.href='/profile'"></div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="card mb-16">
+        <div class="card-body" style="font-size:12.5px;color:var(--text-muted)">
+          <i class="fas fa-circle-info"></i> Flash sale di sini HANYA berlaku untuk 1 produk toko kamu sendiri yang kamu pilih, TANPA kode (otomatis aktif selama jendela waktu). Potongan harga saat flash sale ini dipakai akan mengurangi <b>saldo kamu sendiri</b> (bukan ditanggung owner) — karena kamu yang memasangnya.
+        </div>
+      </div>
+
+      <div class="card mb-16">
+        <div class="card-header"><span class="card-title"><i class="fas fa-plus" style="color:var(--primary)"></i> Buat Flash Sale Baru</span></div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>Produk</label>
+            <select class="form-select" id="fs-variant"><option value="">Memuat produk...</option></select>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+            <div class="form-group" style="margin:0">
+              <label>Label</label>
+              <input class="form-input" id="fs-label" placeholder="Flash Sale 12.12" maxlength="60">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Jenis</label>
+              <select class="form-select" id="fs-type"><option value="percent">Persen (%)</option><option value="fixed">Nominal (Rp)</option></select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Nilai</label>
+              <input class="form-input" id="fs-value" type="number" placeholder="10">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Min. Belanja (Rp)</label>
+              <input class="form-input" id="fs-min" type="number" placeholder="0">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Kuota (kosongkan = tanpa batas)</label>
+              <input class="form-input" id="fs-max-uses" type="number" placeholder="50">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Mulai (opsional, kosong = sekarang)</label>
+              <input class="form-input" id="fs-starts" type="datetime-local">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Berakhir (wajib)</label>
+              <input class="form-input" id="fs-ends" type="datetime-local">
+            </div>
+          </div>
+          <button class="btn btn-primary mt-16" id="btn-create-fs"><i class="fas fa-bolt"></i> Buat Flash Sale</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fas fa-list" style="color:var(--primary)"></i> Flash Sale Toko Saya</span></div>
+        <div id="fs-list" class="card-body"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/custom-select.js"></script>
+<script>
+function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str == null ? '' : String(str); return d.innerHTML; }
+let myVariants = [];
+
+async function loadVariantOptions() {
+  const sel = document.getElementById('fs-variant');
+  const res = await API.get('/api/seller/variants');
+  myVariants = (res.success && res.data) || [];
+  if (!myVariants.length) {
+    sel.innerHTML = `<option value="">Belum ada produk, tambah dulu lewat Kelola Stok</option>`;
+    return;
+  }
+  sel.innerHTML = `<option value="">- Pilih Produk -</option>` + myVariants.map(v => `<option value="${v.id}">${escapeHtml(v.name)}</option>`).join('');
+}
+
+async function loadFlashSales() {
+  const list = document.getElementById('fs-list');
+  const res = await API.get('/api/seller/flashsale');
+  if (!res.success || !res.data.length) {
+    list.innerHTML = `<div class="table-empty"><i class="fas fa-bolt" style="font-size:36px;margin-bottom:12px;display:block;color:var(--text-muted)"></i><p>Belum ada flash sale, buat lewat form di atas</p></div>`;
+    return;
+  }
+  const now = Date.now();
+  list.innerHTML = res.data.map(f => {
+    const ended = f.ends_at && new Date(f.ends_at).getTime() <= now;
+    const variant = myVariants.find(v => v.id === f.target_variant_id);
+    return `
+    <div class="fs-row">
+      <div>
+        <div class="fs-label">${escapeHtml(f.label || 'Flash Sale')}${variant ? ` — ${escapeHtml(variant.name)}` : ''}</div>
+        <div class="fs-meta">
+          ${f.type === 'percent' ? f.value + '% off' : formatRupiah(f.value) + ' off'}
+          ${f.min_purchase ? ` · min. ${formatRupiah(f.min_purchase)}` : ''}
+          · Terpakai: ${f.used_count || 0}${f.max_uses ? '/' + f.max_uses : ' (tanpa batas)'}
+          ${f.ends_at ? ` · Sampai ${formatDate(f.ends_at, true)}` : ''}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${ended ? statusBadge('suspended') : (f.active ? statusBadge('active') : statusBadge('suspended'))}
+        <button class="btn btn-outline btn-sm" data-toggle="${f.id}" data-active="${f.active}">${f.active ? 'Nonaktifkan' : 'Aktifkan'}</button>
+        <button class="btn btn-danger btn-sm" data-delete="${f.id}"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `; }).join('');
+
+  list.querySelectorAll('[data-toggle]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const res = await API.request('PUT', `/api/seller/flashsale/${btn.dataset.toggle}`, { active: btn.dataset.active !== 'true' });
+      if (res.success) { Toast.success(res.message); loadFlashSales(); } else Toast.error(res.message);
+    });
+  });
+  list.querySelectorAll('[data-delete]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!await showConfirm('Hapus flash sale ini?', { title: 'Hapus Flash Sale', okText: 'Hapus', danger: true })) return;
+      const res = await API.request('DELETE', `/api/seller/flashsale/${btn.dataset.delete}`);
+      if (res.success) { Toast.success(res.message); loadFlashSales(); } else Toast.error(res.message);
+    });
+  });
+}
+
+document.getElementById('btn-create-fs').addEventListener('click', async (e) => {
+  const target_variant_id = document.getElementById('fs-variant').value;
+  const label = document.getElementById('fs-label').value.trim();
+  const type = document.getElementById('fs-type').value;
+  const value = document.getElementById('fs-value').value;
+  const min_purchase = document.getElementById('fs-min').value;
+  const max_uses = document.getElementById('fs-max-uses').value;
+  const starts_at = document.getElementById('fs-starts').value;
+  const ends_at = document.getElementById('fs-ends').value;
+  if (!target_variant_id) { Toast.warning('Pilih produk dulu'); return; }
+  if (!value) { Toast.warning('Nilai diskon wajib diisi'); return; }
+  if (!ends_at) { Toast.warning('Waktu berakhir wajib diisi'); return; }
+
+  btnLoading(e.target, true);
+  const res = await API.post('/api/seller/flashsale', {
+    target_variant_id, label, type, value, min_purchase, max_uses,
+    starts_at: starts_at || null, ends_at,
+  });
+  btnLoading(e.target, false);
+  if (!res.success) { Toast.error(res.message); return; }
+  Toast.success(res.message);
+  ['fs-label', 'fs-value', 'fs-min', 'fs-max-uses', 'fs-starts', 'fs-ends'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fs-variant').value = '';
+  loadFlashSales();
+});
+
+(async function init() {
+  const meRes = await API.get('/api/auth/me');
+  if (!meRes.success) { window.location.href = '/login'; return; }
+  if (!['seller', 'owner'].includes(meRes.user.role)) { window.location.href = '/dashboard'; return; }
+  Auth.renderUserInfo(meRes.user, meRes.wallet);
+  await loadVariantOptions();
+  loadFlashSales();
+})();
+</script>
+</body>
+</html>
