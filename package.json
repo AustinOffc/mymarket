@@ -1,0 +1,10 @@
+{
+  "name": "mymarket-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static frontend (public/) untuk Market Austin, di-deploy ke Vercel. Backend Node.js tetap berjalan terpisah di Pterodactyl.",
+  "dependencies": {
+    "@vercel/edge": "^1.1.1",
+    "jose": "^5.2.0"
+  }
+}
