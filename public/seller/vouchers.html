@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voucher & Diskon — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .form-input, .form-select {
+      width: 100%; padding: 11px 14px; border-radius: var(--radius-sm); border: var(--border-w) solid var(--border-soft);
+      background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit;
+    }
+    .form-input:focus, .form-select:focus { outline: none; border-color: var(--primary); }
+    .voucher-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-soft); gap: 10px; flex-wrap: wrap; }
+    .voucher-code { font-family: var(--font-mono); font-weight: 800; font-size: 14px; }
+    .voucher-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Dashboard Seller</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-arrow-left"></i></span> Kembali ke Dashboard Utama</div>
+      <div class="nav-item" data-href="/seller"><span class="nav-icon"><i class="fas fa-chart-pie"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/seller/stock"><span class="nav-icon"><i class="fas fa-boxes-stacked"></i></span> Kelola Stok</div>
+      <div class="nav-item" data-href="/seller/complaints"><span class="nav-icon"><i class="fas fa-triangle-exclamation"></i></span> Komplain Masuk</div>
+      <div class="nav-item active" data-href="/seller/vouchers"><span class="nav-icon"><i class="fas fa-ticket"></i></span> Voucher &amp; Diskon</div>
+      <div class="nav-item" data-href="/seller/flashsale"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Flash Sale</div>
+      <div class="nav-item" data-href="/seller/withdraw"><span class="nav-icon"><i class="fas fa-upload"></i></span> Withdraw</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Seller</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Voucher &amp; Diskon</div>
+      <div class="topbar-actions">
+        <div class="user-avatar" data-user-avatar style="cursor:pointer" onclick="location.href='/profile'"></div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="card mb-16">
+        <div class="card-body" style="font-size:12.5px;color:var(--text-muted)">
+          <i class="fas fa-circle-info"></i> Voucher di sini HANYA berlaku untuk produk toko kamu sendiri. Untuk diskon langsung tanpa kode (potongan harga permanen di produk), atur lewat menu <a href="/seller/stock" style="color:var(--primary)">Kelola Stok</a> → Update Produk.
+        </div>
+      </div>
+
+      <div class="card mb-16">
+        <div class="card-header"><span class="card-title"><i class="fas fa-plus" style="color:var(--primary)"></i> Buat Voucher Baru</span></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+            <div class="form-group" style="margin:0">
+              <label>Kode</label>
+              <input class="form-input" id="v-code" placeholder="TOKOKU10" maxlength="30" style="text-transform:uppercase">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Jenis</label>
+              <select class="form-select" id="v-type"><option value="percent">Persen (%)</option><option value="fixed">Nominal (Rp)</option></select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Nilai</label>
+              <input class="form-input" id="v-value" type="number" placeholder="10">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Min. Belanja (Rp)</label>
+              <input class="form-input" id="v-min" type="number" placeholder="0">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Kuota (kosongkan = tanpa batas)</label>
+              <input class="form-input" id="v-max-uses" type="number" placeholder="50">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Berlaku Sampai (opsional)</label>
+              <input class="form-input" id="v-expires" type="date">
+            </div>
+          </div>
+          <button class="btn btn-primary mt-16" id="btn-create-voucher"><i class="fas fa-paper-plane"></i> Buat Voucher</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fas fa-list" style="color:var(--primary)"></i> Voucher Toko Saya</span></div>
+        <div id="voucher-list" class="card-body"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/custom-select.js"></script>
+<script>
+function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str == null ? '' : String(str); return d.innerHTML; }
+
+async function loadVouchers() {
+  const list = document.getElementById('voucher-list');
+  const res = await API.get('/api/seller/vouchers');
+  if (!res.success || !res.data.length) {
+    list.innerHTML = `<div class="table-empty"><i class="fas fa-ticket" style="font-size:36px;margin-bottom:12px;display:block;color:var(--text-muted)"></i><p>Belum ada voucher, buat lewat form di atas</p></div>`;
+    return;
+  }
+  list.innerHTML = res.data.map(v => `
+    <div class="voucher-row">
+      <div>
+        <div class="voucher-code">${escapeHtml(v.code)}</div>
+        <div class="voucher-meta">
+          ${v.type === 'percent' ? v.value + '% off' : formatRupiah(v.value) + ' off'}
+          ${v.min_purchase ? ` · min. ${formatRupiah(v.min_purchase)}` : ''}
+          · Terpakai: ${v.used_count || 0}${v.max_uses ? '/' + v.max_uses : ' (tanpa batas)'}
+          ${v.expires_at ? ` · Sampai ${formatDate(v.expires_at, false)}` : ''}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${v.active ? statusBadge('active') : statusBadge('suspended')}
+        <button class="btn btn-outline btn-sm" data-toggle="${v.id}" data-active="${v.active}">${v.active ? 'Nonaktifkan' : 'Aktifkan'}</button>
+        <button class="btn btn-danger btn-sm" data-delete="${v.id}"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('[data-toggle]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const res = await API.request('PUT', `/api/seller/vouchers/${btn.dataset.toggle}`, { active: btn.dataset.active !== 'true' });
+      if (res.success) { Toast.success(res.message); loadVouchers(); } else Toast.error(res.message);
+    });
+  });
+  list.querySelectorAll('[data-delete]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!await showConfirm('Hapus voucher ini?', { title: 'Hapus Voucher', okText: 'Hapus', danger: true })) return;
+      const res = await API.request('DELETE', `/api/seller/vouchers/${btn.dataset.delete}`);
+      if (res.success) { Toast.success(res.message); loadVouchers(); } else Toast.error(res.message);
+    });
+  });
+}
+
+document.getElementById('btn-create-voucher').addEventListener('click', async (e) => {
+  const code = document.getElementById('v-code').value.trim();
+  const type = document.getElementById('v-type').value;
+  const value = document.getElementById('v-value').value;
+  const min_purchase = document.getElementById('v-min').value;
+  const max_uses = document.getElementById('v-max-uses').value;
+  const expires_at = document.getElementById('v-expires').value;
+  if (!code || !value) { Toast.warning('Kode dan nilai diskon wajib diisi'); return; }
+
+  btnLoading(e.target, true);
+  const res = await API.post('/api/seller/vouchers', { code, type, value, min_purchase, max_uses, expires_at: expires_at || null });
+  btnLoading(e.target, false);
+  if (!res.success) { Toast.error(res.message); return; }
+  Toast.success(res.message);
+  ['v-code', 'v-value', 'v-min', 'v-max-uses', 'v-expires'].forEach(id => document.getElementById(id).value = '');
+  loadVouchers();
+});
+
+(async function init() {
+  const meRes = await API.get('/api/auth/me');
+  if (!meRes.success) { window.location.href = '/login'; return; }
+  if (!['seller', 'owner'].includes(meRes.user.role)) { window.location.href = '/dashboard'; return; }
+  Auth.renderUserInfo(meRes.user, meRes.wallet);
+  loadVouchers();
+})();
+</script>
+</body>
+</html>
