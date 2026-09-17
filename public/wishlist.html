@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wishlist — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .wish-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .wish-card { background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+    .wish-thumb-wrap { position: relative; aspect-ratio: 1/1; cursor: pointer; }
+    .wish-thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .wish-thumb-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--bg-soft); color: var(--text-muted); font-size: 26px; }
+    .wish-remove { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; border-radius: 50%; background: rgba(10,14,22,.6); color: var(--coral); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; }
+    .wish-body { padding: 12px; }
+    .wish-name { font-weight: 700; font-size: 13.5px; cursor: pointer; line-height: 1.3; min-height: 34px; }
+    .wish-price-row { display: flex; align-items: baseline; gap: 6px; margin-top: 6px; }
+    .wish-price { font-family: var(--font-mono); font-weight: 800; color: var(--primary); }
+    .wish-original { font-size: 11px; color: var(--text-muted); text-decoration: line-through; }
+    .wish-stock { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .wish-stock.empty { color: var(--danger); }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .empty-state i { font-size: 40px; margin-bottom: 14px; display: block; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/cart"><span class="nav-icon"><i class="fas fa-basket-shopping"></i></span> Keranjang</div>
+      <div class="nav-item active" data-href="/wishlist"><span class="nav-icon"><i class="fas fa-heart"></i></span> Wishlist</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Wishlist</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" id="notif-bell"><i class="fas fa-bell"></i></button>
+          <span class="notif-badge" id="notif-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div id="wish-loading" class="loading-spinner" style="margin:60px auto;display:block"></div>
+      <div class="wish-grid" id="wish-grid" style="display:none"></div>
+      <div id="wish-empty" class="empty-state" style="display:none">
+        <i class="fas fa-heart-crack"></i>
+        <p>Belum ada produk di wishlist kamu</p>
+        <button class="btn btn-primary mt-16" onclick="location.href='/order'"><i class="fas fa-cart-shopping"></i> Jelajahi Produk</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+async function init() {
+  const res = await Auth.check();
+  if (!res) return;
+  Auth.renderUserInfo(res.user, res.wallet);
+  await loadWishlist();
+}
+
+async function loadWishlist() {
+  document.getElementById('wish-loading').style.display = 'block';
+  const res = await API.get('/api/wishlist');
+  document.getElementById('wish-loading').style.display = 'none';
+  if (!res.success || !res.data.length) {
+    document.getElementById('wish-empty').style.display = 'block';
+    document.getElementById('wish-grid').style.display = 'none';
+    return;
+  }
+  const grid = document.getElementById('wish-grid');
+  grid.style.display = 'grid';
+  grid.innerHTML = res.data.map(p => `
+    <div class="wish-card">
+      <div class="wish-thumb-wrap" data-open="${p.id}">
+        ${p.image_url ? `<img src="${escapeAttr(p.image_url)}" class="wish-thumb" alt="${escapeAttr(p.name)}" onerror="this.style.display='none'">` : `<div class="wish-thumb-placeholder"><i class="fas fa-box"></i></div>`}
+        <button class="wish-remove" data-remove="${p.id}" title="Hapus dari wishlist"><i class="fas fa-heart"></i></button>
+      </div>
+      <div class="wish-body">
+        <div class="wish-name" data-open="${p.id}">${escapeHtml(p.name)}</div>
+        <div class="wish-price-row">
+          <span class="wish-price">${formatRupiah(p.price)}</span>
+          ${p.discount_active ? `<span class="wish-original">${formatRupiah(p.original_price)}</span>` : ''}
+        </div>
+        <div class="wish-stock ${p.stock_available === 0 ? 'empty' : ''}">${p.stock_available > 0 ? p.stock_available + ' stok' : 'Stok habis'}</div>
+      </div>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('[data-open]').forEach(el => {
+    el.addEventListener('click', () => { location.href = `/product/${el.dataset.open}`; });
+  });
+  grid.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const res = await API.request('DELETE', `/api/wishlist/${btn.dataset.remove}`);
+      if (!res.success) { Toast.error(res.message); return; }
+      loadWishlist();
+    });
+  });
+}
+
+init();
+</script>
+</body>
+</html>
