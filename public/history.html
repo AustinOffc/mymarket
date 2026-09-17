@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riwayat Pesanan — Austin Store Marketplace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item active" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:#ef4444"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Riwayat Pesanan</div>
+      <div class="topbar-actions">
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" id="notif-bell"><i class="fas fa-bell"></i></button>
+          <span class="notif-badge" id="notif-badge"></span>
+        </div>
+        <button class="btn-icon" id="theme-toggle"><i class="fas fa-moon"></i></button>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+            <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="source-tabs">
+        <button class="btn btn-primary btn-sm" data-tab="all">Semua</button>
+        <button class="btn btn-outline btn-sm" data-tab="account">Akun Premium</button>
+        <button class="btn btn-outline btn-sm" data-tab="topup">Topup Game</button>
+        <button class="btn btn-outline btn-sm" data-tab="socmed">Sosial Media</button>
+        <button class="btn btn-outline btn-sm" data-tab="nokos">Nomor OTP</button>
+        <button class="btn btn-outline btn-sm" data-tab="appprem">App Premium</button>
+      </div>
+
+            <div class="card mb-16">
+        <div class="card-body" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:1;min-width:160px">
+            <label class="form-label">Cari</label>
+            <input type="text" class="form-control" id="search-input" placeholder="Cari nama produk, ID, dll...">
+          </div>
+          <div>
+            <label class="form-label">Status</label>
+            <select class="form-control" id="status-filter">
+              <option value="">Semua Status</option>
+              <option value="success">Berhasil / Selesai</option>
+              <option value="processing">Diproses</option>
+              <option value="failed">Gagal</option>
+              <option value="refunded">Direfund</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="applyFilter()"><i class="fas fa-filter"></i> Filter</button>
+        </div>
+      </div>
+
+            <div class="card">
+        <div class="card-header">
+          <span class="card-title" id="list-title">Semua Pesanan</span>
+          <span class="text-muted text-sm" id="total-info"></span>
+        </div>
+        <div class="card-body" style="padding:12px">
+          <div class="order-list" id="order-list"><div class="loading-spinner"></div></div>
+        </div>
+        <div class="pagination" id="pagination-wrap" style="display:none">
+          <span class="pagination-info" id="page-info"></span>
+          <div class="pagination-nav" id="pagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <span class="modal-title" id="detail-title"><i class="fas fa-receipt" style="margin-right:8px;color:var(--primary)"></i>Detail Pesanan</span>
+      <button class="modal-close" onclick="Modal.close('detail-modal')">&times;</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-footer" id="detail-footer"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="rating-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-star" style="color:var(--warning);margin-right:8px"></i>Beri Rating</span>
+      <button class="modal-close" onclick="Modal.close('rating-modal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-sm text-muted mb-16">Gimana pengalaman order kamu? Rating & ulasan ini akan tampil publik di halaman produk.</p>
+      <div id="rating-stars-input" style="display:flex;gap:8px;justify-content:center;font-size:28px;color:var(--warning);margin-bottom:18px;cursor:pointer">
+        <i class="far fa-star" data-star="1"></i>
+        <i class="far fa-star" data-star="2"></i>
+        <i class="far fa-star" data-star="3"></i>
+        <i class="far fa-star" data-star="4"></i>
+        <i class="far fa-star" data-star="5"></i>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ulasan (opsional)</label>
+        <textarea class="form-control" id="rating-comment" rows="3" maxlength="500" placeholder="Ceritakan pengalaman kamu..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="Modal.close('rating-modal')">Batal</button>
+      <button class="btn btn-primary" id="rating-submit-btn" onclick="submitRating()"><i class="fas fa-paper-plane"></i> Kirim Rating</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="complaint-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-triangle-exclamation" style="color:var(--warning);margin-right:8px"></i>Ajukan Komplain</span>
+      <button class="modal-close" onclick="Modal.close('complaint-modal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-sm text-muted mb-16">Kredensial yang kamu terima invalid atau kena banned? Ceritakan masalahnya, owner akan meninjau dalam 1x24 jam. Dana kamu tertahan di seller sampai keputusan keluar.</p>
+      <div class="form-group">
+        <label class="form-label">Alasan Komplain</label>
+        <textarea class="form-control" id="complaint-reason" rows="4" maxlength="1000" placeholder="Contoh: Password akun tidak bisa dipakai, muncul pesan akun disuspend..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="Modal.close('complaint-modal')">Batal</button>
+      <button class="btn btn-primary" id="complaint-submit-btn" onclick="submitComplaint()"><i class="fas fa-paper-plane"></i> Kirim Komplain</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/custom-select.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+<script src="/js/chat.js"></script>
+<script src="/js/cs.js"></script>
+<script>
+
+const SOURCES = {
+  account: { endpoint: '/api/order/history',   icon: 'fa-key',          iconCls: '',        label: 'Akun Premium' },
+  topup:   { endpoint: '/api/topup/history',   icon: 'fa-bolt',         iconCls: 'topup',   label: 'Topup Game' },
+  socmed:  { endpoint: '/api/socmed/history',  icon: 'fa-share-nodes',  iconCls: 'socmed',  label: 'Sosial Media' },
+  nokos:   { endpoint: '/api/nokos/history',   icon: 'fa-sim-card',    iconCls: 'nokos',   label: 'Nomor OTP' },
+  appprem: { endpoint: '/api/appprem/history', icon: 'fa-crown',       iconCls: 'appprem', label: 'App Premium' },
+};
+
+function normStatus(source, status) {
+  if (['success', 'completed', 'active'].includes(status)) return 'success';
+  if (['waiting', 'pending', 'processing', 'diproses'].includes(status)) return 'processing';
+  if (['failed', 'rejected'].includes(status)) return 'failed';
+  if (['refunded'].includes(status)) return 'refunded';
+  return status || 'processing';
+}
+
+function normalizeRow(source, row) {
+  let title, sub, priceField = row.price_sell ?? row.price ?? 0;
+  if (source === 'account') {
+    title = row.variant_name || 'Akun Premium';
+    sub = row.category_name || '-';
+  } else if (source === 'topup') {
+    title = `${row.game || row.category_name || ''} — ${row.service_name || ''}`.replace(/^ — /, '');
+    sub = row.target_id ? `ID: ${row.target_id}${row.zone_id ? ' (' + row.zone_id + ')' : ''}` : (row.category_name || '-');
+  } else if (source === 'socmed') {
+    title = row.service_name || row.category_name || 'Sosial Media';
+    sub = row.target ? `Target: ${row.target} • ${row.quantity || 0}x` : (row.category_name || '-');
+  } else if (source === 'nokos') {
+    title = row.service_name || 'Nomor OTP';
+    sub = row.phone_number ? `${row.phone_number} • ${row.country_name || ''}` : (row.server_label || '-');
+  } else if (source === 'appprem') {
+    title = row.product_name || 'App Premium';
+    sub = `Qty: ${row.qty || 1}`;
+  }
+  return {
+    source, raw: row, id: row.id, title, sub,
+    price: priceField, status: row.status, statusGroup: normStatus(source, row.status),
+    createdAt: row.createdAt,
+  };
+}
+
+let currentTab = 'all';
+let currentPage = 1;
+let currentPages = { account: 1, topup: 1, socmed: 1, nokos: 1, appprem: 1 };
+
+async function init() {
+  const res = await Auth.check();
+  if (!res) return;
+  Auth.renderUserInfo(res.user, res.wallet);
+
+  const params = new URLSearchParams(location.search);
+  const tab = params.get('tab');
+  if (tab && (tab === 'all' || SOURCES[tab])) currentTab = tab;
+  updateTabUI();
+  loadData(1);
+}
+
+document.getElementById('source-tabs').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-tab]');
+  if (!btn) return;
+  currentTab = btn.dataset.tab;
+  currentPage = 1;
+  updateTabUI();
+  loadData(1);
+});
+
+function updateTabUI() {
+  document.querySelectorAll('#source-tabs [data-tab]').forEach(b => {
+    b.className = b.dataset.tab === currentTab ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+  });
+  document.getElementById('list-title').textContent = currentTab === 'all' ? 'Semua Pesanan' : SOURCES[currentTab].label;
+}
+
+function applyFilter() { loadData(1); }
+
+async function loadData(page = 1) {
+  currentPage = page;
+  const list = document.getElementById('order-list');
+  list.innerHTML = `<div class="loading-spinner"></div>`;
+  document.getElementById('pagination-wrap').style.display = 'none';
+
+  const search = document.getElementById('search-input').value.trim().toLowerCase();
+  const statusFilter = document.getElementById('status-filter').value;
+
+  let rows = [];
+  let paged = null; 
+
+  if (currentTab === 'all') {
+    const results = await Promise.all(Object.keys(SOURCES).map(src =>
+      API.get(`${SOURCES[src].endpoint}?page=1&limit=25`).then(r => ({ src, r }))
+    ));
+    results.forEach(({ src, r }) => {
+      if (r.success && Array.isArray(r.data)) {
+        rows.push(...r.data.map(row => normalizeRow(src, row)));
+      }
+    });
+    rows.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  } else {
+    const res = await API.get(`${SOURCES[currentTab].endpoint}?page=${page}&limit=15`);
+    if (!res.success) {
+      list.innerHTML = `<div class="table-empty">Gagal memuat data</div>`;
+      return;
+    }
+    rows = (res.data || []).map(row => normalizeRow(currentTab, row));
+    paged = { page: res.page || 1, pages: res.pages || 1, total: res.total || rows.length };
+  }
+
+  if (search) {
+    rows = rows.filter(r => `${r.title} ${r.sub} ${r.id}`.toLowerCase().includes(search));
+  }
+  if (statusFilter) {
+    rows = rows.filter(r => r.statusGroup === statusFilter);
+  }
+
+  document.getElementById('total-info').textContent = paged ? `${paged.total} data` : `${rows.length} data`;
+
+  if (!rows.length) {
+    list.innerHTML = `<div class="table-empty"><i class="fas fa-inbox" style="font-size:36px;margin-bottom:12px;display:block;color:var(--text-muted)"></i><p>Belum ada pesanan</p></div>`;
+    return;
+  }
+
+  list.innerHTML = rows.map(renderCard).join('');
+  list.querySelectorAll('[data-open-detail]').forEach(el => {
+    el.addEventListener('click', () => openDetail(el.dataset.source, el.dataset.id));
+  });
+
+  if (paged && paged.pages > 1) {
+    document.getElementById('pagination-wrap').style.display = 'flex';
+    document.getElementById('page-info').textContent = `Halaman ${paged.page} dari ${paged.pages} (${paged.total} total)`;
+    renderPagination('pagination', paged.page, paged.pages, loadData);
+  }
+}
+
+function renderCard(r) {
+  const cfg = SOURCES[r.source];
+  return `<div class="order-card" data-open-detail data-source="${r.source}" data-id="${r.id}">
+    <div class="order-card-icon ${cfg.iconCls}"><i class="fas ${cfg.icon}"></i></div>
+    <div class="order-card-body">
+      <div class="order-card-title">${escapeHtml(r.title)}</div>
+      <div class="order-card-sub">${escapeHtml(r.sub)}</div>
+    </div>
+    <div class="order-card-meta">
+      <div class="order-card-price">${formatRupiah(r.price)}</div>
+      ${statusBadge(r.status)}
+      <div class="order-card-date">${formatDate(r.createdAt, false)}</div>
+    </div>
+  </div>`;
+}
+
+let currentDetail = null;
+
+async function openDetail(source, id) {
+  const cfg = SOURCES[source];
+  document.getElementById('detail-title').innerHTML = `<i class="fas ${cfg.icon}" style="margin-right:8px;color:var(--primary)"></i>Detail ${cfg.label}`;
+  const body = document.getElementById('detail-body');
+  const footer = document.getElementById('detail-footer');
+  body.innerHTML = `<div class="loading-spinner"></div>`;
+  footer.innerHTML = '';
+  Modal.open('detail-modal');
+
+  const res = await API.get(`${cfg.endpoint}?page=1&limit=100`);
+  const row = (res.data || []).find(x => x.id === id);
+  if (!row) { body.innerHTML = `<div class="table-empty">Data tidak ditemukan</div>`; return; }
+  currentDetail = { source, row };
+
+  const rowsHtml = [];
+  const R = (label, value) => rowsHtml.push(`<div class="order-detail-row"><span class="order-detail-label">${label}</span><span class="order-detail-value">${value}</span></div>`);
+
+  R('Status', statusBadge(row.status));
+  R('Tanggal', formatDate(row.createdAt));
+  R('Harga', formatRupiah(row.price_sell ?? row.price));
+
+  let credentialHtml = '';
+  let canRate = false;
+  let complaintFooterHtml = '';
+
+  if (source === 'account') {
+    R('Produk', escapeHtml(row.variant_name || '-'));
+    R('Kategori', escapeHtml(row.category_name || '-'));
+    if (row.credential_available && row.credential) {
+      credentialHtml = `<div class="form-label" style="margin-top:14px">Kredensial Akun</div>
+        <div class="order-cred-box">${escapeHtml(row.credential)}</div>
+        <button class="btn btn-outline btn-sm mt-8" onclick="copyCredential()"><i class="fas fa-copy"></i> Salin</button>`;
+    }
+    canRate = row.status === 'completed' && !row.reviewed;
+
+    if (row.status === 'completed') {
+      if (row.complaint_status && row.complaint_status !== 'none') {
+        R('Status Komplain', statusBadge(row.complaint_status === 'open' ? 'open' : row.complaint_status));
+      }
+      if (row.can_complain) {
+        complaintFooterHtml = `<button class="btn btn-outline" style="color:var(--warning);border-color:var(--warning)" onclick="Modal.close('detail-modal'); openComplaintModal('${row.id}')"><i class="fas fa-triangle-exclamation"></i> Ajukan Komplain</button>`;
+      } else if (row.guarantee_expires_at && !row.complaint_status) {
+        complaintFooterHtml = `<span class="text-xs text-muted">Masa garansi komplain sudah berakhir</span>`;
+      }
+    }
+  } else if (source === 'topup') {
+    R('Game', escapeHtml(row.game || row.category_name || '-'));
+    R('Layanan', escapeHtml(row.service_name || '-'));
+    if (row.target_id) R('ID Tujuan', escapeHtml(row.target_id) + (row.zone_id ? ` (${escapeHtml(row.zone_id)})` : ''));
+    if (row.skin_item) R('Nama Skin/Item', escapeHtml(row.skin_item));
+    if (row.trxid) R('ID Transaksi', `<code style="font-size:11px">${escapeHtml(row.trxid)}</code>`);
+    if (row.note) R('Catatan', escapeHtml(row.note));
+  } else if (source === 'socmed') {
+    R('Layanan', escapeHtml(row.service_name || row.category_name || '-'));
+    R('Target', escapeHtml(row.target || '-'));
+    R('Jumlah', String(row.quantity || 0));
+    if (row.trxid) R('ID Transaksi', `<code style="font-size:11px">${escapeHtml(row.trxid)}</code>`);
+    if (row.note) R('Catatan', escapeHtml(row.note));
+  } else if (source === 'nokos') {
+    R('Layanan', escapeHtml(row.service_name || '-'));
+    R('Nomor', `<code>${escapeHtml(row.phone_number || '-')}</code>`);
+    R('Negara', escapeHtml(row.country_name || '-'));
+    if (row.otp_code) R('Kode OTP', `<code style="font-size:15px;color:var(--primary)">${escapeHtml(row.otp_code)}</code>`);
+    if (row.expiresAt) R('Berlaku Sampai', formatDate(row.expiresAt));
+  } else if (source === 'appprem') {
+    R('Produk', escapeHtml(row.product_name || '-'));
+    R('Jumlah', String(row.qty || 1));
+    if (row.invoice) R('Invoice', `<code style="font-size:11px">${escapeHtml(row.invoice)}</code>`);
+    if (Array.isArray(row.accounts) && row.accounts.length) {
+      credentialHtml = `<div class="form-label" style="margin-top:14px">Akun Hasil Order</div>` +
+        row.accounts.map((a) => `<div class="order-cred-box">${escapeHtml([a.username, a.password, a.note].filter(v => v && v !== '-').join(' | ') || '-')}</div>`).join('');
+    } else if (row.status === 'processing') {
+      credentialHtml = `<div class="text-sm text-muted" style="margin-top:14px"><i class="fas fa-circle-notch fa-spin"></i> Akun sedang diproses, cek lagi beberapa saat lagi.</div>`;
+    }
+  }
+
+  body.innerHTML = rowsHtml.join('') + credentialHtml;
+  footer.innerHTML = (canRate
+    ? `<button class="btn btn-primary" onclick="Modal.close('detail-modal'); openRatingModal('${row.id}')"><i class="fas fa-star"></i> Beri Rating</button>`
+    : `<button class="btn btn-outline" onclick="Modal.close('detail-modal')">Tutup</button>`) + complaintFooterHtml;
+}
+
+function copyCredential() {
+  if (!currentDetail || !currentDetail.row.credential) return;
+  navigator.clipboard.writeText(currentDetail.row.credential).then(() => Toast.success('Kredensial disalin'));
+}
+
+let ratingOrderId = null;
+let ratingValue = 0;
+
+function openRatingModal(orderId) {
+  ratingOrderId = orderId;
+  ratingValue = 0;
+  document.getElementById('rating-stars-input').querySelectorAll('i').forEach(s => s.className = 'far fa-star');
+  document.getElementById('rating-comment').value = '';
+  Modal.open('rating-modal');
+}
+
+document.getElementById('rating-stars-input').addEventListener('click', (e) => {
+  const star = e.target.closest('[data-star]');
+  if (!star) return;
+  ratingValue = Number(star.dataset.star);
+  document.getElementById('rating-stars-input').querySelectorAll('i').forEach(s => {
+    s.className = Number(s.dataset.star) <= ratingValue ? 'fas fa-star' : 'far fa-star';
+  });
+});
+
+async function submitRating() {
+  if (!ratingValue) { Toast.warning('Pilih rating bintang dulu'); return; }
+  const btn = document.getElementById('rating-submit-btn');
+  btnLoading(btn, true);
+  const res = await API.post(`/api/orders/${ratingOrderId}/review`, {
+    rating: ratingValue,
+    comment: document.getElementById('rating-comment').value.trim(),
+  });
+  btnLoading(btn, false);
+  if (!res.success) { Toast.error(res.message); return; }
+  Toast.success(res.message);
+  Modal.close('rating-modal');
+  loadData(currentPage);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') applyFilter();
+  });
+});
+
+let complaintOrderId = null;
+function openComplaintModal(orderId) {
+  complaintOrderId = orderId;
+  document.getElementById('complaint-reason').value = '';
+  Modal.open('complaint-modal');
+}
+
+async function submitComplaint() {
+  const reason = document.getElementById('complaint-reason').value.trim();
+  if (!reason) { Toast.warning('Alasan komplain wajib diisi'); return; }
+  const btn = document.getElementById('complaint-submit-btn');
+  btnLoading(btn, true);
+  const res = await API.post(`/api/order/${complaintOrderId}/complaint`, { reason });
+  btnLoading(btn, false);
+  if (!res.success) { Toast.error(res.message); return; }
+  Toast.success(res.message);
+  Modal.close('complaint-modal');
+  loadData(currentPage);
+}
+
+init();
+</script>
+</body>
+</html>
