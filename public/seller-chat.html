@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .chat-room-wrap { display: flex; flex-direction: column; height: calc(100vh - 140px); min-height: 420px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
+    .chat-room-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .chat-room-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--coral)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #052430; overflow: hidden; flex-shrink: 0; }
+    .chat-room-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .chat-room-name { font-weight: 700; font-size: 14.5px; }
+    .chat-room-product { font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; margin-top: 1px; }
+    .chat-room-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-bubble-row { display: flex; }
+    .chat-bubble-row.mine { justify-content: flex-end; }
+    .chat-bubble { max-width: 75%; padding: 9px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.45; word-break: break-word; white-space: pre-wrap; }
+    .chat-bubble-row:not(.mine) .chat-bubble { background: var(--bg-soft); border-bottom-left-radius: 4px; }
+    .chat-bubble-row.mine .chat-bubble { background: var(--primary); color: #052430; border-bottom-right-radius: 4px; }
+    .chat-bubble-time { font-size: 10px; opacity: .6; margin-top: 4px; }
+    .chat-room-input { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); flex-shrink: 0; }
+    .chat-room-input textarea { flex: 1; resize: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13.5px; font-family: inherit; max-height: 100px; background: var(--bg-body); color: var(--text); }
+    .chat-room-input textarea:focus { outline: none; border-color: var(--primary); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Chat</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <button class="btn btn-outline btn-sm mb-16" onclick="location.href='/messages'"><i class="fas fa-arrow-left"></i> Semua Pesan</button>
+
+      <div class="chat-room-wrap">
+        <div class="chat-room-head" id="chat-room-head"><div class="loading-spinner"></div></div>
+        <div class="chat-room-body" id="chat-room-body"></div>
+        <div class="text-xs text-muted" style="padding:6px 16px;border-top:1px solid var(--border-soft)"><i class="fas fa-circle-info"></i> Riwayat chat otomatis dihapus setelah 7 hari tidak ada aktivitas</div>
+        <div class="chat-room-input">
+          <textarea id="chat-input" rows="1" maxlength="1000" placeholder="Tulis pesan..."></textarea>
+          <button class="btn btn-primary" id="chat-send-btn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+<script>
+const roomId = location.pathname.split('/').filter(Boolean)[1];
+let myUserId = null;
+let socket = null;
+
+async function init() {
+  const res = await Auth.check();
+  if (!res) return;
+  Auth.renderUserInfo(res.user, res.wallet);
+  myUserId = res.user.id;
+
+  if (!roomId) { location.href = '/messages'; return; }
+
+  const data = await API.get(`/api/seller-chat/rooms/${roomId}/messages`);
+  if (!data.success) {
+    document.getElementById('chat-room-head').innerHTML = `<div class="text-muted text-sm">${escapeHtml(data.message || 'Chat tidak ditemukan')}</div>`;
+    document.getElementById('chat-input').disabled = true;
+    document.getElementById('chat-send-btn').disabled = true;
+    return;
+  }
+
+  renderHead(data.room);
+  renderMessages(data.messages);
+  connectSocket();
+}
+
+function renderHead(room) {
+  const c = room.counterpart;
+  document.getElementById('chat-room-head').innerHTML = `
+    <div class="chat-room-avatar">${c && c.avatar ? `<img src="${escapeAttr(c.avatar)}" alt="">` : escapeHtml((c ? c.name : '?')[0].toUpperCase())}</div>
+    <div>
+      <div class="chat-room-name">${escapeHtml(c ? c.name : 'User')}</div>
+      ${room.product ? `<div class="chat-room-product"><i class="fas fa-box"></i> ${escapeHtml(room.product.name)}</div>` : ''}
+    </div>
+  `;
+}
+
+function bubbleHtml(msg) {
+  const mine = msg.sender_id === myUserId;
+  return `
+    <div class="chat-bubble-row ${mine ? 'mine' : ''}">
+      <div>
+        <div class="chat-bubble">${escapeHtml(msg.message)}</div>
+        <div class="chat-bubble-time" style="text-align:${mine ? 'right' : 'left'}">${formatDate(msg.createdAt, true)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderMessages(messages) {
+  const body = document.getElementById('chat-room-body');
+  if (!messages.length) {
+    body.innerHTML = `<div class="text-muted text-sm" style="text-align:center;margin-top:30px">Mulai percakapan dengan mengirim pesan pertama 👋</div>`;
+  } else {
+    body.innerHTML = messages.map(bubbleHtml).join('');
+  }
+  body.scrollTop = body.scrollHeight;
+}
+
+function appendMessage(msg) {
+  const body = document.getElementById('chat-room-body');
+  if (body.children.length === 1 && body.children[0].classList.contains('text-muted')) body.innerHTML = '';
+  body.insertAdjacentHTML('beforeend', bubbleHtml(msg));
+  body.scrollTop = body.scrollHeight;
+}
+
+function connectSocket() {
+  if (typeof io === 'undefined') return;
+  socket = io(window.API_BASE_URL, { path: '/socket.io', withCredentials: true, reconnection: true });
+  socket.on('sellerchat:new_message', (payload) => {
+    if (payload.room_id !== roomId) return;
+    appendMessage(payload.message);
+  });
+  socket.on('sellerchat:room_purged', (payload) => {
+    if (payload.room_id !== roomId) return;
+    Toast.warning('Chat ini sudah otomatis dibersihkan karena tidak aktif 7 hari');
+    setTimeout(() => { location.href = '/messages'; }, 1500);
+  });
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+  const btn = document.getElementById('chat-send-btn');
+  btn.disabled = true;
+  const res = await API.post(`/api/seller-chat/rooms/${roomId}/messages`, { message: text });
+  btn.disabled = false;
+  if (!res.success) { Toast.error(res.message || 'Gagal mengirim pesan'); input.value = text; return; }
+  if (!socket || !socket.connected) appendMessage(res.data);
+}
+
+document.getElementById('chat-send-btn').addEventListener('click', sendMessage);
+document.getElementById('chat-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+document.getElementById('chat-input').addEventListener('input', function () {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
+
+init();
+</script>
+</body>
+</html>
