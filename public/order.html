@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketplace — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .order-search { position: relative; margin-bottom: 20px; }
+    .order-search input {
+      width: 100%; padding: 13px 16px 13px 44px; border-radius: var(--radius-sm);
+      border: var(--border-w) solid var(--border-soft); background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); color: var(--text);
+      font-size: 14px;
+    }
+    .order-search input:focus { outline: none; border-color: var(--primary); box-shadow: var(--glow); }
+    .order-search i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; margin-bottom: 8px; }
+    .cat-tile {
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: var(--border-w) solid var(--border-soft); border-radius: var(--radius);
+      padding: 20px 12px; text-align: center; cursor: pointer; box-shadow: var(--shadow);
+      transition: transform .15s, box-shadow .15s, border-color .15s;
+    }
+    .cat-tile:hover, .cat-tile.active { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--primary); }
+    .cat-tile .icon { width: 46px; height: 46px; border-radius: 12px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: var(--primary-light); border: 2px solid var(--primary); }
+    .cat-tile h4 { font-size: 13px; font-weight: 700; }
+
+    .variant-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+    .variant-card {
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+      transition: transform .15s, box-shadow .15s, border-color .15s;
+    }
+    .variant-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--primary); }
+    .variant-card-top { padding: 16px; }
+    .variant-thumb { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 10px; margin-bottom: 10px; display: block; }
+    .variant-thumb-placeholder { display: flex; align-items: center; justify-content: center; background: var(--bg-soft); color: var(--text-muted); font-size: 28px; }
+    .variant-card h4 { font-size: 15px; }
+    .variant-card .desc { font-size: 12.5px; color: var(--text-muted); min-height: 18px; }
+    .variant-divider { position: relative; height: 1px; border-top: 2px dashed var(--border); margin: 0 16px; }
+    .variant-divider::before, .variant-divider::after { content: ''; position: absolute; top: -9px; width: 18px; height: 18px; border-radius: 50%; background: var(--bg); }
+    .variant-divider::before { left: -25px; }
+    .variant-divider::after { right: -25px; }
+    .variant-card-bottom { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .variant-price { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--primary); }
+    .variant-stock { font-size: 12px; color: var(--text-muted); }
+    .variant-stock.empty { color: var(--danger); }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .empty-state i { font-size: 40px; margin-bottom: 14px; display: block; }
+
+    .modal-credential { background: var(--primary-light); border: 2px dashed var(--primary); border-radius: var(--radius-sm); padding: 14px; font-family: var(--font-mono); font-size: 13px; word-break: break-all; margin-top: 12px; }
+
+    .cat-breadcrumb-nav { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 13px; color: var(--text-muted); }
+    .cat-breadcrumb-nav a { color: var(--primary); cursor: pointer; font-weight: 600; }
+    .cat-breadcrumb-nav a:hover { text-decoration: underline; }
+
+    .variant-seller-row { display: flex; align-items: center; gap: 6px; margin: 6px 0 2px; font-size: 11.5px; color: var(--text-muted); cursor: pointer; }
+    .variant-seller-row:hover { color: var(--primary); }
+    .variant-seller-row .rating-stars { color: var(--warning); font-size: 10px; }
+    .variant-thumb-wrap { position: relative; cursor: pointer; }
+
+    .wishlist-btn {
+      position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(10,14,22,.55); backdrop-filter: blur(4px); border: none; color: #fff; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; transition: transform .15s, color .15s;
+    }
+    .wishlist-btn:hover { transform: scale(1.1); }
+    .wishlist-btn.active { color: var(--coral); }
+
+    .price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+    .price-row .original-price { font-size: 12px; color: var(--text-muted); text-decoration: line-through; }
+    .discount-tag { font-size: 10px; font-weight: 800; background: var(--danger-light); color: var(--danger); border-radius: 6px; padding: 1px 6px; }
+
+    .variant-card-actions { display: flex; gap: 8px; }
+    .variant-card-actions .btn-order { flex: 1; }
+    .btn-add-cart { width: 42px; flex-shrink: 0; padding: 0 !important; }
+
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+    .filter-bar select, .filter-bar input { padding: 8px 10px; font-size: 12.5px; border-radius: var(--radius-sm); border: var(--border-w) solid var(--border-soft); background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); color: var(--text); }
+    .filter-bar .csel { flex: 0 0 auto; min-width: 170px; }
+    .filter-bar .csel-trigger { padding: 8px 10px; font-size: 12.5px; border-color: var(--border-soft); background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
+    .filter-bar .price-range { display: flex; align-items: center; gap: 4px; }
+    .filter-bar .price-range input { width: 90px; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><i class="fas fa-store"></i></div>
+        <span>Austin Store</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item active" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Marketplace</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" onclick="location.href='/wishlist'" title="Wishlist"><i class="fas fa-heart"></i></button>
+        </div>
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" onclick="location.href='/cart'" title="Keranjang"><i class="fas fa-cart-shopping"></i></button>
+          <span class="notif-badge" id="cart-badge"></span>
+        </div>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="order-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search-input" placeholder="Cari produk (nama), atau kategori...">
+      </div>
+
+      <div class="section-row" style="margin:0 0 10px">
+        <div><span class="eyebrow">Katalog</span><h2 style="font-size:17px" id="cat-heading">Semua Kategori</h2></div>
+      </div>
+      <div id="cat-breadcrumb" style="display:none;margin-bottom:16px"></div>
+
+      <div class="cat-grid" id="cat-grid"><div class="loading-spinner"></div></div>
+
+      <div id="variant-section" style="margin-top:28px;display:none">
+        <div class="card-header" style="padding:0 0 14px 0;border:none">
+          <span class="card-title" id="variant-title"></span>
+          <button class="btn btn-outline btn-sm" id="btn-back-cat"><i class="fas fa-arrow-left"></i> Kembali</button>
+        </div>
+        <div class="filter-bar">
+          <select id="filter-sort">
+            <option value="">Urutkan: Terbaru</option>
+            <option value="price_asc">Harga Terendah</option>
+            <option value="price_desc">Harga Tertinggi</option>
+            <option value="rating_desc">Rating Tertinggi</option>
+            <option value="name_asc">Nama A-Z</option>
+          </select>
+          <div class="price-range">
+            <input type="number" id="filter-min-price" placeholder="Harga min">
+            <span class="text-muted">—</span>
+            <input type="number" id="filter-max-price" placeholder="Harga max">
+          </div>
+          <select id="filter-rating">
+            <option value="">Semua Rating</option>
+            <option value="4">4★ ke atas</option>
+            <option value="3">3★ ke atas</option>
+          </select>
+          <button class="btn btn-outline btn-sm" id="btn-apply-filter"><i class="fas fa-filter"></i> Terapkan</button>
+        </div>
+        <div class="variant-grid" id="variant-grid"></div>
+        <div class="pagination" id="search-pagination-wrap" style="display:none"><span class="pagination-info" id="search-page-info"></span><div class="pagination-nav" id="search-pagination"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="order-modal-overlay">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-cart-shopping" style="color:var(--primary);margin-right:8px"></i>Konfirmasi Order</span>
+      <button class="modal-close" id="order-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="order-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="order-modal-cancel">Batal</button>
+      <button class="btn btn-primary" id="order-modal-confirm"><i class="fas fa-bolt"></i> Order Sekarang</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="result-modal-overlay">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-circle-check" style="color:var(--success);margin-right:8px"></i>Order Berhasil</span>
+      <button class="modal-close" id="result-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="result-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary btn-full" id="result-modal-ok">Selesai</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/custom-select.js"></script>
+<script>
+let categories = []; 
+let categoryStack = []; 
+let selectedVariantId = null;
+let selectedVariantPrice = 0;
+let currentMode = { type: 'category', id: null, name: null }; 
+
+const ICONS = ['fa-film','fa-scissors','fa-music','fa-tv','fa-cloud','fa-robot','fa-gamepad','fa-box'];
+
+async function loadCategories() {
+  const res = await Auth.checkOptional();
+  if (res) { Auth.renderUserInfo(res.user, res.wallet); } else { Auth.renderGuestUI(); }
+
+  const data = await API.get('/api/categories');
+  if (!data.success) {
+    document.getElementById('cat-grid').innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-box-open"></i>Belum ada kategori tersedia</div>`;
+    return;
+  }
+  categories = data.data;
+  renderCurrentLevel();
+}
+
+function childrenOf(parentId) {
+  return categories.filter(c => (c.parent_id || null) === (parentId || null));
+}
+
+function currentParentId() {
+  return categoryStack.length ? categoryStack[categoryStack.length - 1].id : null;
+}
+
+function renderBreadcrumb() {
+  const el = document.getElementById('cat-breadcrumb');
+  if (!categoryStack.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = 'block';
+  const crumbs = [`<a data-crumb="-1">Semua Kategori</a>`]
+    .concat(categoryStack.map((c, i) => `<span>/</span><a data-crumb="${i}">${escapeHtml(c.name)}</a>`));
+  el.innerHTML = `<div class="cat-breadcrumb-nav">${crumbs.join(' ')}</div>`;
+  el.querySelectorAll('[data-crumb]').forEach(a => {
+    a.addEventListener('click', () => {
+      const idx = Number(a.dataset.crumb);
+      categoryStack = idx < 0 ? [] : categoryStack.slice(0, idx + 1);
+      renderCurrentLevel();
+    });
+  });
+}
+
+function renderCurrentLevel() {
+  document.getElementById('variant-section').style.display = 'none';
+  document.getElementById('cat-grid').style.display = 'grid';
+  document.querySelector('.order-search').style.display = 'block';
+  document.getElementById('cat-heading').textContent = categoryStack.length
+    ? categoryStack[categoryStack.length - 1].name
+    : 'Semua Kategori';
+  renderBreadcrumb();
+  const list = childrenOf(currentParentId());
+  renderCategories(list);
+}
+
+function renderCategories(list) {
+  const grid = document.getElementById('cat-grid');
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-magnifying-glass"></i>Belum ada kategori di sini</div>`;
+    return;
+  }
+  grid.innerHTML = list.map((c, i) => `
+    <div class="cat-tile" data-id="${c.id}" data-name="${escapeAttr(c.name)}">
+      <div class="icon">${c.image ? `<img src="${escapeAttr(c.image)}" alt="${escapeAttr(c.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">` : `<i class="fas ${ICONS[i % ICONS.length]}"></i>`}</div>
+      <h4>${escapeHtml(c.name)}</h4>
+      ${childrenOf(c.id).length ? `<div class="text-xs text-muted" style="margin-top:4px">${childrenOf(c.id).length} sub-kategori</div>` : ''}
+    </div>
+  `).join('');
+  grid.querySelectorAll('.cat-tile').forEach(el => {
+    el.addEventListener('click', () => openCategory(el.dataset.id, el.dataset.name));
+  });
+}
+
+async function openCategory(id, name) {
+  const hasChildren = childrenOf(id).length > 0;
+  if (hasChildren) {
+    categoryStack.push({ id, name });
+    renderCurrentLevel();
+    document.getElementById('cat-grid').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  currentMode = { type: 'category', id, name };
+  document.getElementById('variant-title').textContent = name;
+  document.getElementById('variant-section').style.display = 'block';
+  document.getElementById('cat-grid').style.display = 'none';
+  document.querySelector('.order-search').style.display = 'none';
+  document.getElementById('search-pagination-wrap').style.display = 'none';
+  document.getElementById('variant-section').scrollIntoView({ behavior: 'smooth' });
+  await loadVariants();
+}
+
+async function runProductSearch(q, page = 1) {
+  currentMode = { type: 'search', q };
+  document.getElementById('variant-title').textContent = `Hasil pencarian: "${q}"`;
+  document.getElementById('variant-section').style.display = 'block';
+  document.getElementById('cat-grid').style.display = 'none';
+  document.getElementById('variant-section').scrollIntoView({ behavior: 'smooth' });
+  await loadVariants(page);
+}
+
+async function loadVariants(page = 1) {
+  const grid = document.getElementById('variant-grid');
+  grid.innerHTML = '<div class="loading-spinner"></div>';
+
+  const sort = document.getElementById('filter-sort').value;
+  const minPrice = document.getElementById('filter-min-price').value;
+  const maxPrice = document.getElementById('filter-max-price').value;
+  const minRating = document.getElementById('filter-rating').value;
+  const qs = new URLSearchParams();
+  if (sort) qs.set('sort', sort);
+  if (minPrice) qs.set('min_price', minPrice);
+  if (maxPrice) qs.set('max_price', maxPrice);
+  if (minRating) qs.set('min_rating', minRating);
+
+  let data;
+  if (currentMode.type === 'search') {
+    qs.set('q', currentMode.q);
+    qs.set('page', page);
+    qs.set('limit', 20);
+    data = await API.get(`/api/products/search?${qs.toString()}`);
+  } else {
+    data = await API.get(`/api/categories/${currentMode.id}/variants?${qs.toString()}`);
+  }
+
+  if (!data.success || !data.data.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-box-open"></i>${currentMode.type === 'search' ? 'Tidak ada produk yang cocok' : 'Belum ada varian di kategori ini'}</div>`;
+    document.getElementById('search-pagination-wrap').style.display = 'none';
+    return;
+  }
+  renderVariantCards(data.data);
+
+  const pagWrap = document.getElementById('search-pagination-wrap');
+  if (currentMode.type === 'search' && data.pages > 1) {
+    pagWrap.style.display = 'flex';
+    document.getElementById('search-page-info').textContent = `Halaman ${data.page} dari ${data.pages} (${data.total} total)`;
+    renderPagination('search-pagination', data.page, data.pages, (p) => loadVariants(p));
+  } else {
+    pagWrap.style.display = 'none';
+  }
+}
+
+function renderVariantCards(list) {
+  const grid = document.getElementById('variant-grid');
+  grid.innerHTML = list.map(v => `
+    <div class="variant-card">
+      <div class="variant-card-top">
+        <div class="variant-thumb-wrap" data-open="${v.id}">
+          ${v.image_url ? `<img src="${escapeAttr(v.image_url)}" alt="${escapeAttr(v.name)}" class="variant-thumb" onerror="this.style.display='none'">` : `<div class="variant-thumb variant-thumb-placeholder"><i class="fas fa-box"></i></div>`}
+          <button class="wishlist-btn ${v.is_wishlisted ? 'active' : ''}" data-wishlist="${v.id}" title="Wishlist"><i class="${v.is_wishlisted ? 'fas' : 'far'} fa-heart"></i></button>
+          ${v.discount_active ? `<span class="discount-tag" style="position:absolute;top:8px;left:8px;z-index:2">DISKON</span>` : ''}
+        </div>
+        <h4 data-open="${v.id}" style="cursor:pointer">${escapeHtml(v.name)}</h4>
+        <div class="desc">${escapeHtml(v.description || 'Produk siap dikirim')}</div>
+        <div class="variant-seller-row" data-seller="${v.seller_id}">
+          <i class="fas fa-store"></i> ${escapeHtml(v.seller_name)}
+          ${v.rating_count > 0 ? `<span class="rating-stars">${renderStars(v.rating_average)}</span><span>(${v.rating_count})</span>` : ''}
+        </div>
+      </div>
+      <div class="variant-divider"></div>
+      <div class="variant-card-bottom">
+        <div class="flex-between">
+          <div class="price-row">
+            <span class="variant-price">${formatRupiah(v.price)}</span>
+            ${v.discount_active ? `<span class="original-price">${formatRupiah(v.original_price)}</span>` : ''}
+          </div>
+          <div class="variant-stock ${v.stock_available === 0 ? 'empty' : ''}">
+            <i class="fas fa-boxes-stacked"></i> ${v.stock_available > 0 ? v.stock_available + ' stok' : 'Habis'}
+          </div>
+        </div>
+        <div class="variant-card-actions">
+          <button class="btn btn-primary btn-order" ${v.stock_available === 0 ? 'disabled' : ''} data-order="${v.id}" data-name="${escapeAttr(v.name)}" data-price="${v.price}" data-original-price="${v.original_price}" data-discount="${v.discount_active ? 1 : 0}">
+            <i class="fas fa-bolt"></i> ${v.stock_available === 0 ? 'Stok Habis' : 'Order'}
+          </button>
+          <button class="btn btn-outline btn-add-cart" ${v.stock_available === 0 ? 'disabled' : ''} data-add-cart="${v.id}" data-name="${escapeAttr(v.name)}" title="Tambah ke Keranjang"><i class="fas fa-cart-plus"></i></button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('[data-order]').forEach(btn => {
+    btn.addEventListener('click', () => openOrderModal({
+      id: btn.dataset.order, name: btn.dataset.name, price: Number(btn.dataset.price),
+      original_price: Number(btn.dataset.originalPrice), discount_active: btn.dataset.discount === '1',
+    }));
+  });
+  grid.querySelectorAll('[data-open]').forEach(el => {
+    el.addEventListener('click', () => { location.href = `/product/${el.dataset.open}`; });
+  });
+  grid.querySelectorAll('[data-seller]').forEach(el => {
+    el.addEventListener('click', () => { location.href = `/toko/${el.dataset.seller}`; });
+  });
+  grid.querySelectorAll('[data-wishlist]').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); toggleWishlist(btn.dataset.wishlist, btn); });
+  });
+  grid.querySelectorAll('[data-add-cart]').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); addToCart(btn.dataset.addCart, btn.dataset.name, btn); });
+  });
+}
+
+document.getElementById('btn-back-cat').addEventListener('click', () => {
+  renderCurrentLevel();
+});
+
+document.getElementById('btn-apply-filter').addEventListener('click', () => loadVariants(1));
+
+let searchDebounce = null;
+document.getElementById('search-input').addEventListener('input', (e) => {
+  const q = e.target.value.trim();
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => {
+    if (!q) { renderCurrentLevel(); return; }
+    if (q.length < 2) return; 
+    runProductSearch(q);
+  }, 350);
+});
+
+async function toggleWishlist(id, btn) {
+  if (!Auth.requireLogin('Masuk dulu untuk menyimpan wishlist')) return;
+  const active = btn.classList.contains('active');
+  const res = active ? await API.request('DELETE', `/api/wishlist/${id}`) : await API.post(`/api/wishlist/${id}`);
+  if (!res.success) { Toast.error(res.message || 'Gagal update wishlist'); return; }
+  btn.classList.toggle('active', !active);
+  btn.querySelector('i').className = !active ? 'fas fa-heart' : 'far fa-heart';
+}
+
+async function addToCart(id, name, btn) {
+  if (!Auth.requireLogin('Masuk dulu untuk menambah ke keranjang')) return;
+  if (btn) btnLoading(btn, true);
+  const res = await API.post('/api/cart/add', { product_variant_id: id, quantity: 1 });
+  if (btn) btnLoading(btn, false);
+  if (!res.success) { Toast.error(res.message || 'Gagal menambah ke keranjang'); return; }
+  Toast.success(`${name} ditambahkan ke keranjang`);
+}
+
+function openOrderModal(v) {
+  selectedVariantId = v.id;
+  selectedVariantPrice = v.price;
+  document.getElementById('order-modal-body').innerHTML = `
+    <p style="margin-bottom:10px">Kamu akan order:</p>
+    <div class="card" style="padding:14px;border-color:var(--primary)">
+      <div style="font-weight:700">${escapeHtml(v.name)}</div>
+      <div class="price-row" style="margin-top:6px">
+        <span class="variant-price" id="modal-price">${formatRupiah(v.price)}</span>
+        ${v.discount_active ? `<span class="original-price">${formatRupiah(v.original_price)}</span>` : ''}
+      </div>
+      <div id="modal-flashsale-badge" style="margin-top:6px"></div>
+    </div>
+  `;
+  document.getElementById('order-modal-overlay').classList.add('open');
+
+  API.get(`/api/flashsale/active?variant_id=${v.id}`).then((fsRes) => {
+    if (fsRes.success && fsRes.data) {
+      document.getElementById('modal-price').textContent = formatRupiah(fsRes.data.price_after);
+      document.getElementById('modal-flashsale-badge').innerHTML =
+        `<span class="discount-tag"><i class="fas fa-bolt"></i> ${escapeHtml(fsRes.data.label)} — otomatis diterapkan, hemat ${formatRupiah(fsRes.data.discount)}</span>`;
+    }
+  }).catch(() => {});
+}
+document.getElementById('order-modal-close').addEventListener('click', () => document.getElementById('order-modal-overlay').classList.remove('open'));
+document.getElementById('order-modal-cancel').addEventListener('click', () => document.getElementById('order-modal-overlay').classList.remove('open'));
+
+document.getElementById('order-modal-confirm').addEventListener('click', async (e) => {
+  if (!Auth.requireLogin('Masuk dulu untuk melanjutkan order')) return;
+  e.target.classList.add('btn-loading');
+  e.target.disabled = true;
+  const res = await API.post('/api/checkout/init', { product_variant_id: selectedVariantId });
+  e.target.classList.remove('btn-loading');
+  e.target.disabled = false;
+
+  if (!res.success) { Toast.error(res.message || 'Gagal membuat sesi checkout'); return; }
+  location.href = `/checkout?session=${encodeURIComponent(res.data.session_id)}`;
+});
+document.getElementById('result-modal-close').addEventListener('click', () => document.getElementById('result-modal-overlay').classList.remove('open'));
+document.getElementById('result-modal-ok').addEventListener('click', () => {
+  document.getElementById('result-modal-overlay').classList.remove('open');
+  location.reload();
+});
+
+loadCategories().then(() => {
+  const params = new URLSearchParams(location.search);
+  const q = params.get('q');
+  const openId = params.get('open');
+  if (q) {
+    document.getElementById('search-input').value = q;
+    runProductSearch(q);
+  }
+  if (openId) {
+    const cat = categories.find(c => c.id === openId);
+    if (cat) openCategory(cat.id, cat.name);
+  }
+});
+</script>
+</body>
+</html>
