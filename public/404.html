@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Austin Store Marketplace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    body { background: #0f172a; color: #f1f5f9; }
+    .not-found { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; }
+    .not-found .code { font-size: 96px; font-weight: 800; background: linear-gradient(135deg, #1a56db, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0; line-height: 1; }
+    .not-found h2 { font-size: 24px; font-weight: 700; margin: 16px 0 8px; }
+    .not-found p { color: #94a3b8; margin-bottom: 32px; }
+    .not-found .icon { font-size: 56px; color: #1a56db; margin-bottom: 16px; opacity: .6; }
+  </style>
+</head>
+<body>
+<div class="not-found">
+  <div class="icon"><i class="fas fa-exclamation-circle"></i></div>
+  <div class="code">404</div>
+  <h2>Halaman Tidak Ditemukan</h2>
+  <p>Halaman yang kamu cari tidak ada atau telah dipindahkan.</p>
+  <a href="/" class="btn btn-primary btn-lg"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</a>
+</div>
+</body>
+</html>
