@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Austin Store Marketplace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+    <style>
+    #dash-topup-games, #dash-top-selling, #dash-cheapest {
+      grid-template-columns: repeat(auto-fill, minmax(102px, 1fr));
+      gap: 10px;
+    }
+    #dash-topup-games .game-tile .info,
+    #dash-top-selling .game-tile .info,
+    #dash-cheapest .game-tile .info { padding: 7px 8px 8px; }
+    #dash-topup-games .game-tile .info h4,
+    #dash-top-selling .game-tile .info h4,
+    #dash-cheapest .game-tile .info h4 { font-size: 11.5px; }
+    #dash-topup-games .game-tile .info span,
+    #dash-top-selling .game-tile .info span,
+    #dash-cheapest .game-tile .info span { font-size: 10px; }
+    #dash-topup-games .game-tile .thumb-fallback,
+    #dash-top-selling .game-tile .thumb-fallback,
+    #dash-cheapest .game-tile .thumb-fallback { font-size: 20px; }
+    #dash-topup-games .game-tile .info span.badge-topup {
+      display: inline-flex; width: fit-content; margin-top: 4px;
+      font-size: 9.5px; padding: 3px 9px; letter-spacing: .01em;
+    }
+  </style>
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><i class="fas fa-store"></i></div>
+        <span>Austin Store</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item active" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Buyer</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:#ef4444"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title" data-brand-title>Market Austin</div>
+      <div class="topbar-actions">
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" id="notif-bell"><i class="fas fa-bell"></i></button>
+          <span class="notif-badge" id="notif-badge"></span>
+        </div>
+        <button class="btn-icon" id="theme-toggle"><i class="fas fa-moon"></i></button>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+            <div class="dash-marquee" id="dash-marquee" style="display:none">
+        <i class="fas fa-bullhorn dash-marquee-icon"></i>
+        <div class="dash-marquee-track">
+          <span class="dash-marquee-text" id="dash-marquee-text-a"></span>
+          <span class="dash-marquee-text" id="dash-marquee-text-b"></span>
+        </div>
+      </div>
+
+            <form class="market-search mb-24" id="dash-search-form" style="max-width:100%">
+        <i class="fas fa-search"></i>
+        <input type="text" id="dash-search-input" placeholder="Cari game, voucher, akun premium...">
+      </form>
+
+            <div class="banner-strip mb-24" id="dash-banner-strip" style="display:none"></div>
+
+            <div id="dash-announcements"></div>
+
+            <div class="section-row" style="margin:0 0 14px">
+        <div><span class="eyebrow">Belanja Cepat</span><h2 style="font-size:16px">Kategori</h2></div>
+        <a href="/order" class="see-all">Semua Kategori <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="cat-icon-grid mb-24" id="dash-cat-icons"><div class="loading-spinner"></div></div>
+
+            <div class="section-row" style="margin:0 0 14px" id="dash-topup-row">
+        <div><span class="eyebrow">Top Up</span><h2 style="font-size:16px">Topup Game</h2></div>
+        <a href="/topup" class="see-all">Semua Game <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="game-grid mb-24" id="dash-topup-games"></div>
+
+            <div class="section-row" style="margin:0 0 14px">
+        <div><span class="eyebrow">Populer</span><h2 style="font-size:16px">Produk Terlaris</h2></div>
+        <a href="/order" class="see-all">Lihat Semua <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="game-grid mb-24" id="dash-top-selling"><div class="loading-spinner"></div></div>
+
+            <div class="section-row" style="margin:0 0 14px">
+        <div><span class="eyebrow">Populer</span><h2 style="font-size:16px">Harga Termurah</h2></div>
+        <a href="/order" class="see-all">Lihat Semua <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="game-grid mb-24" id="dash-cheapest"><div class="loading-spinner"></div></div>
+
+            <div class="section-row" style="margin:0 0 14px">
+        <div><span class="eyebrow">Populer</span><h2 style="font-size:16px">Toko Rating Tertinggi</h2></div>
+        <a href="/order" class="see-all">Lihat Semua <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="seller-grid mb-24" id="dash-top-sellers"><div class="loading-spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="info-modal-overlay">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-circle-info" style="color:var(--primary);margin-right:8px"></i>Informasi Layanan</span>
+      <button class="modal-close" id="info-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="info-modal-body" style="max-height:60vh;overflow-y:auto">
+          </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="info-modal-dismiss">Tutup</button>
+      <button class="btn btn-primary" id="info-modal-read"><i class="fas fa-check"></i> Saya sudah membaca</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+<script src="/js/chat.js"></script>
+<script src="/js/cs.js"></script>
+<script>
+const OFFLINE_THRESHOLD_MS = 10 * 60 * 1000; 
+const INFO_SEEN_KEY = 'dash_info_banners_seen';
+let currentInfoBannerIds = '';
+
+var infoModalOverlay = document.getElementById('info-modal-overlay');
+var infoModalClose = document.getElementById('info-modal-close');
+var infoModalDismiss = document.getElementById('info-modal-dismiss');
+var infoModalRead = document.getElementById('info-modal-read');
+var infoModalBody = document.getElementById('info-modal-body');
+
+function openInfoModal() { infoModalOverlay.classList.add('open'); }
+function closeInfoModal() { infoModalOverlay.classList.remove('open'); }
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function renderInfoModal(items) {
+  if (!items || !items.length) { infoModalBody.innerHTML = ''; return false; }
+  infoModalBody.innerHTML = items.map(it => `
+    <div class="info-banner-item">
+      <div class="info-banner-title">${it.icon ? escapeHtml(it.icon) + ' ' : ''}${escapeHtml(it.title || '')}</div>
+      <div class="info-banner-message">${escapeHtml(it.message || '').replace(/\n/g, '<br>')}</div>
+      <div class="info-banner-date">${formatDate(it.date)}</div>
+    </div>
+  `).join('');
+  return true;
+}
+
+infoModalClose.addEventListener('click', closeInfoModal);
+infoModalDismiss.addEventListener('click', closeInfoModal);
+infoModalRead.addEventListener('click', function() {
+  localStorage.setItem(INFO_SEEN_KEY, currentInfoBannerIds);
+  closeInfoModal();
+});
+infoModalOverlay.addEventListener('click', function(e) { if (e.target === infoModalOverlay) closeInfoModal(); });
+</script>
+<script>
+async function loadDashboard() {
+  const res = await Auth.checkOptional();
+  if (res) {
+    Auth.renderUserInfo(res.user, res.wallet);
+    var wasOffline = Heartbeat.checkOffline(OFFLINE_THRESHOLD_MS);
+    Heartbeat.start();
+  } else {
+    Auth.renderGuestUI();
+  }
+
+  const data = await API.get('/api/user/dashboard');
+  if (!data.success) return;
+
+  const { info_banners, announcements, marquee, banners, categories, topup_categories, top_selling, cheapest, top_sellers } = data;
+
+  const hasInfo = renderInfoModal(info_banners);
+  currentInfoBannerIds = (info_banners || []).map(b => b.id).join(',');
+  const seenIds = localStorage.getItem(INFO_SEEN_KEY) || '';
+  const hasUnseenInfo = hasInfo && currentInfoBannerIds !== seenIds;
+  if (hasInfo && (wasOffline || hasUnseenInfo)) {
+    setTimeout(openInfoModal, 500);
+  }
+
+  const marqueeEl = document.getElementById('dash-marquee');
+  if (marquee && marquee.enabled && marquee.text) {
+    document.getElementById('dash-marquee-text-a').textContent = marquee.text;
+    document.getElementById('dash-marquee-text-b').textContent = marquee.text;
+    marqueeEl.style.display = 'flex';
+  } else {
+    marqueeEl.style.display = 'none';
+  }
+
+  const annEl = document.getElementById('dash-announcements');
+  const annIcons = { info: 'fa-circle-info', warning: 'fa-triangle-exclamation', success: 'fa-circle-check', danger: 'fa-circle-exclamation' };
+  annEl.innerHTML = (announcements && announcements.length)
+    ? announcements.map(a => `
+        <div class="dash-announcement dash-announcement-${a.type}">
+          <i class="fas ${annIcons[a.type] || 'fa-circle-info'}"></i>
+          <span>${escapeHtml(a.message)}</span>
+        </div>
+      `).join('')
+    : '';
+
+  const bannerStrip = document.getElementById('dash-banner-strip');
+  if (banners && banners.length) {
+    bannerStrip.style.display = 'flex';
+    bannerStrip.innerHTML = banners.map(b => `
+      <div class="banner-slide" style="background-image:linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.6) 100%), url('${escapeHtml(b.image)}');background-size:cover;background-position:center;${b.link ? 'cursor:pointer' : ''}" ${b.link ? `onclick="location.href='${escapeHtml(b.link)}'"` : ''}>
+        ${b.title ? `<h3>${escapeHtml(b.title)}</h3>` : ''}
+      </div>
+    `).join('');
+  } else {
+    bannerStrip.style.display = 'none';
+  }
+
+  const catIcons = document.getElementById('dash-cat-icons');
+  if (categories && categories.length) {
+    catIcons.innerHTML = categories.map(c => `
+      <div class="cat-icon-tile" data-cat-id="${escapeAttr(c.id)}">
+        <div class="icon-box">${c.image ? `<img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">` : `<i class="fas fa-${escapeHtml(c.icon || 'box')}"></i>`}</div>
+        <span>${escapeHtml(c.name)}</span>
+      </div>
+    `).join('');
+    if (!catIcons._bound) {
+      catIcons.addEventListener('click', (e) => {
+        const tile = e.target.closest('[data-cat-id]');
+        if (tile) location.href = `/order?open=${encodeURIComponent(tile.dataset.catId)}`;
+      });
+      catIcons._bound = true;
+    }
+  } else {
+    catIcons.innerHTML = `<div class="text-xs text-muted" style="grid-column:1/-1">Belum ada kategori</div>`;
+  }
+
+  const topupRow = document.getElementById('dash-topup-row');
+  const topupGrid = document.getElementById('dash-topup-games');
+  const popularTopup = (topup_categories || []).filter((c) => c.popular);
+  const topupPreview = (popularTopup.length ? popularTopup : (topup_categories || [])).slice(0, 6);
+  if (topupPreview.length) {
+    topupRow.style.display = '';
+    topupGrid.innerHTML = topupPreview.map((c) => `
+      <div class="game-tile" data-topup-key="${escapeAttr(c.key)}">
+        ${c.image
+          ? `<img class="thumb" src="${escapeHtml(c.image)}" alt="${escapeHtml(c.name)}">`
+          : `<div class="thumb-fallback"><i class="fas fa-${escapeHtml(c.icon || 'gamepad')}"></i></div>`}
+        <div class="info">
+          <h4>${escapeHtml(c.name)}</h4>
+          <span class="badge badge-primary badge-topup">Top Up Instan</span>
+        </div>
+      </div>
+    `).join('');
+    if (!topupGrid._bound) {
+      topupGrid.addEventListener('click', (e) => {
+        const tile = e.target.closest('[data-topup-key]');
+        if (tile) location.href = `/topup?open=${encodeURIComponent(tile.dataset.topupKey)}`;
+      });
+      topupGrid._bound = true;
+    }
+  } else {
+    topupRow.style.display = 'none';
+    topupGrid.innerHTML = '';
+  }
+
+  const topSellingGrid = document.getElementById('dash-top-selling');
+  if (top_selling && top_selling.length) {
+    topSellingGrid.innerHTML = top_selling.map((p, i) => `
+      <div class="game-tile" data-product-id="${escapeAttr(p.id)}">
+        <div class="rank-badge">#${i + 1}</div>
+        ${p.image_url ? `<img class="thumb" src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}">` : `<div class="thumb-fallback"><i class="fas fa-box"></i></div>`}
+        <div class="info">
+          <h4>${escapeHtml(p.name)}</h4>
+          <span>${formatRupiah(p.price)}</span>
+          <span class="sold-count">${p.sold_count} terjual · <a href="/toko/${encodeURIComponent(p.seller_id)}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:underline">${escapeHtml(p.seller_name)}</a></span>
+        </div>
+      </div>
+    `).join('');
+    if (!topSellingGrid._bound) {
+      topSellingGrid.addEventListener('click', (e) => {
+        const tile = e.target.closest('[data-product-id]');
+        if (tile) location.href = `/product/${encodeURIComponent(tile.dataset.productId)}`;
+      });
+      topSellingGrid._bound = true;
+    }
+  } else {
+    topSellingGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-box-open"></i>Belum ada produk terjual</div>`;
+  }
+
+  const cheapestGrid = document.getElementById('dash-cheapest');
+  if (cheapest && cheapest.length) {
+    cheapestGrid.innerHTML = cheapest.map(p => `
+      <div class="game-tile" data-product-id="${escapeAttr(p.id)}">
+        ${p.image_url ? `<img class="thumb" src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}">` : `<div class="thumb-fallback"><i class="fas fa-box"></i></div>`}
+        <div class="info">
+          <h4>${escapeHtml(p.name)}</h4>
+          <span class="price-tag">${formatRupiah(p.price)}</span>
+          <span><a href="/toko/${encodeURIComponent(p.seller_id)}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:underline">${escapeHtml(p.seller_name)}</a></span>
+        </div>
+      </div>
+    `).join('');
+    if (!cheapestGrid._bound) {
+      cheapestGrid.addEventListener('click', (e) => {
+        const tile = e.target.closest('[data-product-id]');
+        if (tile) location.href = `/product/${encodeURIComponent(tile.dataset.productId)}`;
+      });
+      cheapestGrid._bound = true;
+    }
+  } else {
+    cheapestGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-box-open"></i>Belum ada produk tersedia</div>`;
+  }
+
+  const topSellersGrid = document.getElementById('dash-top-sellers');
+  if (top_sellers && top_sellers.length) {
+    topSellersGrid.innerHTML = top_sellers.map((s, i) => `
+      <div class="seller-tile" onclick="location.href='/toko/${encodeURIComponent(s.id)}'">
+        <div class="rank-badge">#${i + 1}</div>
+        <div class="seller-avatar">${s.avatar ? `<img src="${escapeHtml(s.avatar)}" alt="${escapeHtml(s.name)}">` : `<i class="fas fa-store"></i>`}</div>
+        <h4>${escapeHtml(s.name)}</h4>
+        <span class="star-rating"><i class="fas fa-star"></i> ${s.rating_average.toFixed(1)} <span class="text-muted">(${s.rating_count})</span></span>
+      </div>
+    `).join('');
+  } else {
+    topSellersGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-store-slash"></i>Belum ada toko dengan ulasan</div>`;
+  }
+}
+
+loadDashboard();
+
+document.addEventListener('DOMContentLoaded', function() {
+  var searchForm = document.getElementById('dash-search-form');
+  if (searchForm) {
+    searchForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var q = document.getElementById('dash-search-input').value.trim();
+      window.location.href = q ? '/order?q=' + encodeURIComponent(q) : '/order';
+    });
+  }
+});
+</script>
+</body>
+</html>
