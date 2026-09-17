@@ -1,0 +1,78 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+
+  "rewrites": [
+    { "source": "/", "destination": "/dashboard.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/register", "destination": "/register.html" },
+    { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/order", "destination": "/order.html" },
+    { "source": "/cart", "destination": "/cart.html" },
+    { "source": "/checkout", "destination": "/checkout.html" },
+    { "source": "/wishlist", "destination": "/wishlist.html" },
+    { "source": "/topup", "destination": "/topup.html" },
+    { "source": "/sosmed", "destination": "/sosmed.html" },
+    { "source": "/nokos", "destination": "/nokos.html" },
+    { "source": "/appprem", "destination": "/appprem.html" },
+    { "source": "/panel", "destination": "/panel.html" },
+    { "source": "/reseller", "destination": "/reseller.html" },
+    { "source": "/deposit", "destination": "/deposit.html" },
+    { "source": "/mutasi", "destination": "/mutasi.html" },
+    { "source": "/history", "destination": "/history.html" },
+    { "source": "/leaderboard", "destination": "/leaderboard.html" },
+    { "source": "/profile", "destination": "/profile.html" },
+    { "source": "/download-apk", "destination": "/download-apk.html" },
+    { "source": "/withdraw", "destination": "/withdraw.html" },
+
+    { "source": "/seller", "destination": "/seller/dashboard.html" },
+    { "source": "/seller/stock", "destination": "/seller/stock.html" },
+    { "source": "/seller/complaints", "destination": "/seller/complaints.html" },
+    { "source": "/seller/vouchers", "destination": "/seller/vouchers.html" },
+    { "source": "/seller/flashsale", "destination": "/seller/flashsale.html" },
+    { "source": "/seller/withdraw", "destination": "/withdraw.html" },
+
+    { "source": "/product/:id", "destination": "/product.html" },
+    { "source": "/toko/:id", "destination": "/toko.html" },
+    { "source": "/messages", "destination": "/messages.html" },
+    { "source": "/seller-chat/:id", "destination": "/seller-chat.html" },
+
+    { "source": "/austinganteng", "destination": "/owner.html" },
+    { "source": "/austinganteng/users", "destination": "/owner.html" },
+    { "source": "/austinganteng/sellers", "destination": "/owner.html" },
+    { "source": "/austinganteng/categories", "destination": "/owner.html" },
+    { "source": "/austinganteng/stock", "destination": "/owner.html" },
+    { "source": "/austinganteng/orders", "destination": "/owner.html" },
+    { "source": "/austinganteng/history", "destination": "/owner.html" },
+    { "source": "/austinganteng/complaints", "destination": "/owner.html" },
+    { "source": "/austinganteng/reports", "destination": "/owner.html" },
+    { "source": "/austinganteng/vouchers", "destination": "/owner.html" },
+    { "source": "/austinganteng/flashsale", "destination": "/owner.html" },
+    { "source": "/austinganteng/deposits", "destination": "/owner.html" },
+    { "source": "/austinganteng/withdraws", "destination": "/owner.html" },
+    { "source": "/austinganteng/transactions", "destination": "/owner.html" },
+    { "source": "/austinganteng/settings", "destination": "/owner.html" },
+    { "source": "/austinganteng/logs", "destination": "/owner.html" },
+    { "source": "/austinganteng/notifications", "destination": "/owner.html" },
+    { "source": "/austinganteng/ptero", "destination": "/owner.html" },
+    { "source": "/austinganteng/resellers", "destination": "/owner.html" },
+
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://api.mymarket.web.id/uploads/:path*"
+    },
+
+    { "source": "/((?!.*\\.).*)", "destination": "/404.html" }
+  ],
+
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" }
+      ]
+    }
+  ]
+}
