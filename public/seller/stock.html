@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Stok — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .form-select, .form-input, .form-textarea {
+      width: 100%; padding: 11px 14px; border-radius: var(--radius-sm); border: var(--border-w) solid var(--border-soft);
+      background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit;
+    }
+    .form-select:focus, .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--primary); }
+    .form-textarea { resize: vertical; min-height: 110px; font-family: var(--font-mono); font-size: 13px; }
+    .variant-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-soft); gap: 10px; flex-wrap: wrap; }
+    .variant-row .vn { font-weight: 700; font-size: 14px; }
+    .variant-row .vc { font-size: 11.5px; color: var(--text-muted); }
+    .status-pending { color: var(--warning); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Dashboard Seller</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-arrow-left"></i></span> Kembali ke Dashboard Utama</div>
+      <div class="nav-item" data-href="/seller"><span class="nav-icon"><i class="fas fa-chart-pie"></i></span> Dashboard</div>
+      <div class="nav-item active" data-href="/seller/stock"><span class="nav-icon"><i class="fas fa-boxes-stacked"></i></span> Kelola Stok</div>
+      <div class="nav-item" data-href="/seller/complaints"><span class="nav-icon"><i class="fas fa-triangle-exclamation"></i></span> Komplain Masuk</div>
+      <div class="nav-item" data-href="/seller/vouchers"><span class="nav-icon"><i class="fas fa-ticket"></i></span> Voucher &amp; Diskon</div>
+      <div class="nav-item" data-href="/seller/flashsale"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Flash Sale</div>
+      <div class="nav-item" data-href="/seller/withdraw"><span class="nav-icon"><i class="fas fa-upload"></i></span> Withdraw</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Seller</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Kelola Stok</div>
+      <div class="topbar-actions">
+        <div class="user-avatar" data-user-avatar style="cursor:pointer" onclick="location.href='/profile'"></div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" id="grid-2col">
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="fas fa-plus" style="color:var(--primary)"></i> Tambah Produk Baru</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Kategori</label>
+              <select class="form-select" id="new-category"><option value="">Memuat kategori...</option></select>
+            </div>
+            <div class="form-group">
+              <label>Nama Produk</label>
+              <input class="form-input" id="new-name" placeholder="Nama produk">
+            </div>
+            <div class="form-group">
+              <label>Deskripsi (opsional)</label>
+              <input class="form-input" id="new-desc" placeholder="Deskripsi singkat">
+            </div>
+            <div class="form-group">
+              <label>Link Gambar Thumbnail (opsional)</label>
+              <input class="form-input" id="new-image" type="url" placeholder="https://contoh.com/gambar.jpg" data-image-upload>
+            </div>
+            <div class="form-group">
+              <label>Harga (Rp)</label>
+              <input class="form-input" id="new-price" type="number" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label>Ambang Batas Notifikasi Stok Menipis</label>
+              <input class="form-input" id="new-low-stock" type="number" placeholder="3" value="3">
+            </div>
+            <div class="form-group">
+              <label>Minimal Order (opsional)</label>
+              <input class="form-input" id="new-min-order" type="number" min="1" placeholder="1" value="1">
+              <p style="font-size:11.5px;color:var(--text-muted);margin-top:4px">Kosongkan/isi 1 kalau tidak ada minimal. Isi mis. 5 kalau pembeli wajib order minimal 5 unit sekaligus.</p>
+            </div>
+            <button class="btn btn-primary btn-full" id="btn-create-variant"><i class="fas fa-paper-plane"></i> Publikasikan Produk</button>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:10px"><i class="fas fa-circle-info"></i> Kategori hanya bisa dibuat Owner. Produk yang kamu buat langsung tayang tanpa perlu approval.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="fas fa-boxes-stacked" style="color:var(--primary)"></i> Tambah Stok</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Pilih Varian</label>
+              <select class="form-select" id="stock-variant"><option value="">Memuat varian...</option></select>
+            </div>
+            <div class="form-group">
+              <label>Jenis Stok</label>
+              <div style="display:flex;gap:8px">
+                <button type="button" class="btn btn-outline btn-sm" id="stock-mode-detail" style="flex:1">Ada Kode/Akun</button>
+                <button type="button" class="btn btn-outline btn-sm" id="stock-mode-qty" style="flex:1">Tanpa Detail (jumlah saja)</button>
+              </div>
+              <p style="font-size:11.5px;color:var(--text-muted);margin-top:6px">
+                Pilih <strong>"Ada Kode/Akun"</strong> kalau tiap unit punya data unik (akun email:password, kode voucher, serial card, dll — satu baris = satu stok).
+                Pilih <strong>"Tanpa Detail"</strong> kalau produkmu tidak punya kode per-unit — cukup isi jumlahnya, stok akan bertambah tanpa perlu ketik apa-apa, dan kamu proses pengiriman ke pembeli manual lewat chat.
+              </p>
+            </div>
+            <div class="form-group" id="stock-detail-group">
+              <label>Kode / Kredensial (satu unit per baris)</label>
+              <textarea class="form-textarea" id="stock-credentials" placeholder="Contoh akun: email1@mail.com:password1&#10;Contoh kode voucher: SLCARD-8827-XXXX&#10;(satu baris = satu unit stok)"></textarea>
+            </div>
+            <div class="form-group" id="stock-qty-group" style="display:none">
+              <label>Jumlah Stok</label>
+              <input class="form-input" id="stock-qty" type="number" min="1" placeholder="Contoh: 5">
+            </div>
+            <button class="btn btn-success btn-full" id="btn-add-stock"><i class="fas fa-upload"></i> Tambah ke Stok</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="card-header"><span class="card-title"><i class="fas fa-list" style="color:var(--primary)"></i> Varian Milik Saya</span></div>
+        <div id="variant-list" class="card-body"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="edit-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Update Produk</span>
+      <button class="modal-close" id="edit-modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div class="form-group">
+        <label>Nama Produk</label>
+        <input class="form-input" id="edit-name" placeholder="Nama produk">
+      </div>
+      <div class="form-group">
+        <label>Deskripsi</label>
+        <input class="form-input" id="edit-desc" placeholder="Deskripsi singkat">
+      </div>
+      <div class="form-group">
+        <label>Link Gambar Thumbnail</label>
+        <input class="form-input" id="edit-image" type="url" placeholder="https://contoh.com/gambar.jpg" data-image-upload>
+      </div>
+      <div class="form-group">
+        <label>Harga (Rp)</label>
+        <input class="form-input" id="edit-price" type="number" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Ambang Batas Notifikasi Stok Menipis</label>
+        <input class="form-input" id="edit-low-stock" type="number" placeholder="3">
+      </div>
+      <div class="form-group">
+        <label>Minimal Order</label>
+        <input class="form-input" id="edit-min-order" type="number" min="1" placeholder="1">
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="edit-discount-active" style="width:16px;height:16px">
+        <label style="margin-bottom:0" for="edit-discount-active">Aktifkan diskon promo produk ini</label>
+      </div>
+      <div class="form-group">
+        <label>Harga Diskon (Rp)</label>
+        <input class="form-input" id="edit-discount-price" type="number" placeholder="Kosongkan jika tidak diskon">
+      </div>
+      <div class="form-group">
+        <label>Diskon Berlaku Sampai (opsional)</label>
+        <input class="form-input" id="edit-discount-until" type="date">
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px;margin-bottom:0">
+        <input type="checkbox" id="edit-active" style="width:16px;height:16px">
+        <label style="margin-bottom:0" for="edit-active">Produk aktif (tampil di marketplace)</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="edit-modal-cancel">Batal</button>
+      <button class="btn btn-primary" id="btn-save-edit"><i class="fas fa-save"></i> Simpan Perubahan</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/custom-select.js"></script>
+<script>
+function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str == null ? '' : String(str); return d.innerHTML; }
+
+function updateGrid() {
+  const grid = document.getElementById('grid-2col');
+  grid.style.gridTemplateColumns = window.innerWidth < 900 ? '1fr' : '1fr 1fr';
+}
+window.addEventListener('resize', updateGrid);
+updateGrid();
+
+async function loadCategories() {
+  const data = await API.get('/api/categories');
+  const sel = document.getElementById('new-category');
+  if (!data.success || !data.data.length) { sel.innerHTML = '<option value="">Belum ada kategori — minta Owner buat dulu</option>'; return; }
+  sel.innerHTML = '<option value="">-- Pilih kategori --</option>' + data.data.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+}
+
+async function loadMyVariants() {
+  const data = await API.get('/api/seller/variants');
+  const stockSel = document.getElementById('stock-variant');
+  const list = document.getElementById('variant-list');
+  if (!data.success || !data.data.length) {
+    stockSel.innerHTML = '<option value="">Belum ada varian</option>';
+    list.innerHTML = `<div class="table-empty"><i class="fas fa-box-open" style="font-size:36px;margin-bottom:12px;display:block;color:var(--text-muted)"></i><p>Belum ada varian, ajukan dulu di form sebelah kiri</p></div>`;
+    return;
+  }
+  stockSel.innerHTML = '<option value="">-- Pilih varian --</option>' +
+    data.data.map(v => `<option value="${v.id}">${escapeHtml(v.name)}</option>`).join('');
+
+  window.__myVariants = data.data;
+
+  list.innerHTML = data.data.map(v => `
+    <div class="variant-row">
+      ${v.image_url ? `<img src="${escapeHtml(v.image_url)}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">` : ''}
+      <div style="flex:1">
+        <div class="vn">${escapeHtml(v.name)}${v.active === false ? ' <span class="badge badge-secondary" style="margin-left:6px">Nonaktif</span>' : ''}${v.discount_active ? ' <span class="badge badge-danger" style="margin-left:6px">Diskon</span>' : ''}</div>
+        <div class="vc">${formatRupiah(v.price)} · Stok: ${v.stock_available} tersedia, ${v.stock_sold} terjual${v.min_order_qty > 1 ? ` · Min. order: ${v.min_order_qty}` : ''}</div>
+      </div>
+      <button class="btn btn-outline btn-sm" data-edit="${v.id}"><i class="fas fa-pen"></i> Update</button>
+      <button class="btn btn-danger btn-sm" data-delete="${v.id}"><i class="fas fa-trash"></i></button>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('[data-delete]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!await showConfirm('Hapus varian ini? Stok yang belum terjual ikut terhapus.', { title: 'Hapus Varian', okText: 'Hapus', danger: true })) return;
+      const res = await API.request('DELETE', `/api/seller/variants/${btn.dataset.delete}`);
+      if (res.success) { Toast.success(res.message); loadMyVariants(); } else Toast.error(res.message);
+    });
+  });
+
+  list.querySelectorAll('[data-edit]').forEach(btn => {
+    btn.addEventListener('click', () => openEditModal(btn.dataset.edit));
+  });
+}
+
+function openEditModal(id) {
+  const v = (window.__myVariants || []).find(x => x.id === id);
+  if (!v) return;
+  document.getElementById('edit-id').value = v.id;
+  document.getElementById('edit-name').value = v.name || '';
+  document.getElementById('edit-desc').value = v.description || '';
+  document.getElementById('edit-image').value = v.image_url || '';
+  document.getElementById('edit-price').value = v.price || '';
+  document.getElementById('edit-low-stock').value = v.low_stock_threshold ?? 3;
+  document.getElementById('edit-min-order').value = v.min_order_qty ?? 1;
+  document.getElementById('edit-discount-active').checked = !!v.discount_active;
+  document.getElementById('edit-discount-price').value = v.discount_price || '';
+  document.getElementById('edit-discount-until').value = v.discount_until ? v.discount_until.slice(0, 10) : '';
+  document.getElementById('edit-active').checked = v.active !== false;
+  Modal.open('edit-modal-overlay');
+}
+
+document.getElementById('edit-modal-close').addEventListener('click', () => Modal.close('edit-modal-overlay'));
+document.getElementById('edit-modal-cancel').addEventListener('click', () => Modal.close('edit-modal-overlay'));
+
+document.getElementById('btn-save-edit').addEventListener('click', async (e) => {
+  const id = document.getElementById('edit-id').value;
+  const name = document.getElementById('edit-name').value.trim();
+  const description = document.getElementById('edit-desc').value.trim();
+  const image_url = document.getElementById('edit-image').value.trim();
+  const price = document.getElementById('edit-price').value;
+  const low_stock_threshold = document.getElementById('edit-low-stock').value;
+  const min_order_qty = document.getElementById('edit-min-order').value || 1;
+  const discount_active = document.getElementById('edit-discount-active').checked;
+  const discount_price = document.getElementById('edit-discount-price').value || null;
+  const discount_until = document.getElementById('edit-discount-until').value || null;
+  const active = document.getElementById('edit-active').checked;
+  if (!name) { Toast.warning('Nama produk wajib diisi'); return; }
+  if (!price || Number(price) <= 0) { Toast.warning('Harga wajib diisi'); return; }
+  if (discount_active && (!discount_price || Number(discount_price) <= 0)) { Toast.warning('Isi harga diskon dulu kalau ingin mengaktifkan diskon'); return; }
+
+  e.target.classList.add('btn-loading'); e.target.disabled = true;
+  const res = await API.request('PUT', `/api/seller/variants/${id}`, {
+    name, description, image_url, price, active, low_stock_threshold, min_order_qty,
+    discount_active, discount_price, discount_until,
+  });
+  e.target.classList.remove('btn-loading'); e.target.disabled = false;
+
+  if (!res.success) { Toast.error(res.message); return; }
+  Toast.success(res.message);
+  Modal.close('edit-modal-overlay');
+  loadMyVariants();
+});
+
+document.getElementById('btn-create-variant').addEventListener('click', async (e) => {
+  const category_id = document.getElementById('new-category').value;
+  const name = document.getElementById('new-name').value.trim();
+  const description = document.getElementById('new-desc').value.trim();
+  const image_url = document.getElementById('new-image').value.trim();
+  const price = document.getElementById('new-price').value;
+  const low_stock_threshold = document.getElementById('new-low-stock').value;
+  const min_order_qty = document.getElementById('new-min-order').value || 1;
+  if (!category_id || !name) { Toast.warning('Kategori dan nama produk wajib diisi'); return; }
+  if (!price || Number(price) <= 0) { Toast.warning('Harga wajib diisi'); return; }
+
+  e.target.classList.add('btn-loading'); e.target.disabled = true;
+  const res = await API.post('/api/seller/variants', { category_id, name, description, image_url, price, low_stock_threshold, min_order_qty });
+  e.target.classList.remove('btn-loading'); e.target.disabled = false;
+
+  if (!res.success) { Toast.error(res.message); return; }
+  Toast.success(res.message);
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-desc').value = '';
+  document.getElementById('new-image').value = '';
+  document.getElementById('new-price').value = '';
+  document.getElementById('new-low-stock').value = '3';
+  document.getElementById('new-min-order').value = '1';
+  loadMyVariants();
+});
+
+let stockMode = 'detail';
+function setStockMode(mode) {
+  stockMode = mode;
+  const detailBtn = document.getElementById('stock-mode-detail');
+  const qtyBtn = document.getElementById('stock-mode-qty');
+  document.getElementById('stock-detail-group').style.display = mode === 'detail' ? '' : 'none';
+  document.getElementById('stock-qty-group').style.display = mode === 'qty' ? '' : 'none';
+  detailBtn.classList.toggle('btn-primary', mode === 'detail');
+  detailBtn.classList.toggle('btn-outline', mode !== 'detail');
+  qtyBtn.classList.toggle('btn-primary', mode === 'qty');
+  qtyBtn.classList.toggle('btn-outline', mode !== 'qty');
+}
+document.getElementById('stock-mode-detail').addEventListener('click', () => setStockMode('detail'));
+document.getElementById('stock-mode-qty').addEventListener('click', () => setStockMode('qty'));
+setStockMode('detail');
+
+document.getElementById('btn-add-stock').addEventListener('click', async (e) => {
+  const product_variant_id = document.getElementById('stock-variant').value;
+  if (!product_variant_id) { Toast.warning('Pilih varian dulu'); return; }
+
+  let payload = { product_variant_id };
+  if (stockMode === 'detail') {
+    const credentials = document.getElementById('stock-credentials').value.trim();
+    if (!credentials) { Toast.warning('Isi kode/kredensial dulu'); return; }
+    payload.credentials = credentials;
+  } else {
+    const qty = parseInt(document.getElementById('stock-qty').value);
+    if (!qty || qty < 1) { Toast.warning('Isi jumlah stok dulu'); return; }
+    payload.quantity = qty;
+  }
+
+  e.target.classList.add('btn-loading'); e.target.disabled = true;
+  const res = await API.post('/api/seller/stock', payload);
+  e.target.classList.remove('btn-loading'); e.target.disabled = false;
+
+  if (!res.success) { Toast.error(res.message); return; }
+  Toast.success(res.message);
+  document.getElementById('stock-credentials').value = '';
+  document.getElementById('stock-qty').value = '';
+  loadMyVariants();
+});
+
+(async function init() {
+  const meRes = await API.get('/api/auth/me');
+  if (!meRes.success) { window.location.href = '/login'; return; }
+  if (!['seller', 'owner'].includes(meRes.user.role)) { window.location.href = '/dashboard'; return; }
+  Auth.renderUserInfo(meRes.user, meRes.wallet);
+  loadCategories();
+  loadMyVariants();
+})();
+</script>
+</body>
+</html>
