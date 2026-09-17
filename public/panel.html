@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Pterodactyl — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .ptero-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+    .ptero-tab-btn {
+      flex: 1; text-align: center; padding: 10px 8px; border-radius: var(--radius-sm);
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border); color: var(--text-muted);
+      font-weight: 700; font-size: 13px; cursor: pointer; transition: all .15s;
+    }
+    .ptero-tab-btn:hover { border-color: var(--primary); color: var(--text); }
+    .ptero-tab-btn.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+    .ptero-view { display: none; }
+    .ptero-view.active { display: block; }
+
+    .plan-spec-pill { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--bg-alt); color: var(--text-muted); }
+
+    .builder-tabs { display: flex; gap: 8px; margin-bottom: 16px; align-items: stretch; }
+    .builder-tab-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px 8px; border-radius: var(--radius-sm);
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border); color: var(--text-muted);
+      font-weight: 700; font-size: 13px; cursor: pointer; transition: all .15s;
+    }
+    .builder-tab-btn:hover { border-color: var(--primary); color: var(--text); }
+    .builder-tab-btn.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+    .builder-mode { display: none; }
+    .builder-mode.active { display: block; }
+
+    .builder-card {
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 18px; margin-bottom: 16px;
+    }
+    .builder-row { margin-bottom: 18px; }
+    .builder-row:last-child { margin-bottom: 0; }
+    .builder-row-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .builder-row-label { font-weight: 700; font-size: 14px; }
+    .builder-row-value { font-family: var(--font-mono); font-weight: 800; color: var(--primary); background: var(--primary-light); padding: 3px 10px; border-radius: 999px; font-size: 13px; }
+    .builder-slider { width: 100%; accent-color: var(--primary); height: 6px; }
+    .builder-row-bounds { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    .builder-price-box {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      background: var(--primary-light); border: 1px solid var(--primary); border-radius: var(--radius-sm);
+      padding: 14px 16px; margin-bottom: 16px;
+    }
+    .builder-price-label { font-size: 12.5px; font-weight: 700; color: var(--text-muted); }
+    .builder-price-value { font-family: var(--font-mono); font-weight: 800; font-size: 20px; color: var(--primary); }
+
+    .unlimited-card {
+      background: linear-gradient(135deg, var(--primary-light), var(--bg-card));
+      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px;
+    }
+    .unlimited-card .plan-specs { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
+
+    .panel-list { display: flex; flex-direction: column; gap: 12px; }
+    .panel-row {
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer;
+      transition: border-color .15s;
+    }
+    .panel-row:hover { border-color: var(--primary); }
+    .panel-row .pr-name { font-weight: 700; font-size: 14px; }
+    .panel-row .pr-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+    .status-pill { font-size: 10.5px; font-weight: 800; padding: 3px 9px; border-radius: 999px; text-transform: uppercase; }
+    .status-pill.active { background: var(--success); color: #fff; }
+    .status-pill.suspended { background: var(--danger); color: #fff; }
+    .status-pill.expired { background: var(--text-muted); color: #fff; }
+
+    .manage-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
+    .usage-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .usage-card { background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
+    .usage-card .uc-label { font-size: 11.5px; color: var(--text-muted); margin-bottom: 6px; }
+    .usage-card .uc-value { font-weight: 800; font-size: 18px; font-family: var(--font-mono); margin-bottom: 8px; }
+    .usage-bar { height: 6px; border-radius: 999px; background: var(--bg-alt); overflow: hidden; }
+    .usage-bar-fill { height: 100%; background: var(--primary); border-radius: 999px; transition: width .3s; }
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .info-field-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 3px; }
+    .info-field-value { font-weight: 700; font-size: 14px; font-family: var(--font-mono); word-break: break-all; }
+    .power-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><i class="fas fa-store"></i></div>
+        <span>Austin Store</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item active" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/deposit"><span class="nav-icon"><i class="fas fa-download"></i></span> Deposit</div>
+      <div class="nav-item" data-href="/mutasi"><span class="nav-icon"><i class="fas fa-right-left"></i></span> Mutasi Saldo</div>
+      <div class="nav-item" data-href="/history"><span class="nav-icon"><i class="fas fa-history"></i></span> Riwayat</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+      <div class="nav-item" data-href="/profile"><span class="nav-icon"><i class="fas fa-user"></i></span> Profil</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title" id="topbar-title">Panel Pterodactyl</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <div class="ptero-tabs" id="ptero-tabs">
+        <div class="ptero-tab-btn active" data-view="order">Order Panel</div>
+        <div class="ptero-tab-btn" data-view="claim">Klaim Garansi</div>
+        <div class="ptero-tab-btn" data-view="myservers">Server Saya</div>
+        <div class="ptero-tab-btn" data-view="buyrole">Beli Role</div>
+      </div>
+
+            <div class="ptero-view active" id="view-order">
+        <div class="card-header" style="padding:0 0 14px 0;border:none">
+          <div><span class="eyebrow">Panel Pterodactyl</span><h2 style="font-size:17px">Bangun Server Sendiri</h2></div>
+        </div>
+
+        <div id="order-loading"><div class="loading-spinner"></div></div>
+        <div id="order-not-configured" class="empty-state" style="display:none"><i class="fas fa-circle-info"></i>Layanan Panel Pterodactyl belum dikonfigurasi owner.</div>
+
+        <div id="order-content" style="display:none">
+          <div class="builder-card" style="margin-bottom:16px">
+            <div class="builder-row" style="margin-bottom:0">
+              <div class="builder-row-head">
+                <span class="builder-row-label"><i class="fas fa-clone" style="color:var(--primary)"></i> Metode Order</span>
+              </div>
+              <div class="builder-tabs" id="order-method-tabs" style="margin-top:2px">
+                <div class="builder-tab-btn active" data-order-method="new">Order Baru</div>
+                <div class="builder-tab-btn" data-order-method="merge">Tambah Server (Gabung Akun)</div>
+              </div>
+              <p class="text-xs text-muted" style="margin-top:6px">"Tambah Server" membuat server baru di bawah akun panel yang sudah kamu punya — semua server yang digabung tetap login pakai 1 username &amp; password yang sama.</p>
+              <div id="order-merge-account-group" style="display:none;margin-top:12px">
+                <label class="form-label">Pilih Akun Tujuan</label>
+                <select class="form-control" id="order-merge-account-select"></select>
+                <p class="text-xs text-muted" style="margin-top:4px;display:none" id="order-merge-account-empty">Kamu belum punya akun panel yang bisa digabung. Pakai "Order Baru" dulu.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="builder-card" style="margin-bottom:16px">
+            <div class="builder-row" style="margin-bottom:0">
+              <div class="builder-row-head">
+                <span class="builder-row-label"><i class="fas fa-layer-group" style="color:var(--primary)"></i> Tipe Server</span>
+              </div>
+              <select class="form-control" id="order-stack"></select>
+              <p class="text-xs text-muted" style="margin-top:6px">Pilih bahasa/stack server.</p>
+            </div>
+          </div>
+
+          <div class="builder-tabs">
+            <div class="builder-tab-btn active" data-mode="custom">Custom Builder</div>
+            <div class="builder-tab-btn" data-mode="unlimited">Unlimited Panel</div>
+          </div>
+
+                    <div class="builder-mode active" id="mode-custom">
+            <div class="builder-card">
+              <div class="builder-row">
+                <div class="builder-row-head">
+                  <span class="builder-row-label"><i class="fas fa-memory" style="color:var(--primary)"></i> RAM (GB)</span>
+                  <span class="builder-row-value" id="ram-value">1 GB</span>
+                </div>
+                <input type="range" class="builder-slider" id="ram-slider" min="1" max="20" step="1" value="1">
+                <div class="builder-row-bounds"><span id="ram-min">1 GB</span><span id="ram-max">20 GB</span></div>
+              </div>
+              <div class="builder-row">
+                <div class="builder-row-head">
+                  <span class="builder-row-label"><i class="fas fa-microchip" style="color:var(--primary)"></i> CPU (%)</span>
+                  <span class="builder-row-value" id="cpu-value">50%</span>
+                </div>
+                <input type="range" class="builder-slider" id="cpu-slider" min="50" max="200" step="50" value="50">
+                <div class="builder-row-bounds"><span id="cpu-min">50%</span><span id="cpu-max">200%</span></div>
+              </div>
+              <div class="builder-row">
+                <div class="builder-row-head">
+                  <span class="builder-row-label"><i class="fas fa-hard-drive" style="color:var(--primary)"></i> Disk (GB)</span>
+                  <span class="builder-row-value" id="disk-value">1 GB</span>
+                </div>
+                <input type="range" class="builder-slider" id="disk-slider" min="1" max="20" step="1" value="1">
+                <div class="builder-row-bounds"><span id="disk-min">1 GB</span><span id="disk-max">20 GB</span></div>
+              </div>
+            </div>
+
+            <div class="builder-price-box">
+              <span class="builder-price-label">Total Harga</span>
+              <span class="builder-price-value" id="custom-price">Rp 0</span>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><span class="card-title"><i class="fas fa-server" style="color:var(--primary)"></i> Detail Order</span></div>
+              <form id="order-form-custom" style="padding:0 20px 20px;display:grid;gap:12px;max-width:420px;margin:0 auto">
+                <div class="form-group" style="margin:0" id="order-username-group-custom">
+                  <label class="form-label">Username Panel</label>
+                  <input type="text" class="form-control" id="order-username-custom" placeholder="mis. austin" maxlength="20" autocomplete="off">
+                  <p class="text-xs text-muted" style="margin-top:4px">Huruf/angka saja, 3-20 karakter. Password dibuat otomatis (username + angka acak).</p>
+                </div>
+                <button type="submit" class="btn btn-primary" id="order-submit-custom-btn"><i class="fas fa-bolt"></i> Order Sekarang</button>
+              </form>
+            </div>
+          </div>
+
+                    <div class="builder-mode" id="mode-unlimited">
+            <div class="unlimited-card">
+              <div class="plan-name" style="font-weight:800;font-size:16px"><i class="fas fa-infinity" style="color:var(--primary)"></i> Unlimited Panel</div>
+              <div class="plan-specs">
+                <span class="plan-spec-pill"><i class="fas fa-memory"></i> RAM Unlimited</span>
+                <span class="plan-spec-pill"><i class="fas fa-hard-drive"></i> Disk Unlimited</span>
+                <span class="plan-spec-pill" id="unlimited-cpu-pill"><i class="fas fa-microchip"></i> CPU 300%</span>
+              </div>
+              <p class="text-xs text-muted" style="margin-bottom:10px">RAM &amp; Disk unlimited, tapi CPU tetap dibatasi (tidak unlimited).</p>
+              <div class="builder-price-box" style="margin-bottom:14px">
+                <span class="builder-price-label">Harga</span>
+                <span class="builder-price-value" id="unlimited-price">Rp 10.000</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title"><i class="fas fa-server" style="color:var(--primary)"></i> Detail Order</span></div>
+              <form id="order-form-unlimited" style="padding:0 20px 20px;display:grid;gap:12px;max-width:420px;margin:0 auto">
+                <div class="form-group" style="margin:0" id="order-username-group-unlimited">
+                  <label class="form-label">Username Panel</label>
+                  <input type="text" class="form-control" id="order-username-unlimited" placeholder="mis. austin" maxlength="20" autocomplete="off">
+                  <p class="text-xs text-muted" style="margin-top:4px">Huruf/angka saja, 3-20 karakter. Password dibuat otomatis (username + angka acak).</p>
+                </div>
+                <button type="submit" class="btn btn-primary" id="order-submit-unlimited-btn"><i class="fas fa-bolt"></i> Order Sekarang</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+            <div class="ptero-view" id="view-claim">
+        <div class="card-header" style="padding:0 0 14px 0;border:none">
+          <div><span class="eyebrow">Panel Pterodactyl</span><h2 style="font-size:17px">Klaim Garansi Panel</h2></div>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header"><span class="card-title"><i class="fas fa-shield-halved" style="color:var(--primary)"></i> Masukkan Kode Identifier</span></div>
+          <form id="claim-warranty-form" style="padding:0 20px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div class="form-group" style="margin:0;flex:1;min-width:200px">
+              <label class="form-label">Kode Identifier (8 karakter)</label>
+              <input type="text" class="form-control" id="claim-identifier-input" maxlength="12" placeholder="mis. AB3D9F2K" style="text-transform:uppercase;font-family:var(--font-mono);letter-spacing:1px">
+            </div>
+            <button type="submit" class="btn btn-primary" id="claim-submit-btn"><i class="fas fa-check"></i> Cek &amp; Klaim</button>
+          </form>
+          <p class="text-xs text-muted" style="padding:0 20px 20px;margin:-10px 0 0">Kode identifier didapat saat order panel. Kalau panel kamu dihapus otomatis karena 3 hari offline berturut-turut dan masih ada sisa masa aktif, kamu bisa klaim ulang panelnya pakai kode ini.</p>
+        </div>
+
+        <div class="card-header" style="padding:0 0 14px 0;border:none">
+          <div><span class="eyebrow">Riwayat</span><h2 style="font-size:17px">Panel yang Bisa Diklaim</h2></div>
+        </div>
+        <div class="panel-list" id="warranty-log-list"><div class="loading-spinner"></div></div>
+      </div>
+
+            <div class="ptero-view" id="view-myservers">
+        <div class="card-header" style="padding:0 0 14px 0;border:none">
+          <div><span class="eyebrow">Panel Pterodactyl</span><h2 style="font-size:17px">Server Saya</h2></div>
+          <button class="btn btn-outline btn-sm" id="refresh-panels-btn"><i class="fas fa-rotate"></i> Refresh</button>
+        </div>
+        <div class="panel-list" id="panel-list"><div class="loading-spinner"></div></div>
+      </div>
+
+            <div class="ptero-view" id="view-buyrole">
+        <div class="card-header" style="padding:0 0 14px 0;border:none">
+          <div><span class="eyebrow">Panel Pterodactyl</span><h2 style="font-size:17px">Reseller &amp; Partner</h2></div>
+        </div>
+        <div id="buyrole-loading"><div class="loading-spinner"></div></div>
+        <div id="buyrole-content" style="display:none"></div>
+      </div>
+
+            <div class="ptero-view" id="view-manage">
+        <div class="manage-head">
+          <button class="btn btn-outline btn-sm" id="back-to-list-btn"><i class="fas fa-arrow-left"></i> Kembali</button>
+          <span class="status-pill" id="manage-status-pill"></span>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title" id="manage-server-title"><i class="fas fa-server" style="color:var(--primary)"></i> Server</span>
+            <a class="btn btn-primary btn-sm" href="https://paduka.austinstore.id" target="_blank" rel="noopener"><i class="fas fa-right-to-bracket"></i> Login Panel</a>
+          </div>
+          <div style="padding:0 20px 20px">
+            <div class="usage-grid" id="usage-grid"></div>
+
+            <div class="power-btns">
+              <button class="btn btn-outline btn-sm" data-power="start"><i class="fas fa-play"></i> Start</button>
+              <button class="btn btn-danger btn-sm" data-power="stop"><i class="fas fa-stop"></i> Stop</button>
+              <button class="btn btn-outline btn-sm" data-power="restart"><i class="fas fa-rotate"></i> Restart</button>
+              <button class="btn btn-outline btn-sm" id="reinstall-btn"><i class="fas fa-download"></i> Reinstall</button>
+            </div>
+
+            <div class="info-grid" id="manage-info-grid"></div>
+          </div>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header"><span class="card-title"><i class="fas fa-key" style="color:var(--primary)"></i> Reset Root Password</span></div>
+          <form id="reset-pw-form" style="padding:0 20px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div class="form-group" style="margin:0;flex:1;min-width:200px">
+              <label class="form-label">Password Baru</label>
+              <input type="text" class="form-control" id="new-root-password" minlength="8" placeholder="Minimal 8 karakter">
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update Password</button>
+          </form>
+        </div>
+
+        <div class="card mb-16" id="manage-merge-wrap" style="display:none">
+          <div class="card-header"><span class="card-title"><i class="fas fa-link" style="color:var(--primary)"></i> Gabung ke Akun Panel Lain</span></div>
+          <form id="merge-into-form" style="padding:0 20px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div class="form-group" style="margin:0;flex:1;min-width:200px">
+              <label class="form-label">Pilih Akun Tujuan</label>
+              <select class="form-control" id="manage-merge-select"></select>
+            </div>
+            <button type="submit" class="btn btn-primary" id="merge-into-btn"><i class="fas fa-code-merge"></i> Gabung Sekarang</button>
+          </form>
+          <p class="text-xs text-muted" style="padding:0 20px 20px;margin:-10px 0 0">Server ini akan pindah login ke akun panel lain yang sudah kamu punya — jadi ikut login pakai username &amp; password akun tujuan (username/password akun lama server ini tidak berlaku lagi untuk server ini).</p>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header"><span class="card-title"><i class="fas fa-shuffle" style="color:var(--primary)"></i> Ganti Tipe Server (Nest/Egg)</span></div>
+          <form id="change-stack-form" style="padding:0 20px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div class="form-group" style="margin:0;flex:1;min-width:200px">
+              <label class="form-label">Tipe Server Baru</label>
+              <select class="form-control" id="manage-stack-select"></select>
+            </div>
+            <button type="submit" class="btn btn-primary" id="change-stack-btn"><i class="fas fa-save"></i> Simpan &amp; Reinstall</button>
+          </form>
+          <p class="text-xs text-muted" style="padding:0 20px 20px;margin:-10px 0 0">Menyimpan tipe server baru akan otomatis menjalankan reinstall dan menghapus seluruh data di server.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="fas fa-calendar" style="color:var(--primary)"></i> Perpanjang Server</span></div>
+          <div style="padding:0 20px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <span class="text-sm text-muted">Perpanjang 30 hari seharga <b id="manage-renew-price">-</b></span>
+            <button class="btn btn-primary" id="renew-btn"><i class="fas fa-rotate-right"></i> Perpanjang Sekarang</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="credential-result-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-circle-check" style="color:var(--success)"></i> Panel Berhasil Dibuat!</span>
+      <button class="modal-close" onclick="Modal.close('credential-result-modal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-warning" style="margin-bottom:14px"><i class="fas fa-triangle-exclamation"></i> Password hanya ditampilkan sekali. Salin sekarang sebelum menutup jendela ini.</div>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" class="form-control" id="cred-username" readonly style="font-family:monospace;font-size:14px">
+          <button class="btn btn-outline btn-sm" type="button" onclick="copyCredField('cred-username','Username')"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" class="form-control" id="cred-password" readonly style="font-family:monospace;font-size:14px;letter-spacing:.5px">
+          <button class="btn btn-outline btn-sm" type="button" onclick="copyCredField('cred-password','Password')"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL Login Panel</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" class="form-control" id="cred-login-url" readonly style="font-size:13px">
+          <button class="btn btn-outline btn-sm" type="button" onclick="copyCredField('cred-login-url','URL login')"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Kode Identifier <span class="text-xs text-muted">(simpan untuk klaim garansi)</span></label>
+        <div style="display:flex;gap:8px">
+          <input type="text" class="form-control" id="cred-identifier" readonly style="font-family:monospace;font-size:14px;letter-spacing:1px">
+          <button class="btn btn-outline btn-sm" type="button" onclick="copyCredField('cred-identifier','Kode identifier')"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" type="button" onclick="Modal.close('credential-result-modal')">Tutup</button>
+      <a class="btn btn-primary" href="https://paduka.austinstore.id" target="_blank" rel="noopener"><i class="fas fa-right-to-bracket"></i> Login Panel</a>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/custom-select.js"></script>
+<script>
+const PANEL_LOGIN_URL = 'https://paduka.austinstore.id';
+let pricing = null;
+let myPanels = [];
+let currentPanelId = null;
+let manageTimer = null;
+let stackSelectPopulatedFor = null; // id panel yang dropdown "Ganti Tipe Server"-nya sudah diisi
+let orderMethod = 'new'; // 'new' = akun baru, 'merge' = tambah server ke akun yang sudah ada
+
+async function init() {
+  const res = await Auth.check();
+  if (!res) return;
+  Auth.renderUserInfo(res.user, res.wallet);
+  await loadPricing();
+  await loadMyPanels();
+}
+
+document.querySelectorAll('.builder-tabs').forEach((tabs) => {
+  if (tabs.id === 'order-method-tabs') return; // ditangani terpisah di bawah
+  tabs.addEventListener('click', (e) => {
+    const btn = e.target.closest('.builder-tab-btn');
+    if (!btn) return;
+    tabs.querySelectorAll('.builder-tab-btn').forEach((b) => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.builder-mode').forEach((m) => m.classList.remove('active'));
+    document.getElementById(`mode-${btn.dataset.mode}`).classList.add('active');
+  });
+});
+
+document.getElementById('order-method-tabs').addEventListener('click', (e) => {
+  const btn = e.target.closest('.builder-tab-btn');
+  if (!btn) return;
+  orderMethod = btn.dataset.orderMethod;
+  document.querySelectorAll('#order-method-tabs .builder-tab-btn').forEach((b) => b.classList.toggle('active', b === btn));
+  const isMerge = orderMethod === 'merge';
+  document.getElementById('order-merge-account-group').style.display = isMerge ? 'block' : 'none';
+  document.getElementById('order-username-group-custom').style.display = isMerge ? 'none' : 'block';
+  document.getElementById('order-username-group-unlimited').style.display = isMerge ? 'none' : 'block';
+  if (isMerge) populateMergeAccountSelect();
+});
+
+// Kelompokkan panel milik user berdasarkan panel_username (1 username = 1 akun Pterodactyl)
+// supaya dropdown "Tambah Server (Gabung Akun)" menampilkan akun, bukan per-server.
+function populateMergeAccountSelect() {
+  const select = document.getElementById('order-merge-account-select');
+  const emptyMsg = document.getElementById('order-merge-account-empty');
+  if (!select) return;
+  const accounts = new Map();
+  myPanels.forEach((p) => {
+    if (!p.panel_username) return;
+    if (!accounts.has(p.panel_username)) accounts.set(p.panel_username, { id: p.id, username: p.panel_username, count: 0 });
+    accounts.get(p.panel_username).count += 1;
+  });
+  const list = Array.from(accounts.values());
+  if (!list.length) {
+    select.innerHTML = '';
+    select.disabled = true;
+    emptyMsg.style.display = 'block';
+    return;
+  }
+  emptyMsg.style.display = 'none';
+  select.disabled = false;
+  select.innerHTML = list.map((a) => `<option value="${a.id}">${escapeHtml(a.username)} (${a.count} server)</option>`).join('');
+}
+
+async function loadPricing() {
+  const res = await API.get('/api/ptero/pricing');
+  document.getElementById('order-loading').style.display = 'none';
+  if (!res.success) { Toast.error(res.message || 'Gagal memuat tarif panel'); return; }
+  if (!res.configured) {
+    document.getElementById('order-not-configured').style.display = 'block';
+    return;
+  }
+  pricing = res.data;
+  document.getElementById('order-content').style.display = 'block';
+
+  const stackSelect = document.getElementById('order-stack');
+  stackSelect.innerHTML = (pricing.stacks || []).map((s) => `<option value="${s.id}">${escapeHtml(s.label)}</option>`).join('');
+  const defaultStack = (pricing.stacks || []).find((s) => s.id === 'nodejs');
+  if (defaultStack) stackSelect.value = 'nodejs';
+
+  const ramSlider = document.getElementById('ram-slider');
+  ramSlider.min = pricing.ram.min; ramSlider.max = pricing.ram.max; ramSlider.value = pricing.ram.min;
+  document.getElementById('ram-min').textContent = `${pricing.ram.min} GB`;
+  document.getElementById('ram-max').textContent = `${pricing.ram.max} GB`;
+
+  const cpuSlider = document.getElementById('cpu-slider');
+  cpuSlider.min = pricing.cpu.min; cpuSlider.max = pricing.cpu.max; cpuSlider.step = pricing.cpu.step; cpuSlider.value = pricing.cpu.min;
+  document.getElementById('cpu-min').textContent = `${pricing.cpu.min}%`;
+  document.getElementById('cpu-max').textContent = `${pricing.cpu.max}%`;
+
+  const diskSlider = document.getElementById('disk-slider');
+  diskSlider.min = pricing.disk.min; diskSlider.max = pricing.disk.max; diskSlider.value = pricing.disk.min;
+  document.getElementById('disk-min').textContent = `${pricing.disk.min} GB`;
+  document.getElementById('disk-max').textContent = `${pricing.disk.max} GB`;
+
+  document.getElementById('unlimited-cpu-pill').innerHTML = `<i class="fas fa-microchip"></i> CPU ${pricing.unlimited.cpuPct}%`;
+  document.getElementById('unlimited-price').textContent = formatRupiah(pricing.unlimited.price);
+
+  updateCustomPrice();
+  [ramSlider, cpuSlider, diskSlider].forEach((el) => el.addEventListener('input', updateCustomPrice));
+}
+
+function updateCustomPrice() {
+  if (!pricing) return;
+  const ramGb = Number(document.getElementById('ram-slider').value);
+  const cpuPct = Number(document.getElementById('cpu-slider').value);
+  const diskGb = Number(document.getElementById('disk-slider').value);
+  document.getElementById('ram-value').textContent = `${ramGb} GB`;
+  document.getElementById('cpu-value').textContent = `${cpuPct}%`;
+  document.getElementById('disk-value').textContent = `${diskGb} GB`;
+  const price = Math.round(
+    ramGb * pricing.ram.pricePerUnit +
+    (cpuPct / 50) * pricing.cpu.pricePerStep +
+    diskGb * pricing.disk.pricePerUnit
+  );
+  document.getElementById('custom-price').textContent = formatRupiah(price);
+}
+
+// Isi body.username (order baru) ATAU body.merge_into_panel_id (gabung akun) sesuai orderMethod
+// yang lagi aktif. Balikin null kalau validasinya gagal (pesan error sudah ditampilkan via Toast).
+function buildOrderIdentityFields(usernameInputId) {
+  if (orderMethod === 'merge') {
+    const select = document.getElementById('order-merge-account-select');
+    const accId = select.value;
+    if (!accId) { Toast.error('Pilih akun tujuan penggabungan dulu'); return null; }
+    return { merge_into_panel_id: accId };
+  }
+  const username = document.getElementById(usernameInputId).value.trim();
+  if (!username) { Toast.error('Username wajib diisi'); return null; }
+  return { username };
+}
+
+document.getElementById('order-form-custom').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const identity = buildOrderIdentityFields('order-username-custom');
+  if (!identity) return;
+  const body = {
+    mode: 'custom', ...identity,
+    stack: document.getElementById('order-stack').value,
+    ram_gb: Number(document.getElementById('ram-slider').value),
+    cpu_pct: Number(document.getElementById('cpu-slider').value),
+    disk_gb: Number(document.getElementById('disk-slider').value),
+  };
+  const btn = document.getElementById('order-submit-custom-btn');
+  btnLoading(btn, true);
+  const res = await API.post('/api/ptero/order', body);
+  btnLoading(btn, false);
+  if (!res.success) return Toast.error(res.message);
+  Toast.success(orderMethod === 'merge' ? 'Server baru berhasil ditambahkan ke akun!' : 'Panel berhasil dibuat!');
+  alertCredential(res.data);
+  document.getElementById('order-username-custom').value = '';
+  await loadMyPanels();
+  showView('myservers');
+});
+
+document.getElementById('order-form-unlimited').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const identity = buildOrderIdentityFields('order-username-unlimited');
+  if (!identity) return;
+  const btn = document.getElementById('order-submit-unlimited-btn');
+  btnLoading(btn, true);
+  const res = await API.post('/api/ptero/order', { mode: 'unlimited', ...identity, stack: document.getElementById('order-stack').value });
+  btnLoading(btn, false);
+  if (!res.success) return Toast.error(res.message);
+  Toast.success(orderMethod === 'merge' ? 'Server baru berhasil ditambahkan ke akun!' : 'Panel berhasil dibuat!');
+  alertCredential(res.data);
+  document.getElementById('order-username-unlimited').value = '';
+  await loadMyPanels();
+  showView('myservers');
+});
+
+document.getElementById('ptero-tabs').addEventListener('click', (e) => {
+  const btn = e.target.closest('.ptero-tab-btn');
+  if (!btn) return;
+  showView(btn.dataset.view);
+});
+function showView(name, el) {
+  document.querySelectorAll('.ptero-tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.view === name));
+  document.querySelectorAll('.ptero-view').forEach((v) => v.classList.remove('active'));
+  const target = document.getElementById(`view-${name}`);
+  if (target) target.classList.add('active');
+  document.getElementById('ptero-tabs').style.display = (name === 'manage') ? 'none' : 'flex';
+  if (manageTimer) { clearInterval(manageTimer); manageTimer = null; }
+  if (name === 'myservers') loadMyPanels();
+  if (name === 'buyrole') loadBuyRole();
+  if (name === 'claim') loadWarrantyLogs();
+}
+
+async function loadBuyRole() {
+  const loading = document.getElementById('buyrole-loading');
+  const content = document.getElementById('buyrole-content');
+  loading.style.display = 'block'; content.style.display = 'none';
+  const [meRes, priceRes] = await Promise.all([API.get('/api/reseller/me'), API.get('/api/reseller/pricing')]);
+  loading.style.display = 'none'; content.style.display = 'block';
+  if (!meRes.success || !priceRes.success) { content.innerHTML = `<div class="empty-state"><i class="fas fa-triangle-exclamation"></i>Gagal memuat info Reseller/Partner</div>`; return; }
+
+  const me = meRes.data;
+  const price = priceRes.data;
+
+  const statusLine = `Status: <b>${me.status === 'suspended' ? 'Disuspend' : 'Aktif'}</b> &middot; PTPT bulan ${me.ptpt.current_month}: <b>${me.ptpt.ok ? 'Sudah dibayar' : 'Belum dibayar'}</b>`;
+
+  const card = (role, label, plan, opts = {}) => `
+    <div class="card mb-16">
+      <div class="card-header"><span class="card-title"><i class="fas fa-${role === 'partner' ? 'star' : 'handshake'}" style="color:var(--primary)"></i> ${opts.title || label}</span></div>
+      <div style="padding:0 20px 20px">
+        <div class="builder-price-box"><span class="builder-price-label">Harga</span><span class="builder-price-value">${formatRupiah(opts.price != null ? opts.price : plan.price)}</span></div>
+        <ul class="text-sm text-muted" style="margin:0 0 14px 18px;line-height:1.9">
+          <li>Kuota panel pribadi custom: <b>${plan.personal_custom_quota}</b></li>
+          <li>Kuota panel pribadi unlimited: <b>${plan.personal_unlimited_quota}</b></li>
+          <li>Kuota panel buyer: <b>Unlimited</b></li>
+          ${role === 'partner' ? '<li>Bisa menjual role Reseller</li>' : ''}
+          <li>Panel pribadi tidak pernah expired (selama PTPT lancar)</li>
+        </ul>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" data-buy-role="${role}"><i class="fas fa-bolt"></i> ${opts.btnLabel || `Beli ${label}`}</button>
+      </div>
+    </div>`;
+
+  if (me.role === 'partner') {
+    // Already at the top tier — nothing left to buy or upgrade to.
+    content.innerHTML = `
+      <div class="unlimited-card">
+        <div class="plan-name" style="font-weight:800;font-size:16px"><i class="fas fa-crown" style="color:var(--primary)"></i> Kamu adalah Partner</div>
+        <p class="text-xs text-muted" style="margin:8px 0 14px">${statusLine}</p>
+        <a href="/reseller" class="btn btn-primary" style="width:100%;justify-content:center"><i class="fas fa-gauge"></i> Buka Dashboard Partner</a>
+      </div>`;
+    return;
+  }
+
+  if (me.role === 'reseller') {
+    // Reseller can self-upgrade to Partner instantly at a discounted price — wallet is
+    // debited and the role is upgraded automatically, no owner approval needed.
+    content.innerHTML = `
+      <div class="unlimited-card mb-16">
+        <div class="plan-name" style="font-weight:800;font-size:16px"><i class="fas fa-crown" style="color:var(--primary)"></i> Kamu adalah Reseller</div>
+        <p class="text-xs text-muted" style="margin:8px 0 14px">${statusLine}</p>
+        <a href="/reseller" class="btn btn-primary" style="width:100%;justify-content:center"><i class="fas fa-gauge"></i> Buka Dashboard Reseller</a>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:14px">Upgrade ke Partner harga spesial khusus Reseller — saldo langsung terpotong &amp; role naik otomatis, tanpa perlu approve owner.</p>
+      ${card('partner', 'Partner', price.partner, {
+        title: 'Upgrade ke Partner',
+        price: price.partner_upgrade_price,
+        btnLabel: `Upgrade Sekarang &middot; ${formatRupiah(price.partner_upgrade_price)}`,
+      })}
+    `;
+    bindBuyRoleButtons(content);
+    return;
+  }
+
+  content.innerHTML = `
+    <p class="text-sm text-muted" style="margin-bottom:14px">Jadi mitra Austin Store — buat panel pribadi &amp; jual panel ke buyer kamu sendiri. PTPT ${formatRupiah(price.ptpt_amount)}/bulan berlaku setelah bergabung.</p>
+    ${card('reseller', 'Reseller', price.reseller)}
+    ${card('partner', 'Partner', price.partner)}
+  `;
+  bindBuyRoleButtons(content);
+}
+
+function bindBuyRoleButtons(content) {
+  content.querySelectorAll('[data-buy-role]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      btnLoading(btn, true);
+      const res = await API.post('/api/reseller/buy', { role: btn.dataset.buyRole });
+      btnLoading(btn, false);
+      if (!res.success) return Toast.error(res.message);
+      Toast.success(res.message);
+      loadBuyRole();
+      Auth.check();
+    });
+  });
+}
+
+function alertCredential(panel) {
+  document.getElementById('cred-username').value = panel.panel_username;
+  document.getElementById('cred-password').value = panel.panel_password;
+  document.getElementById('cred-login-url').value = PANEL_LOGIN_URL;
+  document.getElementById('cred-identifier').value = panel.identifier_code || '-';
+  Modal.open('credential-result-modal');
+}
+
+function copyCredField(id, label) {
+  const input = document.getElementById(id);
+  input.select();
+  navigator.clipboard?.writeText(input.value).then(() => Toast.success(`${label} disalin`));
+}
+
+document.getElementById('refresh-panels-btn').addEventListener('click', loadMyPanels);
+
+async function loadMyPanels() {
+  const list = document.getElementById('panel-list');
+  list.innerHTML = '<div class="loading-spinner"></div>';
+  const [res, logRes] = await Promise.all([
+    API.get('/api/ptero/my-panels'),
+    API.get('/api/ptero/my-panel-logs'),
+  ]);
+  if (!res.success) { list.innerHTML = `<div class="empty-state"><i class="fas fa-triangle-exclamation"></i>${escapeHtml(res.message || 'Gagal memuat server')}</div>`; return; }
+  myPanels = res.data || [];
+  const logs = (logRes.success && logRes.data) || [];
+
+  populateMergeAccountSelect();
+
+  if (!myPanels.length && !logs.length) {
+    list.innerHTML = `<div class="empty-state"><i class="fas fa-server"></i>Kamu belum punya Panel Pterodactyl. Yuk order paket dulu.</div>`;
+    return;
+  }
+
+  const activeRows = myPanels.map((p) => `
+    <div class="panel-row" data-id="${p.id}">
+      <div>
+        <div class="pr-name">${escapeHtml(p.server_name)}</div>
+        <div class="pr-meta">${escapeHtml(p.stack_label ? `${p.stack_label} · ${p.plan_name}` : p.plan_name)} &middot; Kedaluwarsa ${formatDate(p.expiresAt, false)}</div>
+      </div>
+      <span class="status-pill ${p.status}">${statusLabel(p.status)}</span>
+    </div>
+  `).join('');
+
+  const logRows = logs.map((l) => `
+    <div class="panel-row" data-claim-code="${escapeHtml(l.identifier_code)}" style="border-color:var(--danger)">
+      <div>
+        <div class="pr-name">${escapeHtml(l.server_name)} <span class="text-xs text-muted">(dihapus &middot; offline 3 hari)</span></div>
+        <div class="pr-meta">Kode <b style="font-family:var(--font-mono)">${escapeHtml(l.identifier_code)}</b> &middot; Garansi berlaku sampai ${formatDate(l.expiresAt, false)}</div>
+      </div>
+      <span class="status-pill suspended">Klaim Garansi</span>
+    </div>
+  `).join('');
+
+  list.innerHTML = activeRows + logRows;
+  list.querySelectorAll('.panel-row[data-id]').forEach((el) => {
+    el.addEventListener('click', () => openManage(el.dataset.id));
+  });
+  list.querySelectorAll('.panel-row[data-claim-code]').forEach((el) => {
+    el.addEventListener('click', () => {
+      showView('claim');
+      document.getElementById('claim-identifier-input').value = el.dataset.claimCode;
+    });
+  });
+}
+
+function statusLabel(s) {
+  return s === 'active' ? 'Aktif' : s === 'suspended' ? 'Suspend' : 'Expired';
+}
+
+async function loadWarrantyLogs() {
+  const list = document.getElementById('warranty-log-list');
+  list.innerHTML = '<div class="loading-spinner"></div>';
+  const res = await API.get('/api/ptero/my-panel-logs');
+  if (!res.success) { list.innerHTML = `<div class="empty-state"><i class="fas fa-triangle-exclamation"></i>${escapeHtml(res.message || 'Gagal memuat riwayat')}</div>`; return; }
+  const logs = res.data || [];
+  if (!logs.length) {
+    list.innerHTML = `<div class="empty-state"><i class="fas fa-shield-halved"></i>Tidak ada panel yang bisa diklaim garansi saat ini.</div>`;
+    return;
+  }
+  list.innerHTML = logs.map((l) => `
+    <div class="panel-row" style="cursor:default">
+      <div>
+        <div class="pr-name">${escapeHtml(l.server_name)}</div>
+        <div class="pr-meta">${escapeHtml(l.stack_label ? `${l.stack_label} · ${l.plan_name}` : l.plan_name)} &middot; Kode <b style="font-family:var(--font-mono)">${escapeHtml(l.identifier_code)}</b> &middot; Garansi sampai ${formatDate(l.expiresAt, false)}</div>
+      </div>
+      <button class="btn btn-primary btn-sm" data-claim-code="${escapeHtml(l.identifier_code)}"><i class="fas fa-rotate-right"></i> Klaim</button>
+    </div>
+  `).join('');
+  list.querySelectorAll('[data-claim-code]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.getElementById('claim-identifier-input').value = btn.dataset.claimCode;
+      submitClaimWarranty();
+    });
+  });
+}
+
+async function submitClaimWarranty() {
+  const code = document.getElementById('claim-identifier-input').value.trim().toUpperCase();
+  if (!code) return Toast.error('Kode identifier wajib diisi');
+  const btn = document.getElementById('claim-submit-btn');
+  btnLoading(btn, true);
+  const res = await API.post('/api/ptero/claim-warranty', { identifier_code: code });
+  btnLoading(btn, false);
+  if (!res.success) return Toast.error(res.message);
+  Toast.success(res.message);
+  alertCredential(res.data);
+  document.getElementById('claim-identifier-input').value = '';
+  await loadMyPanels();
+  loadWarrantyLogs();
+}
+
+document.getElementById('claim-warranty-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  submitClaimWarranty();
+});
+
+document.getElementById('back-to-list-btn').addEventListener('click', () => showView('myservers'));
+
+async function openManage(id) {
+  currentPanelId = id;
+  stackSelectPopulatedFor = null; // panel baru dibuka -> dropdown wajib diisi ulang sekali
+  document.querySelectorAll('.ptero-tab-btn').forEach((b) => b.classList.remove('active'));
+  document.querySelectorAll('.ptero-view').forEach((v) => v.classList.remove('active'));
+  document.getElementById('view-manage').classList.add('active');
+  document.getElementById('ptero-tabs').style.display = 'none';
+  populateManageMergeSelect();
+  await refreshManage();
+  if (manageTimer) clearInterval(manageTimer);
+  manageTimer = setInterval(refreshManage, 8000);
+}
+
+// Dropdown "Gabung ke Akun Panel Lain" di halaman Manage — daftar akun lain (dikelompokkan per
+// panel_username, sama seperti populateMergeAccountSelect) TAPI akun milik server yang sedang
+// dibuka (ptero_user_id sama) disingkirkan, karena server itu sudah ada di akun tsb.
+function populateManageMergeSelect() {
+  const wrap = document.getElementById('manage-merge-wrap');
+  const select = document.getElementById('manage-merge-select');
+  if (!wrap || !select) return;
+  const current = myPanels.find((p) => p.id === currentPanelId);
+  if (!current) { wrap.style.display = 'none'; return; }
+  const accounts = new Map();
+  myPanels.forEach((p) => {
+    if (!p.panel_username || p.ptero_user_id === current.ptero_user_id) return;
+    if (!accounts.has(p.panel_username)) accounts.set(p.panel_username, { id: p.id, username: p.panel_username, count: 0 });
+    accounts.get(p.panel_username).count += 1;
+  });
+  const list = Array.from(accounts.values());
+  if (!list.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  select.innerHTML = list.map((a) => `<option value="${a.id}">${escapeHtml(a.username)} (${a.count} server)</option>`).join('');
+}
+
+document.getElementById('merge-into-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const targetId = document.getElementById('manage-merge-select').value;
+  if (!targetId) return Toast.error('Pilih akun tujuan penggabungan');
+  if (!await showConfirm('Server ini akan pindah login ke akun tujuan (ikut username & password akun itu). Lanjutkan?', { title: 'Gabung ke Akun Lain', okText: 'Gabung', danger: true })) return;
+  const btn = document.getElementById('merge-into-btn');
+  btnLoading(btn, true);
+  const res = await API.post(`/api/ptero/panels/${currentPanelId}/merge-into`, { target_panel_id: targetId });
+  btnLoading(btn, false);
+  if (!res.success) return Toast.error(res.message);
+  Toast.success(res.message);
+  await loadMyPanels();
+  populateManageMergeSelect();
+  refreshManage();
+});
+
+function populateStackSelect(p) {
+  const stackSelect = document.getElementById('manage-stack-select');
+  stackSelect.innerHTML = (pricing?.stacks || []).map((s) =>
+    `<option value="${s.id}">${escapeHtml(s.label)}${s.id === p.stack ? ' (aktif saat ini)' : ''}</option>`
+  ).join('');
+  stackSelect.value = p.stack;
+  stackSelectPopulatedFor = currentPanelId;
+}
+
+async function refreshManage() {
+  const res = await API.get(`/api/ptero/panels/${currentPanelId}`);
+  if (!res.success) { Toast.error(res.message); return; }
+  const p = res.data;
+
+  document.getElementById('manage-server-title').innerHTML = `<i class="fas fa-server" style="color:var(--primary)"></i> ${escapeHtml(p.server_name)}`;
+  const pill = document.getElementById('manage-status-pill');
+  pill.className = `status-pill ${p.status}`;
+  pill.textContent = statusLabel(p.status);
+  document.getElementById('manage-renew-price').textContent = formatRupiah(p.price);
+
+  // Dropdown "Ganti Tipe Server" HANYA diisi sekali per panel dibuka (di openManage/setelah
+  // ganti tipe berhasil), TIDAK setiap polling 8 detik. Sebelumnya select ini di-rebuild di
+  // setiap tick polling, yang merusak/menutup paksa picker native saat user sedang memilih.
+  // Rebuild berdasarkan document.activeElement juga gagal karena di WebView Android, select
+  // tetap "focused" setelah disentuh sekali sehingga rebuild malah terkunci permanen (kosong
+  // selamanya). Solusi final: isi sekali per currentPanelId, titik.
+  if (stackSelectPopulatedFor !== currentPanelId) populateStackSelect(p);
+
+  const r = p.resources;
+  const memLimitMb = p.ram, diskLimitMb = p.disk; 
+  const memUsedMb = r ? Math.round(r.resources.memory_bytes / 1024 / 1024) : 0;
+  const diskUsedMb = r ? Math.round(r.resources.disk_bytes / 1024 / 1024) : 0;
+  const cpuPct = r ? (r.resources.cpu_absolute || 0).toFixed(1) : '0.0';
+  const state = r ? r.current_state : 'unknown';
+  const memLabel = memLimitMb > 0 ? `${memUsedMb} / ${memLimitMb} MB` : `${memUsedMb} MB / Unlimited`;
+  const diskLabel = diskLimitMb > 0 ? `${diskUsedMb} / ${diskLimitMb} MB` : `${diskUsedMb} MB / Unlimited`;
+  const memBarPct = memLimitMb > 0 ? Math.min(100, (memUsedMb / memLimitMb) * 100) : 0;
+  const diskBarPct = diskLimitMb > 0 ? Math.min(100, (diskUsedMb / diskLimitMb) * 100) : 0;
+
+  document.getElementById('usage-grid').innerHTML = p.resources_error ? `
+    <div class="empty-state" style="grid-column:1/-1"><i class="fas fa-triangle-exclamation"></i>${escapeHtml(p.resources_error)}</div>
+  ` : `
+    <div class="usage-card">
+      <div class="uc-label">Status Server</div>
+      <div class="uc-value" style="font-size:14px;text-transform:capitalize">${escapeHtml(state)}</div>
+    </div>
+    <div class="usage-card">
+      <div class="uc-label">CPU Usage</div>
+      <div class="uc-value">${cpuPct}%</div>
+      <div class="usage-bar"><div class="usage-bar-fill" style="width:${Math.min(100, cpuPct)}%"></div></div>
+    </div>
+    <div class="usage-card">
+      <div class="uc-label">Memory (RAM)</div>
+      <div class="uc-value">${memLabel}</div>
+      <div class="usage-bar"><div class="usage-bar-fill" style="width:${memBarPct}%"></div></div>
+    </div>
+    <div class="usage-card">
+      <div class="uc-label">Disk</div>
+      <div class="uc-value">${diskLabel}</div>
+      <div class="usage-bar"><div class="usage-bar-fill" style="width:${diskBarPct}%"></div></div>
+    </div>
+  `;
+
+  document.getElementById('manage-info-grid').innerHTML = `
+    ${p.stack_label ? `<div><div class="info-field-label">Tipe Server</div><div class="info-field-value">${escapeHtml(p.stack_label)}</div></div>` : ''}
+    <div><div class="info-field-label">Paket</div><div class="info-field-value">${escapeHtml(p.plan_name)}</div></div>
+    <div><div class="info-field-label">Kedaluwarsa</div><div class="info-field-value">${formatDate(p.expiresAt, false)}</div></div>
+    <div><div class="info-field-label">IP Publik</div><div class="info-field-value">${escapeHtml(p.ip || '-')}</div></div>
+    <div><div class="info-field-label">Port</div><div class="info-field-value">${escapeHtml(String(p.port || '-'))}</div></div>
+    <div><div class="info-field-label">Username Root</div><div class="info-field-value">${escapeHtml(p.panel_username)}</div></div>
+    <div><div class="info-field-label">URL Login</div><div class="info-field-value"><a href="${PANEL_LOGIN_URL}" target="_blank" rel="noopener" style="color:var(--primary)">paduka.austinstore.id</a></div></div>
+    <div><div class="info-field-label">Kode Identifier (Garansi)</div><div class="info-field-value">${escapeHtml(p.identifier_code || '-')}</div></div>
+  `;
+}
+
+document.querySelectorAll('[data-power]').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    btnLoading(btn, true);
+    const res = await API.post(`/api/ptero/panels/${currentPanelId}/power`, { action: btn.dataset.power });
+    btnLoading(btn, false);
+    res.success ? Toast.success(res.message) : Toast.error(res.message);
+    setTimeout(refreshManage, 1500);
+  });
+});
+
+document.getElementById('reinstall-btn').addEventListener('click', async () => {
+  if (!await showConfirm('Reinstall akan menghapus seluruh data di server. Lanjutkan?', { title: 'Reinstall Server', okText: 'Reinstall', danger: true })) return;
+  const btn = document.getElementById('reinstall-btn');
+  btnLoading(btn, true);
+  const res = await API.post(`/api/ptero/panels/${currentPanelId}/reinstall`);
+  btnLoading(btn, false);
+  res.success ? Toast.success(res.message) : Toast.error(res.message);
+});
+
+document.getElementById('change-stack-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const stack = document.getElementById('manage-stack-select').value;
+  const currentStack = myPanels.find((x) => x.id === currentPanelId)?.stack;
+  if (stack === currentStack) return Toast.error('Server sudah menggunakan tipe ini');
+  if (!await showConfirm('Ganti tipe server akan memicu reinstall otomatis dan MENGHAPUS seluruh data di server. Lanjutkan?', { title: 'Ganti Tipe Server', okText: 'Ganti', danger: true })) return;
+  const btn = document.getElementById('change-stack-btn');
+  btnLoading(btn, true);
+  const res = await API.post(`/api/ptero/panels/${currentPanelId}/change-stack`, { stack });
+  btnLoading(btn, false);
+  if (res.success) { Toast.success(res.message); stackSelectPopulatedFor = null; refreshManage(); loadMyPanels(); }
+  else Toast.error(res.message);
+});
+
+document.getElementById('reset-pw-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const password = document.getElementById('new-root-password').value;
+  if (password.length < 8) return Toast.error('Password minimal 8 karakter');
+  const btn = e.target.querySelector('button[type="submit"]');
+  btnLoading(btn, true);
+  const res = await API.post(`/api/ptero/panels/${currentPanelId}/reset-password`, { password });
+  btnLoading(btn, false);
+  if (res.success) { Toast.success(res.message); document.getElementById('new-root-password').value = ''; }
+  else Toast.error(res.message);
+});
+
+document.getElementById('renew-btn').addEventListener('click', async () => {
+  if (!await showConfirm('Perpanjang server ini 30 hari?', { title: 'Perpanjang Server', okText: 'Perpanjang' })) return;
+  const btn = document.getElementById('renew-btn');
+  btnLoading(btn, true);
+  const res = await API.post(`/api/ptero/panels/${currentPanelId}/renew`);
+  btnLoading(btn, false);
+  if (res.success) { Toast.success(res.message); refreshManage(); loadMyPanels(); }
+  else Toast.error(res.message);
+});
+
+init();
+</script>
+</body>
+</html>
