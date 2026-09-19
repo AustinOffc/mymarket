@@ -3525,7 +3525,9 @@ async function loadResellersList() {
       <td class="text-sm">${formatRupiah(u.balance)}</td>
       <td class="text-xs">${u.personal_panel_count} / ${u.buyer_panel_count}</td>
       <td class="text-xs">${u.quota.custom.used}/${u.quota.custom.max} custom &middot; ${u.quota.unlimited.used}/${u.quota.unlimited.max} unlimited</td>
-      <td>${u.ptpt.ok ? '<span class="badge badge-success">Lunas</span>' : '<span class="badge badge-danger">Belum Bayar</span>'}</td>
+      <td>${u.ptpt.ok
+          ? '<span class="badge badge-success">Lunas</span>'
+          : `<span class="badge badge-danger">Belum Bayar</span> <button class="btn btn-outline btn-sm" data-action="mark-ptpt-reseller" data-id="${u.id}" title="Tandai Lunas Manual" style="margin-top:4px"><i class="fas fa-hand-holding-dollar"></i> Tandai Lunas</button>`}</td>
       <td>${statusBadge(u.status)}</td>
       <td style="white-space:nowrap">
         ${u.status === 'suspended'
@@ -3548,6 +3550,7 @@ document.getElementById('resellers-tbody')?.addEventListener('click', async (e) 
 
   if (action === 'revoke-reseller' && !await showConfirm('Cabut role Reseller/Partner user ini? Panel yang sudah ada tidak akan terhapus.', { title: 'Cabut Role', okText: 'Cabut', danger: true })) return;
   if (action === 'upgrade-reseller' && !await showConfirm('Upgrade user ini menjadi Partner secara gratis?', { title: 'Upgrade Partner', okText: 'Upgrade' })) return;
+  if (action === 'mark-ptpt-reseller' && !await showConfirm('Tandai PTPT bulan ini sebagai LUNAS untuk user ini? Saldo user TIDAK akan dipotong, dan panel pribadi yang sempat displit karena PTPT akan diaktifkan kembali.', { title: 'Tandai Lunas PTPT', okText: 'Tandai Lunas' })) return;
 
   btnLoading(btn, true);
   let r;
@@ -3555,6 +3558,7 @@ document.getElementById('resellers-tbody')?.addEventListener('click', async (e) 
   else if (action === 'activate-reseller') r = await API.post(`/api/owner/resellers/${id}/activate`);
   else if (action === 'revoke-reseller') r = await API.post(`/api/owner/resellers/${id}/revoke`);
   else if (action === 'upgrade-reseller') r = await API.post(`/api/owner/resellers/${id}/grant`, { role: 'partner' });
+  else if (action === 'mark-ptpt-reseller') r = await API.post(`/api/owner/resellers/${id}/mark-ptpt-paid`);
   btnLoading(btn, false);
 
   if (!r) return;
