@@ -233,21 +233,33 @@ const Theme = {
 };
 
 const Sidebar = {
+  _setToggleIcon(isOpen) {
+    const toggle = document.getElementById('sidebar-toggle');
+    const icon = toggle && toggle.querySelector('i');
+    if (!icon) return;
+    icon.classList.remove('fa-bars', 'fa-xmark');
+    icon.classList.add(isOpen ? 'fa-xmark' : 'fa-bars');
+  },
+  close() {
+    const overlay = document.getElementById('sidebar-overlay');
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
+    this._setToggleIcon(false);
+  },
   init() {
     const toggle  = document.getElementById('sidebar-toggle');
     const overlay = document.getElementById('sidebar-overlay');
     const sidebar = document.querySelector('.sidebar');
     if (toggle && sidebar) {
       toggle.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-        if (overlay) overlay.classList.toggle('open');
+        const isOpen = sidebar.classList.toggle('open');
+        if (overlay) overlay.classList.toggle('open', isOpen);
+        this._setToggleIcon(isOpen);
       });
     }
     if (overlay) {
-      overlay.addEventListener('click', () => {
-        if (sidebar) sidebar.classList.remove('open');
-        overlay.classList.remove('open');
-      });
+      overlay.addEventListener('click', () => this.close());
     }
     const path = window.location.pathname;
     document.querySelectorAll('.nav-item[data-href]').forEach(item => {
@@ -870,6 +882,23 @@ const MarketplaceNav = {
   },
 };
 
+const Footer = {
+  init() {
+    if (document.getElementById('app-credit-footer')) return;
+    const year = new Date().getFullYear();
+    const footer = document.createElement('div');
+    footer.id = 'app-credit-footer';
+    footer.className = 'app-credit-footer';
+    footer.innerHTML = `
+      <div class="acf-brand"><i class="fas fa-store"></i> MyMarket</div>
+      <div class="acf-line">&copy; ${year} MyMarket &mdash; dibangun dengan <i class="fas fa-heart"></i> oleh <strong>Austin Official</strong></div>
+      <div class="acf-sub">Digital Marketplace &middot; Payment Gateway &middot; VPS Hosting &middot; austinstore.id</div>
+    `;
+    const target = document.querySelector('.page-content') || document.querySelector('.auth-page') || document.body;
+    target.appendChild(footer);
+  },
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   Theme.init();
   MarketplaceNav.init();
@@ -879,6 +908,7 @@ document.addEventListener('DOMContentLoaded', () => {
   Notifications.init();
   CartWidget.init();
   BottomNav.init();
+  Footer.init();
   TopbarChat.init();
   const themeBtn = document.getElementById('theme-toggle');
   if (themeBtn) themeBtn.addEventListener('click', () => Theme.toggle());
