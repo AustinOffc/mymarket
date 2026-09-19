@@ -112,6 +112,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); letter-spacing: -.01e
 .auth-page {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background:
@@ -683,7 +684,10 @@ textarea.form-control, .form-textarea { min-height: 90px; resize: vertical; line
 
 @media (max-width: 768px) {
   .sidebar {
-    top: 0; left: 0; right: 0; bottom: auto; width: 100%; height: auto; max-height: 85vh;
+    /* Mulai tepat di bawah topbar (bukan top:0) supaya topbar & tombol toggle-nya
+       tetap terlihat/aktif di atas panel sidebar saat sidebar sedang terbuka. */
+    top: var(--header-h); left: 0; right: 0; bottom: auto; width: 100%;
+    height: auto; max-height: calc(85vh - var(--header-h));
     overflow-y: auto; transform: translateY(-100%);
     transition: transform var(--transition), opacity var(--transition);
     opacity: 0; pointer-events: none;
@@ -702,7 +706,7 @@ textarea.form-control, .form-textarea { min-height: 90px; resize: vertical; line
   .sidebar-user-name { color: var(--text); }
 
   .main-content { margin-left: 0; }
-  .topbar { left: 0; }
+  .topbar { left: 0; z-index: 150; } /* di atas .sidebar (100) & .sidebar-overlay (99) supaya tombol toggle tidak pernah tertutup */
   .sidebar-toggle { display: flex; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .grid-2 { grid-template-columns: 1fr; }
@@ -983,3 +987,29 @@ textarea.form-control, .form-textarea { min-height: 90px; resize: vertical; line
 }
 .csel-option.is-disabled-opt { opacity: .4; cursor: not-allowed; pointer-events: none; }
 .csel-panel-empty { padding: 14px 12px; font-size: 13px; color: var(--text-muted); text-align: center; }
+
+.app-credit-footer {
+  margin-top: 32px;
+  padding: 18px 16px 4px;
+  text-align: center;
+  border-top: 1px solid var(--border-soft);
+}
+.app-credit-footer .acf-brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .04em;
+  color: var(--primary);
+  margin-bottom: 6px;
+}
+.app-credit-footer .acf-brand i { margin-right: 5px; }
+.app-credit-footer .acf-line { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
+.app-credit-footer .acf-line i { color: var(--coral); margin: 0 2px; font-size: 10px; }
+.app-credit-footer .acf-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: .65;
+  margin-top: 4px;
+  letter-spacing: .02em;
+}
+.auth-page > .app-credit-footer { margin-top: 20px; border-top: none; }
