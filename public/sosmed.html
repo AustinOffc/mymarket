@@ -95,6 +95,7 @@
             <div class="sm-server-tabs" id="sm-server-tabs">
               <div class="server-tab-btn active" data-server="1">Server 1</div>
               <div class="server-tab-btn" data-server="2">Server 2</div>
+              <div class="server-tab-btn" data-server="3">Server 3</div>
             </div>
           </div>
 
@@ -137,6 +138,12 @@
             <label class="form-label">Data Tujuan</label>
             <input type="text" class="form-control" id="sm-target" placeholder="Masukkan link / username / data tujuan" disabled>
             <p class="sm-warn"><i class="fas fa-triangle-exclamation"></i> Jangan doubel input pada target yang sama.</p>
+          </div>
+
+          <div class="form-group" id="sm-comments-group" style="display:none">
+            <label class="form-label">Komentar <span id="sm-comments-count" class="text-xs text-muted">(0 komentar)</span></label>
+            <textarea class="form-control" id="sm-comments" rows="6" placeholder="Tulis satu komentar per baris"></textarea>
+            <p class="sm-hint">Satu komentar per baris. Jumlah pesanan otomatis mengikuti jumlah komentar.</p>
           </div>
 
           <div class="form-group">
@@ -260,6 +267,21 @@ const maxEl = document.getElementById('sm-max');
 const targetEl = document.getElementById('sm-target');
 const qtyEl = document.getElementById('sm-quantity');
 const totalEl = document.getElementById('sm-total');
+const commentsGroup = document.getElementById('sm-comments-group');
+const commentsEl = document.getElementById('sm-comments');
+const commentsCountEl = document.getElementById('sm-comments-count');
+
+function commentLines() {
+  return commentsEl.value.replace(/\r\n/g, '\n').split('\n').map(l => l.trim()).filter(Boolean);
+}
+
+function isCommentService() {
+  return !!(smSelectedService && smSelectedService.custom_comments);
+}
+
+function currentQty() {
+  return isCommentService() ? commentLines().length : (parseInt(qtyEl.value, 10) || 0);
+}
 
 document.getElementById('sm-category').addEventListener('change', async (e) => {
   resetServiceFields();
@@ -298,6 +320,23 @@ serviceSelect.addEventListener('change', (e) => {
   qtyEl.min = svc.min;
   if (svc.max) qtyEl.max = svc.max;
   qtyEl.placeholder = `Min ${svc.min}${svc.max ? ', Max ' + svc.max : ''}`;
+
+  const isComment = !!svc.custom_comments;
+  const modeChanged = (commentsGroup.style.display !== 'none') !== isComment;
+  commentsGroup.style.display = isComment ? '' : 'none';
+  commentsEl.value = '';
+  commentsCountEl.textContent = '(0 komentar)';
+  qtyEl.readOnly = isComment;
+  qtyEl.classList.toggle('sm-readonly', isComment);
+  if (modeChanged || isComment) qtyEl.value = '';
+  updateTotal();
+});
+
+commentsEl.addEventListener('input', () => {
+  if (!isCommentService()) return;
+  const n = commentLines().length;
+  commentsCountEl.textContent = `(${n} komentar)`;
+  qtyEl.value = n || '';
   updateTotal();
 });
 
@@ -312,6 +351,11 @@ function resetServiceFields() {
   targetEl.disabled = true;
   qtyEl.value = '';
   qtyEl.disabled = true;
+  qtyEl.readOnly = false;
+  qtyEl.classList.remove('sm-readonly');
+  commentsGroup.style.display = 'none';
+  commentsEl.value = '';
+  commentsCountEl.textContent = '(0 komentar)';
   totalEl.textContent = 'Rp 0';
 }
 
@@ -319,7 +363,7 @@ qtyEl.addEventListener('input', updateTotal);
 
 function updateTotal() {
   if (!smSelectedService) { totalEl.textContent = 'Rp 0'; return; }
-  const qty = parseInt(qtyEl.value, 10) || 0;
+  const qty = currentQty();
   const total = Math.ceil((smSelectedService.price_per_1000 / 1000) * qty);
   totalEl.textContent = formatRupiah(total);
 }
@@ -339,7 +383,8 @@ document.getElementById('sm-order').addEventListener('click', async (e) => {
   if (!catKey || !smSelectedService) { Toast.error('Pilih kategori & layanan dulu'); return; }
   const target = targetEl.value.trim();
   if (!target) { Toast.error('Data tujuan wajib diisi'); return; }
-  const qty = parseInt(qtyEl.value, 10);
+  if (isCommentService() && !commentLines().length) { Toast.error('Komentar wajib diisi (satu komentar per baris)'); return; }
+  const qty = currentQty();
   if (!qty || qty <= 0) { Toast.error('Jumlah tidak valid'); return; }
   if (qty < smSelectedService.min) { Toast.error(`Jumlah minimal order ${smSelectedService.min}`); return; }
   if (smSelectedService.max && qty > smSelectedService.max) { Toast.error(`Jumlah maksimal order ${smSelectedService.max}`); return; }
@@ -355,6 +400,7 @@ document.getElementById('sm-order').addEventListener('click', async (e) => {
     service_id: smSelectedService.id,
     target,
     quantity: qty,
+    comments: isCommentService() ? commentLines().join('\n') : undefined,
     voucher_code: (document.getElementById('sm-voucher-code')?.value || '').trim() || undefined,
   });
   e.target.classList.remove('btn-loading');

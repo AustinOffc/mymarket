@@ -621,7 +621,7 @@
           </form>
         </div>
 
-        <div class="card mb-16">
+        <div class="card mb-24">
           <div class="card-header">
             <span class="card-title"><i class="fas fa-percent" style="color:var(--primary)"></i> Margin Harga Jual — Server 2</span>
           </div>
@@ -637,6 +637,46 @@
             <div class="form-group" style="margin:0">
               <label class="form-label">Nilai</label>
               <input type="number" class="form-control" id="socmed-mp-margin-value" min="0" step="1" style="max-width:160px">
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan Margin</button>
+          </form>
+        </div>
+
+        <h3 class="text-sm" style="padding:0 20px;margin:0 0 10px;color:var(--text-muted)"><i class="fas fa-server"></i> Server 3 — Pusat Panel SMM</h3>
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-plug" style="color:var(--primary)"></i> Koneksi API Pusat Panel SMM</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Kredensial &amp; margin Server 3 <b>terpisah</b> dari Server 1 dan Server 2. Lihat API Key &amp; Secret Key di halaman Profil Saya akun Pusat Panel SMM.</p>
+          <form id="socmed-pp-api-form" style="padding:0 20px 20px;display:grid;gap:12px;max-width:480px">
+            <div class="form-group">
+              <label class="form-label">API Key <span id="socmed-pp-api-key-status" class="text-xs text-muted"></span></label>
+              <input type="password" class="form-control" id="socmed-pp-api-key" placeholder="Kosongkan jika tidak diganti">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Secret Key <span id="socmed-pp-secret-key-status" class="text-xs text-muted"></span></label>
+              <input type="password" class="form-control" id="socmed-pp-secret-key" placeholder="Kosongkan jika tidak diganti">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:fit-content"><i class="fas fa-save"></i> Simpan Koneksi API</button>
+          </form>
+        </div>
+
+        <div class="card mb-24">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-percent" style="color:var(--primary)"></i> Margin Harga Jual — Server 3</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Harga jual ke buyer (per 1000) = harga dasar API Pusat Panel SMM + margin. Pilih persen (mis. 10%) atau nominal tetap (mis. Rp500 per 1000).</p>
+          <form id="socmed-pp-margin-form" style="padding:0 20px 20px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Tipe Margin</label>
+              <select class="form-control" id="socmed-pp-margin-type">
+                <option value="percent">Persen (%)</option>
+                <option value="flat">Nominal Tetap (Rp)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Nilai</label>
+              <input type="number" class="form-control" id="socmed-pp-margin-value" min="0" step="1" style="max-width:160px">
             </div>
             <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan Margin</button>
           </form>
@@ -2635,6 +2675,17 @@ async function loadSocmedSection() {
     document.getElementById('socmed-mp-margin-value').value = md.margin?.value ?? 10;
   }
 
+  const ppRes = await API.get('/api/owner/socmed/pusatpanelsmm/settings');
+  if (ppRes.success) {
+    const pd = ppRes.data;
+    document.getElementById('socmed-pp-api-key').value = '';
+    document.getElementById('socmed-pp-api-key-status').textContent = pd.pp_api_key_set ? '(sudah tersimpan)' : '(belum diatur)';
+    document.getElementById('socmed-pp-secret-key').value = '';
+    document.getElementById('socmed-pp-secret-key-status').textContent = pd.pp_secret_key_set ? '(sudah tersimpan)' : '(belum diatur)';
+    document.getElementById('socmed-pp-margin-type').value = pd.margin?.type || 'percent';
+    document.getElementById('socmed-pp-margin-value').value = pd.margin?.value ?? 10;
+  }
+
   loadSocmedOrders(1);
 }
 
@@ -2678,6 +2729,26 @@ document.getElementById('socmed-mp-margin-form')?.addEventListener('submit', asy
   r.success ? (Toast.success(r.message), loadSocmedSection()) : Toast.error(r.message);
 });
 
+document.getElementById('socmed-pp-api-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = {
+    pp_api_key: document.getElementById('socmed-pp-api-key').value.trim(),
+    pp_secret_key: document.getElementById('socmed-pp-secret-key').value.trim(),
+  };
+  const r = await API.post('/api/owner/socmed/pusatpanelsmm/settings', body);
+  r.success ? (Toast.success(r.message), loadSocmedSection()) : Toast.error(r.message);
+});
+
+document.getElementById('socmed-pp-margin-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = {
+    margin_type: document.getElementById('socmed-pp-margin-type').value,
+    margin_value: document.getElementById('socmed-pp-margin-value').value,
+  };
+  const r = await API.post('/api/owner/socmed/pusatpanelsmm/settings', body);
+  r.success ? (Toast.success(r.message), loadSocmedSection()) : Toast.error(r.message);
+});
+
 async function loadSocmedOrders(page = 1) {
   const res = await API.get(`/api/owner/socmed/orders?page=${page}&limit=15`);
   const tbody = document.getElementById('socmed-orders-tbody');
@@ -2688,7 +2759,7 @@ async function loadSocmedOrders(page = 1) {
   document.getElementById('socmed-orders-page-info').textContent = `${res.total} order`;
   tbody.innerHTML = res.data.map(o => `
     <tr>
-      <td class="text-sm">${o.provider || (String(o.server) === '2' ? 'MedanPedia' : 'VIP Reseller')}</td>
+      <td class="text-sm">${o.provider || ({ '2': 'MedanPedia', '3': 'Pusat Panel SMM' }[String(o.server)] || 'VIP Reseller')}</td>
       <td class="text-sm">${o.category_name}</td>
       <td class="text-sm"><strong>${o.service_name}</strong></td>
       <td class="text-xs text-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.target}</td>
