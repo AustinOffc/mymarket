@@ -738,6 +738,7 @@ textarea.form-control, .form-textarea { min-height: 90px; resize: vertical; line
 .order-card-icon.nokos { background: var(--success-light); color: var(--success); }
 .order-card-icon.topup { background: var(--coral-light); color: var(--coral); }
 .order-card-icon.appprem { background: var(--primary-light); color: var(--primary); }
+.order-card-icon.subdomain { background: var(--warning-light); color: var(--warning); }
 .order-card-body { flex: 1; min-width: 0; }
 .order-card-title { font-weight: 700; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .order-card-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
