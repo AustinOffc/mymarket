@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subdomain — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .sd-card {
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-md); margin-bottom: 24px;
+    }
+    .sd-name-row { display: flex; align-items: stretch; gap: 0; }
+    .sd-name-row input { border-top-right-radius: 0; border-bottom-right-radius: 0; min-width: 0; flex: 1; }
+    .sd-suffix {
+      display: flex; align-items: center; padding: 0 12px; font-family: var(--font-mono); font-size: 13px;
+      background: var(--bg-hover); border: 1px solid var(--border); border-left: none;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0; color: var(--text-muted); max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .sd-hint { font-size: 12px; margin-top: 6px; min-height: 16px; color: var(--text-muted); }
+    .sd-hint.ok { color: var(--success); }
+    .sd-hint.bad { color: var(--danger); }
+    .sd-check { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; cursor: pointer; }
+    .sd-check input { margin-top: 3px; }
+    .sd-check small { display: block; color: var(--text-muted); font-size: 11.5px; margin-top: 2px; }
+    .sd-result {
+      background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; margin-top: 14px;
+    }
+    .sd-result .sd-fqdn { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-weight: 700; word-break: break-all; }
+    .sd-copy-btn {
+      flex-shrink: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card);
+      color: var(--text-muted); cursor: pointer; font-size: 13px; transition: all .15s;
+    }
+    .sd-copy-btn:hover { color: var(--primary); border-color: var(--primary); }
+    .sd-host { font-family: var(--font-mono); font-size: 12.5px; word-break: break-all; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><i class="fas fa-store"></i></div>
+        <span>Austin Store</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Subdomain</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="card-header" style="padding:0 0 14px 0;border:none">
+        <div><span class="eyebrow">Subdomain</span><h2 style="font-size:17px">Auto Order Subdomain</h2></div>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-muted);margin:-8px 0 14px">
+        <i class="fas fa-circle-info"></i> Pilih domain, isi nama &amp; IP tujuan — record DNS dibuat otomatis di Cloudflare dan langsung siap dipakai.
+      </p>
+
+      <div id="sd-unavailable" class="sd-card" style="display:none"></div>
+
+      <div id="sd-form-card" class="sd-card" style="display:none">
+        <div class="form-group">
+          <label class="form-label" for="sd-domain">Domain</label>
+          <select class="form-control" id="sd-domain"></select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sd-name">Nama Subdomain</label>
+          <div class="sd-name-row">
+            <input type="text" class="form-control" id="sd-name" placeholder="contoh: servergame" maxlength="30" autocomplete="off" autocapitalize="none" spellcheck="false">
+            <span class="sd-suffix" id="sd-suffix">.domain</span>
+          </div>
+          <div class="sd-hint" id="sd-hint">3-30 karakter: huruf kecil, angka, dan tanda hubung (-).</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sd-ip">IP Tujuan</label>
+          <input type="text" class="form-control" id="sd-ip" placeholder="contoh: 103.12.34.56 (IPv4) atau IPv6" maxlength="45" autocomplete="off" spellcheck="false">
+          <div class="sd-hint">Gunakan IP publik server kamu. IPv4 dibuat sebagai record A, IPv6 sebagai AAAA.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="sd-check">
+            <input type="checkbox" id="sd-proxied">
+            <span>Aktifkan proxy Cloudflare
+              <small>Hanya untuk website HTTP/HTTPS. Biarkan mati untuk game server, panel, SSH, atau port lain.</small>
+            </span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sd-voucher">Kode Voucher (opsional)</label>
+          <input type="text" class="form-control" id="sd-voucher" placeholder="Masukkan kode voucher" style="text-transform:uppercase" autocomplete="off">
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:14px;margin-bottom:14px">
+          <span class="text-sm text-muted">Harga</span>
+          <span style="font-family:var(--font-mono);font-weight:700;font-size:18px" id="sd-price">Rp 0</span>
+        </div>
+        <button class="btn btn-primary" style="width:100%" id="sd-buy-btn"><i class="fas fa-bolt"></i> Beli Sekarang</button>
+        <div id="sd-result"></div>
+      </div>
+
+      <div class="card-header" style="padding:26px 0 14px 0;border:none">
+        <span class="card-title">Subdomain Saya</span>
+      </div>
+      <div class="table-wrapper">
+        <table class="table" id="hist-table">
+          <thead><tr><th>Waktu</th><th>Subdomain</th><th>IP</th><th>Harga</th><th>Status</th><th></th></tr></thead>
+          <tbody id="hist-body"><tr><td colspan="6" class="table-empty">Memuat...</td></tr></tbody>
+        </table>
+      </div>
+      <div id="hist-pagination" style="margin-top:14px"></div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="ip-modal-overlay">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-pen" style="color:var(--primary);margin-right:8px"></i>Ubah IP Tujuan</span>
+      <button class="modal-close" id="ip-modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="sd-host" id="ip-modal-fqdn" style="font-weight:700;margin-bottom:12px"></p>
+      <div class="form-group">
+        <label class="form-label" for="ip-modal-ip">IP Baru</label>
+        <input type="text" class="form-control" id="ip-modal-ip" maxlength="45" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="sd-check">
+          <input type="checkbox" id="ip-modal-proxied">
+          <span>Proxy Cloudflare<small>Hanya untuk website HTTP/HTTPS.</small></span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="ip-modal-cancel">Batal</button>
+      <button class="btn btn-primary" id="ip-modal-save"><i class="fas fa-save"></i> Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+const NAME_RE = /^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/;
+let domains = [];
+let histRows = [];
+let editingId = null;
+let checkTimer = null;
+let checkSeq = 0;
+
+function currentDomain() {
+  const name = document.getElementById('sd-domain').value;
+  return domains.find(d => d.domain === name) || null;
+}
+
+function setHint(text, cls) {
+  const el = document.getElementById('sd-hint');
+  el.textContent = text;
+  el.className = 'sd-hint' + (cls ? ' ' + cls : '');
+}
+
+function refreshDomainUi() {
+  const d = currentDomain();
+  document.getElementById('sd-suffix').textContent = d ? '.' + d.domain : '.domain';
+  document.getElementById('sd-price').textContent = d ? formatRupiah(d.price) : 'Rp 0';
+}
+
+function scheduleCheck() {
+  clearTimeout(checkTimer);
+  const name = document.getElementById('sd-name').value.trim().toLowerCase();
+  const d = currentDomain();
+  if (!name) { setHint('3-30 karakter: huruf kecil, angka, dan tanda hubung (-).', ''); return; }
+  if (name.includes('.')) { setHint('Isi nama saja tanpa titik — domain dipilih di atas.', 'bad'); return; }
+  if (!NAME_RE.test(name)) { setHint('3-30 karakter: huruf kecil, angka, tanda hubung (-); tidak boleh diawali/diakhiri tanda hubung.', 'bad'); return; }
+  if (!d) return;
+  if (!Auth.currentUser) { setHint('Masuk untuk cek ketersediaan nama.', ''); return; }
+  setHint('Mengecek ketersediaan...', '');
+  const seq = ++checkSeq;
+  checkTimer = setTimeout(async () => {
+    const res = await API.get(`/api/subdomain/check?domain=${encodeURIComponent(d.domain)}&name=${encodeURIComponent(name)}`);
+    if (seq !== checkSeq) return; // hasil basi (input sudah berubah)
+    if (!res.success) { setHint(res.message || 'Gagal mengecek ketersediaan', 'bad'); return; }
+    setHint(res.available ? `✓ ${name}.${d.domain} tersedia` : `✗ ${res.message}`, res.available ? 'ok' : 'bad');
+  }, 500);
+}
+
+async function loadDomains() {
+  const unavailable = document.getElementById('sd-unavailable');
+  const form = document.getElementById('sd-form-card');
+  const res = await API.get('/api/subdomain/domains');
+  if (!res.success || res.enabled === false || !(res.data || []).length) {
+    form.style.display = 'none';
+    unavailable.style.display = 'block';
+    unavailable.innerHTML = `<div class="empty-state"><i class="fas fa-globe"></i> ${escapeHtml(!res.success ? (res.message || 'Gagal memuat daftar domain') : (res.enabled === false ? 'Layanan subdomain belum dibuka.' : 'Belum ada domain yang tersedia.'))}</div>`;
+    return;
+  }
+  unavailable.style.display = 'none';
+  form.style.display = 'block';
+  domains = res.data;
+  const sel = document.getElementById('sd-domain');
+  const prev = sel.value;
+  sel.innerHTML = domains.map(d => `<option value="${escapeAttr(d.domain)}">${escapeHtml(d.domain)} — ${formatRupiah(d.price)}</option>`).join('');
+  if (prev && domains.some(d => d.domain === prev)) sel.value = prev;
+  refreshDomainUi();
+}
+
+document.getElementById('sd-domain').addEventListener('change', () => { refreshDomainUi(); scheduleCheck(); });
+document.getElementById('sd-name').addEventListener('input', (e) => {
+  e.target.value = e.target.value.toLowerCase();
+  scheduleCheck();
+});
+
+document.getElementById('sd-buy-btn').addEventListener('click', async () => {
+  if (!Auth.requireLogin('Masuk dulu untuk melakukan order')) return;
+  const d = currentDomain();
+  const name = document.getElementById('sd-name').value.trim().toLowerCase();
+  const ip = document.getElementById('sd-ip').value.trim();
+  const proxied = document.getElementById('sd-proxied').checked;
+  if (!d) { Toast.error('Pilih domain terlebih dahulu'); return; }
+  if (!NAME_RE.test(name)) { Toast.error('Nama subdomain belum valid'); return; }
+  if (!ip) { Toast.error('IP tujuan wajib diisi'); return; }
+
+  const ok = await showConfirm(
+    `Beli ${name}.${d.domain}\nArah ke: ${ip}${proxied ? ' (proxy Cloudflare aktif)' : ''}\nHarga: ${formatRupiah(d.price)}\n\nPeriksa lagi nama & IP-nya sebelum lanjut.`,
+    { title: 'Konfirmasi Order', okText: 'Beli' }
+  );
+  if (!ok) return;
+
+  const btn = document.getElementById('sd-buy-btn');
+  btnLoading(btn, true);
+  const res = await API.post('/api/subdomain/order', {
+    domain: d.domain, name, ip, proxied,
+    voucher_code: (document.getElementById('sd-voucher').value || '').trim() || undefined,
+  });
+  btnLoading(btn, false);
+  if (!res.success) { Toast.error(res.message); scheduleCheck(); return; }
+
+  Toast.success('Subdomain berhasil dibuat');
+  const o = res.data;
+  const safe = escapeHtml(o.fqdn);
+  document.getElementById('sd-result').innerHTML = `
+    <div class="sd-result">
+      <div style="font-weight:700;font-size:13px;margin-bottom:10px">${statusBadge('success')} Subdomain siap dipakai</div>
+      <div class="sd-fqdn"><span>${safe}</span>
+        <button type="button" class="sd-copy-btn" data-copy="${escapeAttr(o.fqdn)}" title="Salin"><i class="fas fa-copy"></i></button>
+      </div>
+      <div class="text-xs text-muted" style="margin-top:8px">Record ${escapeHtml(o.record_type)} → <span class="sd-host">${escapeHtml(o.ip)}</span>${o.proxied ? ' · proxy Cloudflare aktif' : ''}</div>
+      <div class="text-xs text-muted" style="margin-top:6px">${escapeHtml(res.message)}</div>
+    </div>`;
+  document.getElementById('sd-name').value = '';
+  setHint('3-30 karakter: huruf kecil, angka, dan tanda hubung (-).', '');
+  loadHistory(1);
+  Auth.checkOptional().then(r => r && Auth.renderUserInfo(r.user, r.wallet));
+});
+
+async function loadHistory(page) {
+  const tbody = document.getElementById('hist-body');
+  if (!Auth.currentUser) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="table-empty"><i class="fas fa-lock" style="font-size:32px;margin-bottom:10px;display:block;color:var(--text-muted)"></i>Masuk untuk melihat subdomain kamu</div></td></tr>`;
+    document.getElementById('hist-pagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Memuat...</td></tr>';
+  const res = await API.get(`/api/subdomain/history?page=${page}&limit=10`);
+  if (!res.success) { tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Gagal memuat data</td></tr>'; return; }
+  histRows = res.data || [];
+  if (!histRows.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="table-empty"><i class="fas fa-inbox" style="font-size:32px;margin-bottom:10px;display:block;color:var(--text-muted)"></i>Belum ada subdomain</div></td></tr>`;
+    document.getElementById('hist-pagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = histRows.map(o => `
+    <tr>
+      <td>${formatDate(o.createdAt)}</td>
+      <td class="cell-wrap"><span class="sd-host">${escapeHtml(o.fqdn)}</span>${o.status === 'success' ? ` <button type="button" class="sd-copy-btn" style="display:inline-flex;width:24px;height:24px;font-size:11px;vertical-align:middle" data-copy="${escapeAttr(o.fqdn)}" title="Salin"><i class="fas fa-copy"></i></button>` : ''}</td>
+      <td class="cell-wrap"><span class="sd-host">${escapeHtml(o.ip)}</span><div class="text-xs text-muted">${escapeHtml(o.record_type)}${o.proxied ? ' · proxy' : ''}</div></td>
+      <td>${formatRupiah(o.price)}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td>${o.status === 'success' ? `<button class="btn btn-outline btn-sm edit-ip-btn" data-id="${escapeAttr(o.id)}"><i class="fas fa-pen"></i> Ubah IP</button>` : ''}</td>
+    </tr>
+  `).join('');
+  renderPagination('hist-pagination', res.page, res.pages, (p) => loadHistory(p));
+}
+
+document.getElementById('hist-body').addEventListener('click', (e) => {
+  const btn = e.target.closest('.edit-ip-btn');
+  if (!btn) return;
+  const row = histRows.find(r => r.id === btn.dataset.id);
+  if (!row) return;
+  editingId = row.id;
+  document.getElementById('ip-modal-fqdn').textContent = row.fqdn;
+  document.getElementById('ip-modal-ip').value = row.ip;
+  document.getElementById('ip-modal-proxied').checked = !!row.proxied;
+  Modal.open('ip-modal-overlay');
+});
+
+document.getElementById('ip-modal-close').addEventListener('click', () => Modal.close('ip-modal-overlay'));
+document.getElementById('ip-modal-cancel').addEventListener('click', () => Modal.close('ip-modal-overlay'));
+document.getElementById('ip-modal-save').addEventListener('click', async () => {
+  const btn = document.getElementById('ip-modal-save');
+  btnLoading(btn, true);
+  const res = await API.post(`/api/subdomain/${encodeURIComponent(editingId)}/update-ip`, {
+    ip: document.getElementById('ip-modal-ip').value.trim(),
+    proxied: document.getElementById('ip-modal-proxied').checked,
+  });
+  btnLoading(btn, false);
+  if (!res.success) { Toast.error(res.message); return; }
+  Toast.success(res.message);
+  Modal.close('ip-modal-overlay');
+  loadHistory(1);
+});
+
+// Tombol salin dibuat lewat JS -> pakai event delegation (CSP tidak mengizinkan onclick inline dinamis).
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-copy]');
+  if (btn) copyText(btn.dataset.copy, 'Subdomain');
+});
+
+async function init() {
+  const res = await Auth.checkOptional();
+  if (res) { Auth.renderUserInfo(res.user, res.wallet); } else { Auth.renderGuestUI(); }
+  await loadDomains();
+  await loadHistory(1);
+}
+init();
+</script>
+</body>
+</html>

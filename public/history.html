@@ -29,6 +29,7 @@
       <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
       <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
       <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
       <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
       <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
     </nav>
@@ -69,6 +70,7 @@
         <button class="btn btn-outline btn-sm" data-tab="socmed">Sosial Media</button>
         <button class="btn btn-outline btn-sm" data-tab="nokos">Nomor OTP</button>
         <button class="btn btn-outline btn-sm" data-tab="appprem">App Premium</button>
+        <button class="btn btn-outline btn-sm" data-tab="subdomain">Subdomain</button>
       </div>
 
             <div class="card mb-16">
@@ -179,6 +181,7 @@ const SOURCES = {
   socmed:  { endpoint: '/api/socmed/history',  icon: 'fa-share-nodes',  iconCls: 'socmed',  label: 'Sosial Media' },
   nokos:   { endpoint: '/api/nokos/history',   icon: 'fa-sim-card',    iconCls: 'nokos',   label: 'Nomor OTP' },
   appprem: { endpoint: '/api/appprem/history', icon: 'fa-crown',       iconCls: 'appprem', label: 'App Premium' },
+  subdomain: { endpoint: '/api/subdomain/history', icon: 'fa-globe',   iconCls: 'subdomain', label: 'Subdomain' },
 };
 
 function normStatus(source, status) {
@@ -206,6 +209,9 @@ function normalizeRow(source, row) {
   } else if (source === 'appprem') {
     title = row.product_name || 'App Premium';
     sub = `Qty: ${row.qty || 1}`;
+  } else if (source === 'subdomain') {
+    title = row.fqdn || 'Subdomain';
+    sub = row.ip ? `${row.record_type || 'A'} → ${row.ip}` : '-';
   }
   return {
     source, raw: row, id: row.id, title, sub,
@@ -216,7 +222,7 @@ function normalizeRow(source, row) {
 
 let currentTab = 'all';
 let currentPage = 1;
-let currentPages = { account: 1, topup: 1, socmed: 1, nokos: 1, appprem: 1 };
+let currentPages = { account: 1, topup: 1, socmed: 1, nokos: 1, appprem: 1, subdomain: 1 };
 
 async function init() {
   const res = await Auth.check();
@@ -398,6 +404,11 @@ async function openDetail(source, id) {
     } else if (row.status === 'processing') {
       credentialHtml = `<div class="text-sm text-muted" style="margin-top:14px"><i class="fas fa-circle-notch fa-spin"></i> Akun sedang diproses, cek lagi beberapa saat lagi.</div>`;
     }
+  } else if (source === 'subdomain') {
+    R('Subdomain', `<code style="font-size:12px">${escapeHtml(row.fqdn || '-')}</code>`);
+    R('Tipe Record', escapeHtml(row.record_type || '-'));
+    R('IP Tujuan', `<code style="font-size:12px">${escapeHtml(row.ip || '-')}</code>`);
+    R('Proxy Cloudflare', row.proxied ? 'Aktif' : 'Mati');
   }
 
   body.innerHTML = rowsHtml.join('') + credentialHtml;

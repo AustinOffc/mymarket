@@ -110,6 +110,7 @@
       <div class="nav-item" data-section="socmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
       <div class="nav-item" data-section="nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
       <div class="nav-item" data-section="appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-section="subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
       <div class="nav-item" data-section="ptero"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
       <div class="nav-item" data-section="panelmonitor"><span class="nav-icon"><i class="fas fa-gauge-high"></i></span> Monitoring Panel</div>
       <div class="nav-item" data-section="pterountracked"><span class="nav-icon"><i class="fas fa-triangle-exclamation"></i></span> Server Tidak Terlacak</div>
@@ -316,6 +317,7 @@
             <button type="button" class="btn btn-sm btn-outline" data-history-type="socmed">Sosial Media</button>
             <button type="button" class="btn btn-sm btn-outline" data-history-type="nokos">Nomor OTP</button>
             <button type="button" class="btn btn-sm btn-outline" data-history-type="appprem">App Premium</button>
+            <button type="button" class="btn btn-sm btn-outline" data-history-type="subdomain">Subdomain</button>
           </div>
           <div style="padding:14px 20px 0">
             <input type="text" class="form-control" id="history-search" placeholder="Cari buyer, produk, kategori, atau target...">
@@ -423,6 +425,7 @@
                 <option value="topup">Topup Game</option>
                 <option value="nokos">Nomor OTP</option>
                 <option value="appprem">App Premium</option>
+                <option value="subdomain">Subdomain</option>
                 <option value="socmed">Sosial Media</option>
                 <option value="all">Semua Modul</option>
               </select>
@@ -490,6 +493,7 @@
                 <option value="topup">Topup Game</option>
                 <option value="nokos">Nomor OTP</option>
                 <option value="appprem">App Premium</option>
+                <option value="subdomain">Subdomain</option>
                 <option value="socmed">Sosial Media</option>
                 <option value="all">Semua Modul</option>
               </select>
@@ -824,6 +828,76 @@
             </table>
           </div>
           <div class="pagination"><span class="pagination-info" id="appprem-orders-page-info"></span><div class="pagination-nav" id="appprem-orders-pagination"></div></div>
+        </div>
+      </div>
+
+      <div class="content-section" id="section-subdomain">
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-plug" style="color:var(--primary)"></i> Koneksi Cloudflare</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Buat API Token di Cloudflare (My Profile &rarr; API Tokens) dengan izin <b>Zone : Read</b> dan <b>DNS : Edit</b>. Paling aman batasi token ke domain yang memang mau dijual saja &mdash; domain lain tidak akan pernah muncul di sini. Token yang sudah tersimpan tidak ditampilkan lagi; kosongkan kalau tidak ingin menggantinya.</p>
+          <form id="subdomain-api-form" style="padding:0 20px 20px;display:grid;gap:12px;max-width:480px">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Cloudflare API Token <span id="subdomain-token-status" class="text-xs text-muted"></span></label>
+              <input type="password" class="form-control" id="subdomain-token" placeholder="Kosongkan jika tidak diganti" autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:fit-content"><i class="fas fa-save"></i> Simpan Token</button>
+          </form>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-sliders" style="color:var(--primary)"></i> Pengaturan Layanan</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Saklar layanan default-nya <b>Nonaktif</b>. Sembunyikan dulu domain utama kamu di daftar di bawah, baru aktifkan supaya user bisa mulai order.</p>
+          <form id="subdomain-general-form" style="padding:0 20px 20px;display:grid;gap:12px;max-width:480px">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Status Layanan</label>
+              <select class="form-control" id="subdomain-enabled">
+                <option value="false">Nonaktif (user tidak bisa order)</option>
+                <option value="true">Aktif</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Harga Default (Rp)</label>
+              <input type="number" class="form-control" id="subdomain-default-price" min="100" step="1" style="max-width:200px">
+              <p class="text-xs text-muted" style="margin:6px 0 0">Dipakai untuk domain yang tidak punya harga khusus.</p>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Nama Tambahan yang Diblokir</label>
+              <textarea class="form-control" id="subdomain-reserved" rows="3" placeholder="Pisahkan dengan spasi, koma, atau baris baru. Contoh: paypal bca bri dana"></textarea>
+              <p class="text-xs text-muted" style="margin:6px 0 0">Selain nama bawaan (www, mail, api, admin, ns1, dst) yang selalu diblokir.</p>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:fit-content"><i class="fas fa-save"></i> Simpan Pengaturan</button>
+          </form>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-globe" style="color:var(--primary)"></i> Domain di Cloudflare</span>
+            <button class="btn btn-outline btn-sm" id="subdomain-zones-refresh-btn"><i class="fas fa-rotate"></i> Refresh</button>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Semua domain aktif di token ini tampil ke user, kecuali yang kamu sembunyikan. Harga khusus dikosongkan = pakai harga default.</p>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead><tr><th>Domain</th><th>Status</th><th>Harga Khusus (Rp)</th><th></th></tr></thead>
+              <tbody id="subdomain-zones-tbody"><tr><td colspan="4" class="table-empty">Memuat...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-cart-shopping" style="color:var(--primary)"></i> Riwayat Order Subdomain (Semua User)</span>
+          </div>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead><tr><th>User</th><th>Subdomain</th><th>IP</th><th>Harga</th><th>Status</th><th>Waktu</th><th></th></tr></thead>
+              <tbody id="subdomain-orders-tbody"><tr><td colspan="7" class="table-empty">Memuat...</td></tr></tbody>
+            </table>
+          </div>
+          <div class="pagination"><span class="pagination-info" id="subdomain-orders-page-info"></span><div class="pagination-nav" id="subdomain-orders-pagination"></div></div>
         </div>
       </div>
 
@@ -1814,6 +1888,7 @@ const sectionLoaders = {
   socmed: loadSocmedSection,
   nokos: loadNokosSection,
   appprem: loadAppPremSection,
+  subdomain: loadSubdomainSection,
   ptero: loadPteroSection,
   panelmonitor: () => loadPanelMonitor(1),
   pterountracked: loadPteroUntrackedSection,
@@ -1833,7 +1908,7 @@ function showSection(name, el) {
     sellers:'Manajemen Seller', categories:'Kategori', stockoverview:'Monitoring Stok',
     orders:'Riwayat Order', history:'Riwayat Order (Semua Kategori)', complaints:'Komplain Order', reports:'Laporan Produk/Toko', vouchers:'Voucher Global',
     flashsale:'Flash Sale Global',
-    topup:'Topup Game', socmed:'Sosial Media', nokos:'Nomor OTP', appprem:'Auto Order App Premium', ptero:'Panel Pterodactyl',
+    topup:'Topup Game', socmed:'Sosial Media', nokos:'Nomor OTP', appprem:'Auto Order App Premium', subdomain:'Auto Order Subdomain', ptero:'Panel Pterodactyl',
     panelmonitor:'Monitoring Panel',
     pterountracked:'Server Tidak Terlacak',
     resellers:'Reseller & Partner',
@@ -3007,6 +3082,122 @@ document.getElementById('appprem-margin-form')?.addEventListener('submit', async
   r.success ? (Toast.success(r.message), loadAppPremSection()) : Toast.error(r.message);
 });
 
+async function loadSubdomainSection() {
+  const res = await API.get('/api/owner/subdomain/settings');
+  if (!res.success) { Toast.error(res.message); return; }
+  const d = res.data;
+
+  document.getElementById('subdomain-token').value = '';
+  document.getElementById('subdomain-token-status').textContent = d.token_set ? '(sudah tersimpan)' : '(belum diatur)';
+  document.getElementById('subdomain-enabled').value = d.enabled ? 'true' : 'false';
+  document.getElementById('subdomain-default-price').value = d.default_price ?? '';
+  document.getElementById('subdomain-reserved').value = (d.reserved_names || []).join('\n');
+
+  renderSubdomainZones(d);
+  await loadSubdomainOrders(1);
+}
+
+function renderSubdomainZones(d) {
+  const tbody = document.getElementById('subdomain-zones-tbody');
+  if (!d.token_set) {
+    tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Isi token Cloudflare dulu untuk memuat daftar domain</td></tr>';
+    return;
+  }
+  if (d.zones_error) {
+    tbody.innerHTML = `<tr><td colspan="4" class="table-empty">Gagal memuat domain dari Cloudflare: ${escapeHtml(d.zones_error)}</td></tr>`;
+    return;
+  }
+  if (!d.zones.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Tidak ada domain aktif di token ini</td></tr>';
+    return;
+  }
+  tbody.innerHTML = d.zones.map(z => `
+    <tr>
+      <td class="text-sm"><strong>${escapeHtml(z.name)}</strong></td>
+      <td>${z.hidden ? '<span class="badge badge-secondary">Disembunyikan</span>' : '<span class="badge badge-success">Tampil ke user</span>'}</td>
+      <td>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="number" class="form-control" min="100" step="1" data-zone-price="${escapeAttr(z.id)}" value="${z.price ?? ''}" placeholder="Default (${formatRupiah(d.default_price)})" style="max-width:170px">
+          <button type="button" class="btn btn-outline btn-sm" data-action="subdomain-price" data-id="${escapeAttr(z.id)}">Simpan</button>
+        </div>
+      </td>
+      <td>
+        <button type="button" class="btn btn-outline btn-sm" data-action="subdomain-toggle" data-id="${escapeAttr(z.id)}" data-hidden="${z.hidden ? '1' : '0'}">
+          <i class="fas ${z.hidden ? 'fa-eye' : 'fa-eye-slash'}"></i> ${z.hidden ? 'Tampilkan' : 'Sembunyikan'}
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('subdomain-zones-tbody')?.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const zoneId = btn.dataset.id;
+  let body;
+  if (btn.dataset.action === 'subdomain-toggle') {
+    body = { zone_id: zoneId, hidden: btn.dataset.hidden !== '1' };
+  } else if (btn.dataset.action === 'subdomain-price') {
+    const input = document.querySelector(`[data-zone-price="${CSS.escape(zoneId)}"]`);
+    body = { zone_id: zoneId, price: input && input.value.trim() !== '' ? Number(input.value) : null };
+  } else {
+    return;
+  }
+  const r = await API.post('/api/owner/subdomain/zone', body);
+  r.success ? (Toast.success(r.message), loadSubdomainSection()) : Toast.error(r.message);
+});
+
+document.getElementById('subdomain-zones-refresh-btn')?.addEventListener('click', loadSubdomainSection);
+
+async function loadSubdomainOrders(page = 1) {
+  const res = await API.get(`/api/owner/subdomain/orders?page=${page}&limit=15`);
+  const tbody = document.getElementById('subdomain-orders-tbody');
+  if (!res.success || !res.data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Belum ada order Subdomain</td></tr>';
+    document.getElementById('subdomain-orders-page-info').textContent = '';
+    document.getElementById('subdomain-orders-pagination').innerHTML = '';
+    return;
+  }
+  document.getElementById('subdomain-orders-page-info').textContent = `${res.total} order`;
+  tbody.innerHTML = res.data.map(o => `
+    <tr>
+      <td class="text-sm">@${escapeHtml(o.username)}</td>
+      <td class="text-sm"><strong>${escapeHtml(o.fqdn)}</strong></td>
+      <td class="text-sm"><code class="text-xs">${escapeHtml(o.ip)}</code><div class="text-xs text-muted">${escapeHtml(o.record_type)}${o.proxied ? ' &middot; proxy' : ''}</div></td>
+      <td class="text-sm">${formatRupiah(o.price_sell)}</td>
+      <td class="text-sm">${statusBadge(o.status)}</td>
+      <td class="text-xs text-muted">${formatDate(o.createdAt)}</td>
+      <td>${o.status === 'success' ? `<button type="button" class="btn btn-outline btn-sm" data-action="subdomain-delete" data-id="${escapeAttr(o.id)}" data-fqdn="${escapeAttr(o.fqdn)}" style="color:var(--danger);border-color:var(--danger)"><i class="fas fa-trash"></i> Hapus</button>` : ''}</td>
+    </tr>
+  `).join('');
+  renderPagination('subdomain-orders-pagination', res.page, res.pages, loadSubdomainOrders);
+}
+
+document.getElementById('subdomain-orders-tbody')?.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-action="subdomain-delete"]');
+  if (!btn) return;
+  const ok = await showConfirm(`Hapus ${btn.dataset.fqdn}?\n\nRecord DNS di Cloudflare ikut dihapus dan namanya bisa dipesan lagi. Saldo user TIDAK dikembalikan otomatis.`, { title: 'Hapus Subdomain', okText: 'Hapus', danger: true });
+  if (!ok) return;
+  const r = await API.request('DELETE', `/api/owner/subdomain/orders/${encodeURIComponent(btn.dataset.id)}`);
+  r.success ? (Toast.success(r.message), loadSubdomainOrders(1)) : Toast.error(r.message);
+});
+
+document.getElementById('subdomain-api-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const r = await API.post('/api/owner/subdomain/settings', { cloudflare_api_token: document.getElementById('subdomain-token').value.trim() });
+  r.success ? (Toast.success(r.message), loadSubdomainSection()) : Toast.error(r.message);
+});
+
+document.getElementById('subdomain-general-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const r = await API.post('/api/owner/subdomain/settings', {
+    enabled: document.getElementById('subdomain-enabled').value === 'true',
+    default_price: document.getElementById('subdomain-default-price').value,
+    reserved_names: document.getElementById('subdomain-reserved').value,
+  });
+  r.success ? (Toast.success(r.message), loadSubdomainSection()) : Toast.error(r.message);
+});
+
 async function loadPteroSection() {
   await loadPteroSettings();
   await loadPteroStacks();
@@ -3742,7 +3933,7 @@ async function loadOrders(page = 1) {
 
 const HISTORY_TYPE_ICON = {
   order: 'badge-primary', topup: 'badge-warning', socmed: 'badge-info',
-  nokos: 'badge-success', appprem: 'badge-secondary',
+  nokos: 'badge-success', appprem: 'badge-secondary', subdomain: 'badge-info',
 };
 let historyState = { type: 'all', search: '' };
 let historyRowsCache = [];
@@ -3817,6 +4008,9 @@ const HISTORY_FIELD_LABEL = {
   provider_order_id: 'ID Order Provider', phone_number: 'Nomor HP', otp_code: 'Kode OTP', expiresAt: 'Kedaluwarsa',
   source: 'Sumber', item_id: 'ID Item', product_name: 'Nama Produk', qty: 'Jumlah',
   invoice: 'Invoice', accounts: 'Detail Akun',
+  name: 'Nama Subdomain', zone_name: 'Domain', fqdn: 'Subdomain', ip: 'IP Tujuan', record_type: 'Tipe Record',
+  proxied: 'Proxy Cloudflare', record_id: 'ID Record Cloudflare', fail_reason: 'Alasan Gagal', completedAt: 'Waktu Selesai',
+  deletedAt: 'Waktu Dihapus', deleted_by: 'Dihapus Oleh',
   variant_name: 'Nama Produk', seller_id: 'ID Seller', stock_item_id: 'ID Stok', tax: 'Pajak',
   seller_earning: 'Pendapatan Seller', discount_absorbed_by: 'Diskon Ditanggung', reviewed: 'Sudah Direview',
   escrow_status: 'Status Escrow', complaint_status: 'Status Komplain', product_variant_id: 'ID Varian Produk',
@@ -3964,7 +4158,7 @@ document.getElementById('voucher-form').addEventListener('submit', async (e) => 
   loadVouchers(1);
 });
 
-const APPLIES_TO_LABEL = { marketplace: 'Marketplace', topup: 'Topup Game', nokos: 'Nomor OTP', appprem: 'App Premium', socmed: 'Sosial Media', all: 'Semua Modul' };
+const APPLIES_TO_LABEL = { marketplace: 'Marketplace', topup: 'Topup Game', nokos: 'Nomor OTP', appprem: 'App Premium', socmed: 'Sosial Media', subdomain: 'Subdomain', all: 'Semua Modul' };
 
 async function loadVouchers(page = 1) {
   const res = await API.get(`/api/owner/vouchers?page=${page}&limit=15`);
