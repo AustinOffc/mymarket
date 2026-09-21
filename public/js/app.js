@@ -206,6 +206,7 @@ function statusBadge(status) {
     dismissed: ['badge-secondary', 'Diabaikan'],
     holding:   ['badge-info',      'Tertahan (Escrow)'],
     released:  ['badge-success',   'Sudah Cair'],
+    deleted:   ['badge-secondary', 'Dihapus'],
   };
   const [cls, label] = map[status] || ['badge-secondary', status];
   return `<span class="badge ${cls}">${label}</span>`;
