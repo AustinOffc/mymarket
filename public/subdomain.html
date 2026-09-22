@@ -42,6 +42,37 @@
     }
     .sd-copy-btn:hover { color: var(--primary); border-color: var(--primary); }
     .sd-host { font-family: var(--font-mono); font-size: 12.5px; word-break: break-all; }
+
+    /* Custom dropdown (ganti <select> bawaan browser) untuk pilihan domain */
+    .sd-select-wrap { position: relative; }
+    .sd-select-trigger {
+      width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      text-align: left; cursor: pointer; background: var(--bg-card, #fff);
+    }
+    .sd-select-trigger span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sd-select-trigger i { color: var(--text-muted); font-size: 12px; flex-shrink: 0; transition: transform .15s; }
+    .sd-select-trigger.open i { transform: rotate(180deg); }
+    .sd-select-panel {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 40;
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-md);
+      max-height: 264px; overflow-y: auto; display: none;
+    }
+    .sd-select-panel.open { display: block; }
+    .sd-select-option {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 12px 14px; font-size: 13.5px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background .1s;
+    }
+    .sd-select-option:last-child { border-bottom: none; }
+    .sd-select-option:hover { background: var(--bg-hover); }
+    .sd-select-option.selected { background: var(--primary-light); color: var(--primary); font-weight: 700; }
+    .sd-select-radio {
+      width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; position: relative;
+    }
+    .sd-select-option.selected .sd-select-radio { border-color: var(--primary); }
+    .sd-select-option.selected .sd-select-radio::after {
+      content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -103,8 +134,14 @@
 
       <div id="sd-form-card" class="sd-card" style="display:none">
         <div class="form-group">
-          <label class="form-label" for="sd-domain">Domain</label>
-          <select class="form-control" id="sd-domain"></select>
+          <label class="form-label" for="sd-domain-trigger">Domain</label>
+          <div class="sd-select-wrap" id="sd-domain-wrap">
+            <button type="button" class="form-control sd-select-trigger" id="sd-domain-trigger">
+              <span id="sd-domain-trigger-text">Memuat domain...</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="sd-select-panel" id="sd-domain-panel"></div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -193,10 +230,10 @@ let histRows = [];
 let editingId = null;
 let checkTimer = null;
 let checkSeq = 0;
+let selectedDomain = null;
 
 function currentDomain() {
-  const name = document.getElementById('sd-domain').value;
-  return domains.find(d => d.domain === name) || null;
+  return domains.find(d => d.domain === selectedDomain) || null;
 }
 
 function setHint(text, cls) {
@@ -209,7 +246,45 @@ function refreshDomainUi() {
   const d = currentDomain();
   document.getElementById('sd-suffix').textContent = d ? '.' + d.domain : '.domain';
   document.getElementById('sd-price').textContent = d ? formatRupiah(d.price) : 'Rp 0';
+  document.getElementById('sd-domain-trigger-text').textContent = d ? `${d.domain} — ${formatRupiah(d.price)}` : 'Pilih domain';
 }
+
+function closeDomainPanel() {
+  document.getElementById('sd-domain-panel').classList.remove('open');
+  document.getElementById('sd-domain-trigger').classList.remove('open');
+}
+
+function renderDomainPanel() {
+  const panel = document.getElementById('sd-domain-panel');
+  panel.innerHTML = domains.map(d => `
+    <div class="sd-select-option ${d.domain === selectedDomain ? 'selected' : ''}" data-domain="${escapeAttr(d.domain)}">
+      <span>${escapeHtml(d.domain)} — ${formatRupiah(d.price)}</span>
+      <span class="sd-select-radio"></span>
+    </div>
+  `).join('');
+}
+
+document.getElementById('sd-domain-trigger').addEventListener('click', () => {
+  const panel = document.getElementById('sd-domain-panel');
+  const trigger = document.getElementById('sd-domain-trigger');
+  const willOpen = !panel.classList.contains('open');
+  closeDomainPanel();
+  if (willOpen) { panel.classList.add('open'); trigger.classList.add('open'); }
+});
+
+document.getElementById('sd-domain-panel').addEventListener('click', (e) => {
+  const opt = e.target.closest('.sd-select-option');
+  if (!opt) return;
+  selectedDomain = opt.dataset.domain;
+  renderDomainPanel();
+  refreshDomainUi();
+  scheduleCheck();
+  closeDomainPanel();
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#sd-domain-wrap')) closeDomainPanel();
+});
 
 function scheduleCheck() {
   clearTimeout(checkTimer);
@@ -242,15 +317,13 @@ async function loadDomains() {
   }
   unavailable.style.display = 'none';
   form.style.display = 'block';
+  const prev = selectedDomain;
   domains = res.data;
-  const sel = document.getElementById('sd-domain');
-  const prev = sel.value;
-  sel.innerHTML = domains.map(d => `<option value="${escapeAttr(d.domain)}">${escapeHtml(d.domain)} — ${formatRupiah(d.price)}</option>`).join('');
-  if (prev && domains.some(d => d.domain === prev)) sel.value = prev;
+  selectedDomain = (prev && domains.some(d => d.domain === prev)) ? prev : (domains[0]?.domain || null);
+  renderDomainPanel();
   refreshDomainUi();
 }
 
-document.getElementById('sd-domain').addEventListener('change', () => { refreshDomainUi(); scheduleCheck(); });
 document.getElementById('sd-name').addEventListener('input', (e) => {
   e.target.value = e.target.value.toLowerCase();
   scheduleCheck();

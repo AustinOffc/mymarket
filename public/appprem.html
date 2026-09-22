@@ -264,11 +264,39 @@ document.getElementById('product-list').addEventListener('click', (e) => {
 document.getElementById('search-input').addEventListener('input', applyFilter);
 document.getElementById('refresh-products-btn').addEventListener('click', loadProducts);
 
+function renderOrderFieldsHtml(fields) {
+  if (!fields || !fields.length) return '';
+  const rows = fields.map((f) => {
+    if (f.type === 'select') {
+      const opts = (f.options || []).map((o) => `<option value="${escapeAttr(o.value)}">${escapeHtml(o.label)}</option>`).join('');
+      return `
+        <div style="margin-bottom:10px">
+          <label class="text-xs text-muted" style="display:block;margin-bottom:6px">${escapeHtml(f.label)}${f.required ? '' : ' (opsional)'}</label>
+          <select class="form-control" id="appprem-field-${escapeAttr(f.key)}">
+            <option value="">-- ${escapeHtml(f.label)} --</option>
+            ${opts}
+          </select>
+        </div>`;
+    }
+    return `
+      <div style="margin-bottom:10px">
+        <label class="text-xs text-muted" style="display:block;margin-bottom:6px">${escapeHtml(f.label)}${f.required ? '' : ' (opsional)'}</label>
+        <input type="${f.type === 'email' ? 'email' : 'text'}" class="form-control" id="appprem-field-${escapeAttr(f.key)}" placeholder="${escapeAttr(f.placeholder || f.label)}">
+      </div>`;
+  }).join('');
+  return `
+    <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px">
+      <div class="text-xs text-muted" style="font-weight:700;margin-bottom:10px"><i class="fas fa-pen-to-square"></i> Masukan Data Tujuan</div>
+      ${rows}
+    </div>`;
+}
+
 function renderSummary() {
   const wrap = document.getElementById('summary-wrap');
   if (!selectedItem) { wrap.innerHTML = ''; return; }
   const maxQty = selectedItem.max_qty || 1;
   const total = selectedItem.price * qty;
+  const orderFields = selectedItem.order_fields || [];
   wrap.innerHTML = `
     <div class="appprem-summary">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px">
@@ -285,6 +313,10 @@ function renderSummary() {
           <div class="text-xs text-muted" style="font-weight:700;margin-bottom:6px"><i class="fas fa-circle-info"></i> Informasi Layanan</div>
           <div class="text-sm" style="white-space:pre-line">${escapeHtml(selectedItem.note)}</div>
         </div>
+      ` : ''}
+      ${renderOrderFieldsHtml(orderFields)}
+      ${selectedItem.order_note ? `
+        <div class="text-xs text-muted" style="margin:-8px 0 16px">${escapeHtml(selectedItem.order_note)}</div>
       ` : ''}
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <span class="text-sm">Jumlah</span>
@@ -312,13 +344,32 @@ function renderSummary() {
   document.getElementById('buy-btn').addEventListener('click', submitOrder);
 }
 
+function collectOrderFieldValues() {
+  const fields = selectedItem.order_fields || [];
+  const values = {};
+  for (const f of fields) {
+    const el = document.getElementById(`appprem-field-${f.key}`);
+    const val = (el?.value || '').trim();
+    if (f.required && !val) {
+      Toast.error(`${f.label} wajib diisi`);
+      el?.focus();
+      return null;
+    }
+    values[f.key] = val;
+  }
+  return values;
+}
+
 async function submitOrder() {
   if (!Auth.requireLogin('Masuk dulu untuk melakukan order')) return;
+  const orderValues = collectOrderFieldValues();
+  if (orderValues === null) return;
   const btn = document.getElementById('buy-btn');
   btnLoading(btn, true);
   const res = await API.post('/api/appprem/order', {
     item_id: selectedItem.item_id,
     qty,
+    order_values: orderValues,
     voucher_code: (document.getElementById('appprem-voucher-code')?.value || '').trim() || undefined,
   });
   btnLoading(btn, false);
