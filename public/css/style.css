@@ -989,6 +989,21 @@ textarea.form-control, .form-textarea { min-height: 90px; resize: vertical; line
 .csel-option.is-disabled-opt { opacity: .4; cursor: not-allowed; pointer-events: none; }
 .csel-panel-empty { padding: 14px 12px; font-size: 13px; color: var(--text-muted); text-align: center; }
 
+/* ==== Qty Stepper (shared +/- quantity control, themed) ==== */
+.qty-stepper { display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.qty-stepper button {
+  width: 38px; height: 38px; border: none; background: var(--bg-hover); color: var(--text);
+  font-size: 16px; font-weight: 700; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background var(--transition), color var(--transition);
+}
+.qty-stepper button:hover:not(:disabled) { background: var(--primary-light); color: var(--primary); }
+.qty-stepper button:disabled { opacity: .4; cursor: not-allowed; }
+.qty-stepper input {
+  width: 56px; height: 38px; text-align: center; border: none; background: var(--bg);
+  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  color: var(--text); font-weight: 700; font-size: 14px; font-family: inherit;
+}
+
 .app-credit-footer {
   margin-top: 32px;
   padding: 18px 16px 4px;
