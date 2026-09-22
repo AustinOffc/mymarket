@@ -14,6 +14,7 @@
     { "source": "/sosmed", "destination": "/sosmed.html" },
     { "source": "/nokos", "destination": "/nokos.html" },
     { "source": "/appprem", "destination": "/appprem.html" },
+    { "source": "/bansos", "destination": "/bansos.html" },
     { "source": "/subdomain", "destination": "/subdomain.html" },
     { "source": "/panel", "destination": "/panel.html" },
     { "source": "/reseller", "destination": "/reseller.html" },
