@@ -110,6 +110,7 @@
       <div class="nav-item" data-section="socmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
       <div class="nav-item" data-section="nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
       <div class="nav-item" data-section="appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-section="bansos"><span class="nav-icon"><i class="fas fa-gift"></i></span> Bansos</div>
       <div class="nav-item" data-section="subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
       <div class="nav-item" data-section="ptero"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
       <div class="nav-item" data-section="panelmonitor"><span class="nav-icon"><i class="fas fa-gauge-high"></i></span> Monitoring Panel</div>
@@ -828,6 +829,32 @@
             </table>
           </div>
           <div class="pagination"><span class="pagination-info" id="appprem-orders-page-info"></span><div class="pagination-nav" id="appprem-orders-pagination"></div></div>
+        </div>
+      </div>
+
+      <div class="content-section" id="section-bansos">
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-plug" style="color:var(--primary)"></i> Koneksi API (api.theresav.eu)</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">API Key provider pihak ketiga untuk fitur Bansos (Alight Motion &amp; Netflix). Base URL provider tetap di kode (https://api.theresav.eu), hanya API Key yang bisa diganti di sini tanpa redeploy.</p>
+          <form id="bansos-api-form" style="padding:0 20px 20px;display:grid;gap:12px;max-width:480px">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Bansos API Key <span id="bansos-api-key-status" class="text-xs text-muted"></span></label>
+              <input type="password" class="form-control" id="bansos-api-key" placeholder="Kosongkan jika tidak diganti">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:fit-content"><i class="fas fa-save"></i> Simpan API Key</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-chart-simple" style="color:var(--primary)"></i> Statistik Klaim (Total)</span>
+          </div>
+          <div class="stats-grid" style="padding:0 20px 20px">
+            <div class="stat-card"><div class="stat-icon indigo"><i class="fas fa-clapperboard"></i></div><div class="stat-info"><div class="stat-label">Alight Motion Terklaim</div><div class="stat-value" id="bansos-total-am">-</div></div></div>
+            <div class="stat-card"><div class="stat-icon red"><i class="fas fa-tv"></i></div><div class="stat-info"><div class="stat-label">Netflix Terklaim</div><div class="stat-value" id="bansos-total-netflix">-</div></div></div>
+          </div>
         </div>
       </div>
 
@@ -1893,6 +1920,7 @@ const sectionLoaders = {
   panelmonitor: () => loadPanelMonitor(1),
   pterountracked: loadPteroUntrackedSection,
   resellers: loadResellersSection,
+  bansos: loadBansosSection,
 };
 
 function showSection(name, el) {
@@ -1912,6 +1940,7 @@ function showSection(name, el) {
     panelmonitor:'Monitoring Panel',
     pterountracked:'Server Tidak Terlacak',
     resellers:'Reseller & Partner',
+    bansos:'Bansos (Alight Motion & Netflix)',
   };
   document.getElementById('page-title').textContent = titles[name] || name;
   if (sectionLoaders[name]) sectionLoaders[name]();
@@ -3070,6 +3099,25 @@ document.getElementById('appprem-api-form')?.addEventListener('submit', async (e
   const body = { premku_api_key: document.getElementById('appprem-premku-key').value.trim() };
   const r = await API.post('/api/owner/appprem/settings', body);
   r.success ? (Toast.success(r.message), loadAppPremSection()) : Toast.error(r.message);
+});
+
+async function loadBansosSection() {
+  const res = await API.get('/api/owner/bansos/settings');
+  if (!res.success) { Toast.error(res.message || 'Gagal memuat pengaturan Bansos'); return; }
+  const d = res.data || {};
+  document.getElementById('bansos-api-key').value = '';
+  document.getElementById('bansos-api-key-status').textContent = d.bansos_api_key_set ? '(sudah tersimpan)' : '(belum diatur)';
+  const totals = d.totals || {};
+  document.getElementById('bansos-total-am').textContent = totals.alightMotion ?? 0;
+  document.getElementById('bansos-total-netflix').textContent = totals.netflix ?? 0;
+}
+
+document.getElementById('bansos-api-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const key = document.getElementById('bansos-api-key').value.trim();
+  if (!key) { Toast.error('Isi API Key dulu'); return; }
+  const r = await API.post('/api/owner/bansos/settings', { bansos_api_key: key });
+  r.success ? (Toast.success('API Key Bansos tersimpan'), loadBansosSection()) : Toast.error(r.message || 'Gagal menyimpan');
 });
 
 document.getElementById('appprem-margin-form')?.addEventListener('submit', async (e) => {
