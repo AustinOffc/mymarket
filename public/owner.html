@@ -599,20 +599,39 @@
           <div class="card-header">
             <span class="card-title"><i class="fas fa-percent" style="color:var(--primary)"></i> Margin Harga Jual</span>
           </div>
-          <p class="text-xs text-muted" style="padding:0 20px 14px">Harga jual ke buyer = harga modal + margin. Pilih persen (mis. 5%) atau nominal tetap (mis. Rp500 per transaksi). Tidak ada kolom voucher diskon pada order PPOB.</p>
-          <form id="ppob-margin-form" style="padding:0 20px 20px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
-            <div class="form-group" style="margin:0">
-              <label class="form-label">Tipe Margin</label>
-              <select class="form-control" id="ppob-margin-type">
-                <option value="percent">Persen (%)</option>
-                <option value="flat">Nominal Tetap (Rp)</option>
-              </select>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Harga jual ke buyer = harga modal + margin. Margin dibagi 2 tingkat berdasarkan harga modal produk — cocok kalau produk murah lebih pas pakai persen, sedangkan produk mahal lebih pas nominal tetap. Tidak ada kolom voucher diskon pada order PPOB.</p>
+          <form id="ppob-margin-form" style="padding:0 20px 20px;display:flex;flex-direction:column;gap:16px">
+            <div class="form-group" style="margin:0;max-width:220px">
+              <label class="form-label">Batas Harga Modal (Rp)</label>
+              <input type="number" class="form-control" id="ppob-margin-threshold" min="0" step="1">
             </div>
-            <div class="form-group" style="margin:0">
-              <label class="form-label">Nilai</label>
-              <input type="number" class="form-control" id="ppob-margin-value" min="0" step="1" style="max-width:160px">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Tipe Margin (≤ Batas Harga)</label>
+                <select class="form-control" id="ppob-margin-low-type">
+                  <option value="percent">Persen (%)</option>
+                  <option value="flat">Nominal Tetap (Rp)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Nilai</label>
+                <input type="number" class="form-control" id="ppob-margin-low-value" min="0" step="1" style="max-width:160px">
+              </div>
             </div>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan Margin</button>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Tipe Margin (&gt; Batas Harga)</label>
+                <select class="form-control" id="ppob-margin-high-type">
+                  <option value="percent">Persen (%)</option>
+                  <option value="flat">Nominal Tetap (Rp)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Nilai</label>
+                <input type="number" class="form-control" id="ppob-margin-high-value" min="0" step="1" style="max-width:160px">
+              </div>
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan Margin</button>
+            </div>
           </form>
         </div>
 
@@ -2996,8 +3015,11 @@ async function loadPpobSection() {
   document.getElementById('ppob-password').value = '';
   document.getElementById('ppob-pin-status').textContent = d.pin_set ? '(sudah tersimpan)' : '(belum diatur)';
   document.getElementById('ppob-password-status').textContent = d.password_set ? '(sudah tersimpan)' : '(belum diatur)';
-  document.getElementById('ppob-margin-type').value = d.margin?.type || 'percent';
-  document.getElementById('ppob-margin-value').value = d.margin?.value ?? 5;
+  document.getElementById('ppob-margin-threshold').value = d.margin?.threshold ?? 10000;
+  document.getElementById('ppob-margin-low-type').value = d.margin?.lowType || 'percent';
+  document.getElementById('ppob-margin-low-value').value = d.margin?.lowValue ?? 3;
+  document.getElementById('ppob-margin-high-type').value = d.margin?.highType || 'flat';
+  document.getElementById('ppob-margin-high-value').value = d.margin?.highValue ?? 100;
   document.getElementById('ppob-balance-result').textContent = '';
 
   ppobCategoriesCache = d.categories || [];
@@ -3185,8 +3207,11 @@ document.getElementById('ppob-api-form')?.addEventListener('submit', async (e) =
 document.getElementById('ppob-margin-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const body = {
-    margin_type: document.getElementById('ppob-margin-type').value,
-    margin_value: document.getElementById('ppob-margin-value').value,
+    margin_threshold: document.getElementById('ppob-margin-threshold').value,
+    margin_low_type: document.getElementById('ppob-margin-low-type').value,
+    margin_low_value: document.getElementById('ppob-margin-low-value').value,
+    margin_high_type: document.getElementById('ppob-margin-high-type').value,
+    margin_high_value: document.getElementById('ppob-margin-high-value').value,
   };
   const r = await API.post('/api/owner/ppob/settings', body);
   r.success ? (Toast.success(r.message), loadPpobSection()) : Toast.error(r.message);
