@@ -856,6 +856,96 @@
             <div class="stat-card"><div class="stat-icon red"><i class="fas fa-tv"></i></div><div class="stat-info"><div class="stat-label">Netflix Terklaim</div><div class="stat-value" id="bansos-total-netflix">-</div></div></div>
           </div>
         </div>
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-server" style="color:var(--primary)"></i> Konfigurasi Panel Gratis (Pterodactyl Terpisah)</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Instance Pterodactyl KHUSUS giveaway ini — beda server dari panel yang dijual. User cukup masukkan username, sistem otomatis buat akun + server (tipe/egg tetap, ditentukan di sini). Password otomatis = username + angka acak 1-1000. Data panel yang dibuat TIDAK disimpan di database, hanya sisa kuota per user.</p>
+          <form id="bansos-ptero-form" style="padding:0 20px 20px;display:grid;gap:12px;max-width:560px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600">
+              <input type="checkbox" id="bp-enabled" style="width:16px;height:16px">
+              Aktifkan fitur "Buat Panel Gratis" untuk user
+            </label>
+            <p class="text-xs text-muted" style="margin:-8px 0 0">Kalau dimatikan, menu ini langsung hilang dari tampilan user (tab tidak muncul di halaman Bansos) dan endpoint pembuatan panel ditolak.</p>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Domain / Link Login Panel</label>
+              <input type="text" class="form-control" id="bp-domain" placeholder="https://free.mymarket.web.id">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Application API Key <span id="bp-apikey-status" class="text-xs text-muted"></span></label>
+              <input type="password" class="form-control" id="bp-apikey" placeholder="Kosongkan jika tidak diganti">
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Nest ID</label>
+                <input type="text" class="form-control" id="bp-nest">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Egg ID</label>
+                <input type="text" class="form-control" id="bp-egg">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Location ID</label>
+                <input type="text" class="form-control" id="bp-location">
+              </div>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Docker Image</label>
+              <input type="text" class="form-control" id="bp-docker" placeholder="ghcr.io/parkervcp/yolks:nodejs_20">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Startup Command</label>
+              <input type="text" class="form-control" id="bp-startup" placeholder="/bin/bash">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Environment Variables (JSON object)</label>
+              <textarea class="form-control" id="bp-environment" rows="3" placeholder='{"KEY":"value"}' style="font-family:monospace;font-size:12px"></textarea>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">RAM (MB)</label>
+                <input type="number" class="form-control" id="bp-ram" min="0">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Disk (MB)</label>
+                <input type="number" class="form-control" id="bp-disk" min="0">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">CPU (%)</label>
+                <input type="number" class="form-control" id="bp-cpu" min="0">
+              </div>
+            </div>
+            <div class="form-group" style="margin:0;max-width:220px">
+              <label class="form-label">Kuota Default / User Baru</label>
+              <input type="number" class="form-control" id="bp-default-quota" min="0">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:fit-content"><i class="fas fa-save"></i> Simpan Konfigurasi</button>
+            <span class="text-xs text-muted" id="bp-configured-status"></span>
+          </form>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-user-gear" style="color:var(--primary)"></i> Kelola Kuota User</span>
+          </div>
+          <div style="padding:0 20px 20px;display:grid;gap:12px;max-width:480px">
+            <div style="display:flex;gap:8px">
+              <input type="text" class="form-control" id="bpq-username" placeholder="Cari username...">
+              <button type="button" class="btn btn-outline" id="bpq-search-btn" onclick="searchPteroQuota()" style="width:fit-content"><i class="fas fa-search"></i></button>
+            </div>
+            <div id="bpq-info" class="text-sm" style="display:none">
+              <div class="text-xs text-muted" style="margin-bottom:10px">
+                <span id="bpq-info-username">-</span> — kuota saat ini: <strong id="bpq-info-quota">-</strong>, sudah dipakai: <span id="bpq-info-used">-</span>x
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <button type="button" class="btn btn-sm btn-outline" onclick="resetPteroQuota()"><i class="fas fa-rotate-left"></i> Reset ke Default</button>
+                <input type="number" class="form-control" id="bpq-add-amount" placeholder="Jumlah" style="width:100px" value="1">
+                <button type="button" class="btn btn-sm btn-primary" onclick="addPteroQuota()"><i class="fas fa-plus"></i> Tambah</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div class="content-section" id="section-subdomain">
@@ -3110,6 +3200,25 @@ async function loadBansosSection() {
   const totals = d.totals || {};
   document.getElementById('bansos-total-am').textContent = totals.alightMotion ?? 0;
   document.getElementById('bansos-total-netflix').textContent = totals.netflix ?? 0;
+
+  const pr = await API.get('/api/owner/bansos/ptero/settings');
+  if (!pr.success) { Toast.error(pr.message || 'Gagal memuat konfigurasi Panel Gratis'); return; }
+  const p = pr.data || {};
+  document.getElementById('bp-enabled').checked = !!p.enabled;
+  document.getElementById('bp-domain').value = p.domain || '';
+  document.getElementById('bp-apikey').value = '';
+  document.getElementById('bp-apikey-status').textContent = p.api_key_set ? '(sudah tersimpan)' : '(belum diatur)';
+  document.getElementById('bp-nest').value = p.nest_id || '';
+  document.getElementById('bp-egg').value = p.egg_id || '';
+  document.getElementById('bp-location').value = p.location_id || '';
+  document.getElementById('bp-docker').value = p.docker_image || '';
+  document.getElementById('bp-startup').value = p.startup || '';
+  document.getElementById('bp-environment').value = JSON.stringify(p.environment || {}, null, 2);
+  document.getElementById('bp-ram').value = p.ram ?? '';
+  document.getElementById('bp-disk').value = p.disk ?? '';
+  document.getElementById('bp-cpu').value = p.cpu ?? '';
+  document.getElementById('bp-default-quota').value = p.default_quota ?? 1;
+  document.getElementById('bp-configured-status').textContent = p.configured ? 'Status: siap dipakai' : 'Status: belum lengkap, panel belum bisa dibuat user';
 }
 
 document.getElementById('bansos-api-form')?.addEventListener('submit', async (e) => {
@@ -3119,6 +3228,59 @@ document.getElementById('bansos-api-form')?.addEventListener('submit', async (e)
   const r = await API.post('/api/owner/bansos/settings', { bansos_api_key: key });
   r.success ? (Toast.success('API Key Bansos tersimpan'), loadBansosSection()) : Toast.error(r.message || 'Gagal menyimpan');
 });
+
+document.getElementById('bansos-ptero-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const envRaw = document.getElementById('bp-environment').value.trim();
+  if (envRaw) {
+    try { JSON.parse(envRaw); } catch { Toast.error('Environment bukan JSON valid'); return; }
+  }
+  const body = {
+    enabled: document.getElementById('bp-enabled').checked,
+    domain: document.getElementById('bp-domain').value.trim(),
+    api_key: document.getElementById('bp-apikey').value.trim(),
+    nest_id: document.getElementById('bp-nest').value.trim(),
+    egg_id: document.getElementById('bp-egg').value.trim(),
+    location_id: document.getElementById('bp-location').value.trim(),
+    docker_image: document.getElementById('bp-docker').value.trim(),
+    startup: document.getElementById('bp-startup').value.trim(),
+    environment: envRaw,
+    ram: document.getElementById('bp-ram').value,
+    disk: document.getElementById('bp-disk').value,
+    cpu: document.getElementById('bp-cpu').value,
+    default_quota: document.getElementById('bp-default-quota').value,
+  };
+  const r = await API.post('/api/owner/bansos/ptero/settings', body);
+  r.success ? (Toast.success('Konfigurasi Panel Gratis tersimpan'), loadBansosSection()) : Toast.error(r.message || 'Gagal menyimpan');
+});
+
+let bpqCurrentUsername = '';
+
+async function searchPteroQuota() {
+  const username = document.getElementById('bpq-username').value.trim();
+  if (!username) { Toast.error('Isi username dulu'); return; }
+  const r = await API.get(`/api/owner/bansos/ptero/quota?username=${encodeURIComponent(username)}`);
+  if (!r.success) { Toast.error(r.message || 'User tidak ditemukan'); document.getElementById('bpq-info').style.display = 'none'; return; }
+  bpqCurrentUsername = r.data.username;
+  document.getElementById('bpq-info-username').textContent = r.data.username;
+  document.getElementById('bpq-info-quota').textContent = r.data.quota;
+  document.getElementById('bpq-info-used').textContent = r.data.used_count;
+  document.getElementById('bpq-info').style.display = '';
+}
+
+async function resetPteroQuota() {
+  if (!bpqCurrentUsername) return;
+  const r = await API.post('/api/owner/bansos/ptero/quota/reset', { username: bpqCurrentUsername });
+  r.success ? (Toast.success(r.message), searchPteroQuota()) : Toast.error(r.message || 'Gagal reset kuota');
+}
+
+async function addPteroQuota() {
+  if (!bpqCurrentUsername) return;
+  const amount = parseInt(document.getElementById('bpq-add-amount').value, 10);
+  if (!amount) { Toast.error('Jumlah tidak valid'); return; }
+  const r = await API.post('/api/owner/bansos/ptero/quota/add', { username: bpqCurrentUsername, amount });
+  r.success ? (Toast.success(r.message), searchPteroQuota()) : Toast.error(r.message || 'Gagal menambah kuota');
+}
 
 document.getElementById('appprem-margin-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();

@@ -156,6 +156,7 @@
       username: document.getElementById('username').value,
       email: document.getElementById('email').value,
       password: document.getElementById('password').value,
+      ref: window.getStoredReferralCode ? window.getStoredReferralCode() : '',
       'cf-turnstile-response': document.querySelector('[name="cf-turnstile-response"]')?.value || '',
     });
 

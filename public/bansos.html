@@ -128,6 +128,7 @@
       <div class="bansos-tabs">
         <button class="btn btn-primary" id="tab-btn-am" onclick="switchTab('am')"><i class="fas fa-film"></i> Alight Motion</button>
         <button class="btn btn-outline" id="tab-btn-netflix" onclick="switchTab('netflix')"><i class="fas fa-tv"></i> Netflix Token</button>
+        <button class="btn btn-outline" id="tab-btn-ptero" onclick="switchTab('ptero')" style="display:none"><i class="fas fa-server"></i> Panel Gratis</button>
       </div>
 
       <div class="card" style="padding:20px">
@@ -157,6 +158,48 @@
           </p>
           <button class="btn btn-primary btn-full btn-lg" id="netflix-btn" onclick="generateNetflix()"><i class="fas fa-bolt"></i> Generate Token Sekarang</button>
           <div id="netflix-result"></div>
+        </div>
+
+        <div id="tab-ptero" class="bansos-tab-content">
+          <div class="card-header" style="padding:0 0 14px 0;border:none"><span class="card-title">Buat Panel Gratis</span></div>
+
+          <div id="ptero-guest-notice" style="display:none">
+            <p style="font-size:12.5px;color:var(--text-muted);margin:-6px 0 16px">
+              Fitur ini khusus member terdaftar. Masuk atau daftar dulu untuk mendapat jatah 1x buat panel gratis.
+            </p>
+            <button class="btn btn-primary btn-full" onclick="Auth.goToLogin()"><i class="fas fa-right-to-bracket"></i> Masuk / Daftar</button>
+          </div>
+
+          <div id="ptero-user-area" style="display:none">
+            <p style="font-size:12.5px;color:var(--text-muted);margin:-6px 0 14px">
+              Panel dibuat otomatis (tipe all-in-one) di server khusus giveaway — terpisah dari panel berbayar. Jatah cuma
+              <strong>1x per akun</strong> (habis kalau sudah pernah berhasil buat), tidak ada garansi kalau server ini mati/di-suspend.
+              Data login TIDAK disimpan di sistem kami — catat sendiri setelah berhasil dibuat.
+            </p>
+
+            <div class="bansos-result-box" style="margin-bottom:16px">
+              <div class="bansos-result-row"><span class="bansos-result-label">Kuota kamu</span><span class="badge badge-secondary"><span id="ptero-quota">-</span>x jatah tersisa</span></div>
+            </div>
+
+            <div id="ptero-form">
+              <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px">Username Panel</label>
+              <input type="text" id="ptero-username" class="form-control" placeholder="cth: austinganteng" style="margin-bottom:12px" maxlength="30">
+              <button class="btn btn-primary btn-full" id="ptero-create-btn" onclick="createPteroPanel()"><i class="fas fa-server"></i> Buat Panel Sekarang</button>
+            </div>
+
+            <div id="ptero-result"></div>
+
+            <div class="bansos-result-box" style="margin-top:20px">
+              <div class="card-header" style="padding:0 0 10px 0;border:none"><span class="card-title" style="font-size:13px">Ajak Teman, Dapat Kuota</span></div>
+              <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px">
+                Bagikan link di bawah. Setiap 1 orang yang <strong>mendaftar</strong> lewat link kamu (bukan cuma buka link-nya saja) otomatis menambah <strong>+1 jatah</strong> buat panel gratis.
+              </p>
+              <div class="bansos-result-row">
+                <span class="bansos-result-value" id="ptero-ref-link" style="word-break:break-all">-</span>
+                <button type="button" class="bansos-copy-btn" onclick="copyReferralLink()" title="Salin"><i class="fas fa-copy"></i></button>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -194,8 +237,9 @@ function logMsg(msg, type = 'info') {
 function switchTab(tabId) {
   document.querySelectorAll('.bansos-tab-content').forEach(el => el.classList.remove('active'));
   document.getElementById(`tab-${tabId}`).classList.add('active');
-  document.getElementById('tab-btn-am').className = `btn ${tabId === 'am' ? 'btn-primary' : 'btn-outline'}`;
-  document.getElementById('tab-btn-netflix').className = `btn ${tabId === 'netflix' ? 'btn-primary' : 'btn-outline'}`;
+  ['am', 'netflix', 'ptero'].forEach(t => {
+    document.getElementById(`tab-btn-${t}`).className = `btn ${t === tabId ? 'btn-primary' : 'btn-outline'}`;
+  });
 }
 
 async function fetchStats() {
@@ -205,6 +249,14 @@ async function fetchStats() {
   document.getElementById('stat-netflix-total').textContent = res.data.totals.netflix ?? 0;
   document.getElementById('quota-am').textContent = res.data.quota.am.remaining;
   document.getElementById('quota-netflix').textContent = res.data.quota.netflix.remaining;
+
+  const pteroBtn = document.getElementById('tab-btn-ptero');
+  if (res.data.ptero_enabled) {
+    pteroBtn.style.display = '';
+  } else {
+    pteroBtn.style.display = 'none';
+    if (document.getElementById('tab-ptero').classList.contains('active')) switchTab('am');
+  }
 }
 
 function setLoading(btn, loading) {
@@ -292,9 +344,74 @@ async function generateNetflix() {
   }
 }
 
+async function fetchPteroStatus() {
+  const res = await API.get('/api/bansos/ptero/status');
+  if (!res.success) return;
+  document.getElementById('ptero-quota').textContent = res.data.quota;
+  const refLink = `${window.location.origin}/register?ref=${res.data.referral_code}`;
+  document.getElementById('ptero-ref-link').textContent = refLink;
+
+  const createBtn = document.getElementById('ptero-create-btn');
+  if (!res.data.enabled) {
+    createBtn.disabled = true;
+    createBtn.innerHTML = '<i class="fas fa-ban"></i> Fitur Dinonaktifkan';
+  } else if (res.data.quota <= 0) {
+    createBtn.disabled = true;
+    createBtn.innerHTML = '<i class="fas fa-ban"></i> Jatah Habis';
+  } else if (!res.data.configured) {
+    createBtn.disabled = true;
+    createBtn.innerHTML = '<i class="fas fa-clock"></i> Belum Tersedia';
+  }
+}
+
+function copyReferralLink() {
+  const text = document.getElementById('ptero-ref-link').textContent;
+  if (!text || text === '-') return;
+  copyText(text, 'Link referral');
+}
+
+async function createPteroPanel() {
+  const username = document.getElementById('ptero-username').value.trim();
+  if (!username) { Toast.warning('Harap masukkan username.'); return; }
+
+  const btn = document.getElementById('ptero-create-btn');
+  setLoading(btn, true);
+  logMsg(`Membuat panel gratis untuk username: ${username}...`, 'info');
+  const res = await API.post('/api/bansos/ptero/create', { username });
+  setLoading(btn, false);
+
+  if (res.success) {
+    logMsg('Panel berhasil dibuat!', 'success');
+    Toast.success('Panel berhasil dibuat');
+    const d = res.data;
+    document.getElementById('ptero-result').innerHTML = `
+      <div class="bansos-result-box">
+        <div class="bansos-result-row"><span class="bansos-result-label">Login URL</span><span class="bansos-result-value">${escapeHtml(d.panel_url)}</span><button type="button" class="bansos-copy-btn" onclick="copyText('${escapeHtml(d.panel_url).replace(/'/g, "\\'")}', 'Login URL')" title="Salin"><i class="fas fa-copy"></i></button></div>
+        <div class="bansos-result-row"><span class="bansos-result-label">Username</span><span class="bansos-result-value">${escapeHtml(d.username)}</span><button type="button" class="bansos-copy-btn" onclick="copyText('${escapeHtml(d.username).replace(/'/g, "\\'")}', 'Username')" title="Salin"><i class="fas fa-copy"></i></button></div>
+        <div class="bansos-result-row"><span class="bansos-result-label">Password</span><span class="bansos-result-value">${escapeHtml(d.password)}</span><button type="button" class="bansos-copy-btn" onclick="copyText('${escapeHtml(d.password).replace(/'/g, "\\'")}', 'Password')" title="Salin"><i class="fas fa-copy"></i></button></div>
+      </div>
+      <p style="font-size:11.5px;color:var(--warning);margin-top:10px"><i class="fas fa-triangle-exclamation"></i> Catat sekarang — data ini tidak disimpan dan tidak akan ditampilkan lagi.</p>`;
+    document.getElementById('ptero-form').style.display = 'none';
+    fetchPteroStatus();
+  } else {
+    logMsg(res.message, 'error');
+    Toast.error(res.message);
+    fetchPteroStatus();
+  }
+}
+
 async function init() {
   const res = await Auth.checkOptional();
-  if (res) { Auth.renderUserInfo(res.user, res.wallet); } else { Auth.renderGuestUI(); }
+  if (res) {
+    Auth.renderUserInfo(res.user, res.wallet);
+    document.getElementById('ptero-user-area').style.display = '';
+    document.getElementById('ptero-guest-notice').style.display = 'none';
+    fetchPteroStatus();
+  } else {
+    Auth.renderGuestUI();
+    document.getElementById('ptero-user-area').style.display = 'none';
+    document.getElementById('ptero-guest-notice').style.display = '';
+  }
   await fetchStats();
 }
 init();
