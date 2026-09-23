@@ -12,6 +12,33 @@ function apiUrl(path) {
 }
 window.apiUrl = apiUrl;
 
+// ==== Capture referral (?ref=<user_id>) ====
+// Ref bisa mendarat di halaman manapun (link referral biasanya ke landing/homepage),
+// jadi ditangkap di sini (dimuat semua halaman) lalu disimpan ke localStorage supaya
+// tetap kebawa walau user baru daftar beberapa halaman kemudian, bukan cuma kalau
+// dia langsung ke /register. Kadaluarsa 30 hari (referral yang terlalu lama dianggap
+// tidak relevan lagi). TIDAK ada reward apapun di sini — cuma nyimpen kode; reward
+// baru diberikan backend saat registrasi BENAR-BENAR berhasil (lihat auth.controller.js).
+(function captureReferral() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref && /^[a-zA-Z0-9-]{8,64}$/.test(ref)) {
+      localStorage.setItem('referral_code', ref);
+      localStorage.setItem('referral_captured_at', String(Date.now()));
+    }
+  } catch { /* localStorage bisa diblokir browser tertentu, abaikan saja */ }
+})();
+window.getStoredReferralCode = function () {
+  try {
+    const ts = parseInt(localStorage.getItem('referral_captured_at') || '0', 10);
+    if (!ts || (Date.now() - ts) > 30 * 24 * 60 * 60 * 1000) return '';
+    return localStorage.getItem('referral_code') || '';
+  } catch {
+    return '';
+  }
+};
+
 const API = {
   async request(method, url, data = null) {
     try {
