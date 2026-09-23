@@ -627,9 +627,14 @@
         <div class="card">
           <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
             <span class="card-title"><i class="fas fa-boxes-stacked" style="color:var(--primary)"></i> Manajemen Produk PPOB</span>
-            <button type="button" class="btn btn-primary btn-sm" id="ppob-add-product-btn"><i class="fas fa-plus"></i> Tambah Produk</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <select class="form-control" id="ppob-sync-category" style="width:auto;font-size:12px;padding:6px 10px"></select>
+              <button type="button" class="btn btn-outline btn-sm" id="ppob-sync-btn" title="Import/update produk dari daftar harga OkeConnect untuk kategori terpilih"><i class="fas fa-rotate"></i> Sync dari OkeConnect</button>
+              <button type="button" class="btn btn-primary btn-sm" id="ppob-add-product-btn"><i class="fas fa-plus"></i> Tambah Produk</button>
+            </div>
           </div>
-          <div style="padding:14px 20px 0;display:flex;gap:8px;flex-wrap:wrap" id="ppob-product-filter"></div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Sync narik produk dari daftar harga OkeConnect (harga modal + status aktif) untuk kategori yang dipilih — produk baru otomatis ditambahkan, produk yang sudah ada di-update harganya. Berguna kalau ada kategori baru dari OkeConnect yang belum ada produknya.</p>
+          <div style="padding:0 20px 0;display:flex;gap:8px;flex-wrap:wrap" id="ppob-product-filter"></div>
           <div class="table-wrapper">
             <table class="table">
               <thead><tr><th>Kategori</th><th>Kode</th><th>Nama Produk</th><th>Harga Modal</th><th>Tipe</th><th>Status</th><th>Aksi</th></tr></thead>
@@ -3038,6 +3043,9 @@ async function loadPpobSection() {
   const catSelect = document.getElementById('ppob-p-category');
   catSelect.innerHTML = ppobCategoriesCache.map((c) => `<option value="${c.key}">${escapeHtml(c.name)}</option>`).join('');
 
+  const syncSelect = document.getElementById('ppob-sync-category');
+  syncSelect.innerHTML = ppobCategoriesCache.map((c) => `<option value="${c.key}">${escapeHtml(c.name)}</option>`).join('');
+
   loadPpobProducts();
 }
 
@@ -3114,6 +3122,26 @@ function openPpobProductModal(product) {
 }
 
 document.getElementById('ppob-add-product-btn')?.addEventListener('click', () => openPpobProductModal(null));
+
+document.getElementById('ppob-sync-btn')?.addEventListener('click', async (e) => {
+  const category = document.getElementById('ppob-sync-category').value;
+  if (!category) return;
+  const catName = ppobCategoriesCache.find((c) => c.key === category)?.name || category;
+  if (!confirm(`Sync produk kategori "${catName}" dari daftar harga OkeConnect sekarang?`)) return;
+
+  e.target.classList.add('btn-loading');
+  e.target.disabled = true;
+  const r = await API.post('/api/owner/ppob/products/sync', { category });
+  e.target.classList.remove('btn-loading');
+  e.target.disabled = false;
+
+  if (r.success) {
+    Toast.success(r.message);
+    loadPpobProducts();
+  } else {
+    Toast.error(r.message || 'Gagal sync produk dari OkeConnect');
+  }
+});
 
 document.getElementById('ppob-p-save-btn')?.addEventListener('click', async (e) => {
   const id = document.getElementById('ppob-p-id').value;
