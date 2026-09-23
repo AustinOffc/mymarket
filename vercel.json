@@ -11,6 +11,7 @@
     { "source": "/checkout", "destination": "/checkout.html" },
     { "source": "/wishlist", "destination": "/wishlist.html" },
     { "source": "/topup", "destination": "/topup.html" },
+    { "source": "/ppob", "destination": "/ppob.html" },
     { "source": "/sosmed", "destination": "/sosmed.html" },
     { "source": "/nokos", "destination": "/nokos.html" },
     { "source": "/appprem", "destination": "/appprem.html" },
