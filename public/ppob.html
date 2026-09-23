@@ -14,7 +14,11 @@
     })();
   </script>
   <style>
-    .ppob-cat-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 18px; scrollbar-width: none; }
+    /* overflow-x:auto forces the cross-axis to clip too, and with no top
+       breathing room the active tab's border/hover-lift got cut at the top
+       edge. Add top padding for clearance, then pull the block back up with
+       a matching negative margin so spacing below "Bayar Cepat" is unchanged. */
+    .ppob-cat-tabs { display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; padding: 8px 2px 4px; margin: -8px 0 18px; scrollbar-width: none; }
     .ppob-cat-tabs::-webkit-scrollbar { display: none; }
     .ppob-cat-tab {
       flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -28,7 +32,27 @@
     .ppob-cat-tab.active .icon-wrap { background: var(--primary); color: #fff; }
     .ppob-cat-tab span { font-size: 11.5px; font-weight: 700; text-align: center; line-height: 1.25; white-space: nowrap; }
 
+    /* Sub-kategori (operator/provider) di dalam kategori yang dipilih, mis.
+       Pulsa -> Telkomsel/XL/Axis. Sama-sama kena isu clipping, jadi dikasih
+       perlakuan padding/margin yang sama seperti .ppob-cat-tabs di atas. */
+    .ppob-op-tabs { display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; padding: 6px 2px 4px; margin: -6px 0 14px; scrollbar-width: none; }
+    .ppob-op-tabs::-webkit-scrollbar { display: none; }
+    .ppob-op-tab {
+      flex: 0 0 auto; padding: 7px 15px; border-radius: 999px; cursor: pointer;
+      font-size: 12px; font-weight: 700; color: var(--text-muted); white-space: nowrap;
+      background: var(--bg-card); border: var(--border-w) solid var(--border-soft);
+      transition: border-color .15s, color .15s, background .15s;
+    }
+    .ppob-op-tab.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+
     .ppob-dest-form { display: grid; gap: 12px; margin-bottom: 20px; max-width: 420px; }
+
+    /* Daftar produk dibatasi tingginya (~10 item) lalu discroll sendiri,
+       biar halaman tidak memanjang ke bawah tiap kategori punya banyak produk. */
+    .ppob-product-scroll { max-height: calc((89px * 10) + (12px * 9)); overflow-y: auto; padding-right: 4px; margin-right: -4px; }
+    .ppob-product-scroll::-webkit-scrollbar { width: 5px; }
+    .ppob-product-scroll::-webkit-scrollbar-track { background: transparent; }
+    .ppob-product-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 
     .ppob-product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
     .ppob-product-card {
@@ -98,6 +122,8 @@
 
       <div class="ppob-cat-tabs" id="cat-tabs"><div class="loading-spinner"></div></div>
 
+      <div class="ppob-op-tabs" id="op-tabs" style="display:none"></div>
+
       <div class="ppob-dest-form" id="dest-form" style="display:none">
         <div class="form-group" style="margin:0">
           <label class="form-label" id="dest-label">Nomor Tujuan</label>
@@ -105,7 +131,9 @@
         </div>
       </div>
 
-      <div class="ppob-product-grid" id="product-grid"><div class="loading-spinner"></div></div>
+      <div class="ppob-product-scroll">
+        <div class="ppob-product-grid" id="product-grid"><div class="loading-spinner"></div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -143,9 +171,55 @@
 let categories = [];
 let currentCategory = null;
 let currentProducts = [];
+let currentOperators = [];
+let selectedOperator = null;
 let selectedProduct = null;
 
 function iconWrap(icon) { return `<div class="icon-wrap"><i class="fas fa-${icon}"></i></div>`; }
+
+// Kelompokkan produk satu kategori jadi sub-kategori berdasarkan field
+// "operator" (mis. TELKOMSEL/XL/AXIS untuk Pulsa, DANA/OVO/GoPay untuk
+// E-Wallet), biar listnya tidak campur aduk jadi satu daftar panjang.
+// Produk tanpa operator (atau kategori yang memang cuma 1 operator, mis.
+// Token Listrik) otomatis tidak dapat sub-tab — tetap tampil langsung.
+function buildOperatorGroups(products) {
+  const map = new Map();
+  products.forEach((p) => {
+    const raw = String(p.operator || '').trim();
+    const key = raw ? raw.toUpperCase() : '__lainnya__';
+    if (!map.has(key)) map.set(key, { key, label: raw || 'Lainnya', count: 0 });
+    map.get(key).count += 1;
+  });
+  return Array.from(map.values());
+}
+
+function productOperatorKey(p) {
+  const raw = String(p.operator || '').trim();
+  return raw ? raw.toUpperCase() : '__lainnya__';
+}
+
+function renderOperatorTabs() {
+  const wrap = document.getElementById('op-tabs');
+  if (currentOperators.length <= 1) {
+    wrap.style.display = 'none';
+    wrap.innerHTML = '';
+    return;
+  }
+  wrap.style.display = 'flex';
+  wrap.innerHTML = currentOperators.map((o) => `
+    <div class="ppob-op-tab${o.key === selectedOperator ? ' active' : ''}" data-key="${escapeHtml(o.key)}">${escapeHtml(o.label)}</div>
+  `).join('');
+  wrap.querySelectorAll('.ppob-op-tab').forEach((el) => {
+    el.addEventListener('click', () => selectOperator(el.dataset.key));
+  });
+}
+
+function selectOperator(key) {
+  selectedOperator = key;
+  document.querySelectorAll('.ppob-op-tab').forEach((el) => el.classList.toggle('active', el.dataset.key === key));
+  document.querySelector('.ppob-product-scroll').scrollTop = 0;
+  renderProducts();
+}
 
 async function loadCategories() {
   const res = await API.get('/api/ppob/categories');
@@ -188,16 +262,22 @@ async function selectCategory(key) {
     return;
   }
   currentProducts = res.data.items || [];
+  currentOperators = buildOperatorGroups(currentProducts);
+  selectedOperator = currentOperators.length > 1 ? currentOperators[0].key : null;
+  renderOperatorTabs();
   renderProducts();
 }
 
 function renderProducts() {
   const grid = document.getElementById('product-grid');
-  if (!currentProducts.length) {
+  const list = currentOperators.length > 1
+    ? currentProducts.filter((p) => productOperatorKey(p) === selectedOperator)
+    : currentProducts;
+  if (!list.length) {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-box-open"></i><p>Belum ada produk untuk kategori ini</p></div>`;
     return;
   }
-  grid.innerHTML = currentProducts.map((p) => `
+  grid.innerHTML = list.map((p) => `
     <div class="ppob-product-card" data-code="${escapeHtml(p.code)}">
       <div class="p-name">${escapeHtml(p.name)}</div>
       <div class="p-desc">${escapeHtml(p.description || p.operator || '')}</div>
