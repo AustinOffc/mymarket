@@ -185,6 +185,43 @@
     });
     mo.observe(native, { attributes: true, attributeFilter: ['disabled'], childList: true, subtree: true });
 
+    // BUG FIX: script halaman yang mengisi form dari API (mis. loadPpobSection() set
+    // `select.value = d.margin.highType`) mengubah PROPERTY JS, bukan atribut DOM —
+    // jadi MutationObserver di atas TIDAK ke-trigger dan syncTrigger() tidak pernah
+    // dipanggil ulang. Akibatnya kotak dropdown yang tertutup nyangkut menampilkan
+    // opsi default lama (mis. "Persen (%)") walau value asli <select> sudah benar
+    // ("Nominal Tetap (Rp)") — checkmark di panel benar, tapi teks di kotak salah.
+    // Fix: timpa setter `value` & `selectedIndex` bawaan <select> supaya SETIAP kali
+    // di-set lewat cara apapun (termasuk `select.value = ...` langsung dari script
+    // lain), tampilan ikut sync otomatis — tidak lagi bergantung ke event/atribut.
+    var proto = Object.getPrototypeOf(native);
+    var valueDesc = Object.getOwnPropertyDescriptor(proto, 'value')
+      || (window.HTMLSelectElement && Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value'));
+    if (valueDesc && valueDesc.configurable && valueDesc.set) {
+      Object.defineProperty(native, 'value', {
+        configurable: true,
+        get: function () { return valueDesc.get.call(native); },
+        set: function (v) {
+          valueDesc.set.call(native, v);
+          syncTrigger(csel);
+          if (wrap.classList.contains('open')) buildPanel(csel);
+        },
+      });
+    }
+    var indexDesc = Object.getOwnPropertyDescriptor(proto, 'selectedIndex')
+      || (window.HTMLSelectElement && Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'selectedIndex'));
+    if (indexDesc && indexDesc.configurable && indexDesc.set) {
+      Object.defineProperty(native, 'selectedIndex', {
+        configurable: true,
+        get: function () { return indexDesc.get.call(native); },
+        set: function (v) {
+          indexDesc.set.call(native, v);
+          syncTrigger(csel);
+          if (wrap.classList.contains('open')) buildPanel(csel);
+        },
+      });
+    }
+
     syncTrigger(csel);
   }
 
