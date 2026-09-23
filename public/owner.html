@@ -107,6 +107,7 @@
       <div class="nav-item" data-section="vouchers"><span class="nav-icon"><i class="fas fa-ticket"></i></span> Voucher Global</div>
       <div class="nav-item" data-section="flashsale"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Flash Sale Global</div>
       <div class="nav-item" data-section="topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-section="ppob"><span class="nav-icon"><i class="fas fa-receipt"></i></span> PPOB</div>
       <div class="nav-item" data-section="socmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
       <div class="nav-item" data-section="nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
       <div class="nav-item" data-section="appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
@@ -315,6 +316,7 @@
             <button type="button" class="btn btn-sm btn-primary" data-history-type="all">Semua</button>
             <button type="button" class="btn btn-sm btn-outline" data-history-type="order">Order Marketplace</button>
             <button type="button" class="btn btn-sm btn-outline" data-history-type="topup">Topup Game</button>
+            <button type="button" class="btn btn-sm btn-outline" data-history-type="ppob">PPOB</button>
             <button type="button" class="btn btn-sm btn-outline" data-history-type="socmed">Sosial Media</button>
             <button type="button" class="btn btn-sm btn-outline" data-history-type="nokos">Nomor OTP</button>
             <button type="button" class="btn btn-sm btn-outline" data-history-type="appprem">App Premium</button>
@@ -566,7 +568,78 @@
         </div>
       </div>
 
-            <div class="content-section" id="section-socmed">
+      <div class="content-section" id="section-ppob">
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-plug" style="color:var(--primary)"></i> Koneksi API H2H OkeConnect</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Dapatkan Member ID, PIN &amp; Password dari akun OkeConnect (h2h.okeconnect.com) kamu. PIN/Password yang sudah tersimpan tidak ditampilkan lagi — kosongkan field kalau tidak ingin menggantinya.</p>
+          <form id="ppob-api-form" style="padding:0 20px 20px;display:grid;gap:12px;max-width:480px">
+            <div class="form-group">
+              <label class="form-label">Member ID</label>
+              <input type="text" class="form-control" id="ppob-member-id" placeholder="Contoh: OK00123">
+            </div>
+            <div class="form-group">
+              <label class="form-label">PIN <span id="ppob-pin-status" class="text-xs text-muted"></span></label>
+              <input type="password" class="form-control" id="ppob-pin" placeholder="Kosongkan jika tidak diganti">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password <span id="ppob-password-status" class="text-xs text-muted"></span></label>
+              <input type="password" class="form-control" id="ppob-password" placeholder="Kosongkan jika tidak diganti">
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button type="submit" class="btn btn-primary" style="width:fit-content"><i class="fas fa-save"></i> Simpan Koneksi API</button>
+              <button type="button" class="btn btn-outline" style="width:fit-content" id="ppob-check-balance"><i class="fas fa-wallet"></i> Cek Saldo OkeConnect</button>
+            </div>
+            <div class="text-sm" id="ppob-balance-result"></div>
+          </form>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-percent" style="color:var(--primary)"></i> Margin Harga Jual</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Harga jual ke buyer = harga modal + margin. Pilih persen (mis. 5%) atau nominal tetap (mis. Rp500 per transaksi). Tidak ada kolom voucher diskon pada order PPOB.</p>
+          <form id="ppob-margin-form" style="padding:0 20px 20px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Tipe Margin</label>
+              <select class="form-control" id="ppob-margin-type">
+                <option value="percent">Persen (%)</option>
+                <option value="flat">Nominal Tetap (Rp)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Nilai</label>
+              <input type="number" class="form-control" id="ppob-margin-value" min="0" step="1" style="max-width:160px">
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan Margin</button>
+          </form>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-list-check" style="color:var(--primary)"></i> Kategori PPOB</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Nonaktifkan kategori yang belum siap dijual — kategori nonaktif otomatis disembunyikan dari halaman PPOB buyer.</p>
+          <div id="ppob-categories-list" style="padding:0 20px 20px;display:grid;gap:8px"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+            <span class="card-title"><i class="fas fa-boxes-stacked" style="color:var(--primary)"></i> Manajemen Produk PPOB</span>
+            <button type="button" class="btn btn-primary btn-sm" id="ppob-add-product-btn"><i class="fas fa-plus"></i> Tambah Produk</button>
+          </div>
+          <div style="padding:14px 20px 0;display:flex;gap:8px;flex-wrap:wrap" id="ppob-product-filter"></div>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead><tr><th>Kategori</th><th>Kode</th><th>Nama Produk</th><th>Harga Modal</th><th>Tipe</th><th>Status</th><th>Aksi</th></tr></thead>
+              <tbody id="ppob-products-tbody"><tr><td colspan="7" class="table-empty">Memuat...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-section" id="section-socmed">
         <h3 class="text-sm" style="padding:0 20px;margin:0 0 10px;color:var(--text-muted)"><i class="fas fa-server"></i> Server 1 — VIP Reseller</h3>
         <div class="card mb-16">
           <div class="card-header">
@@ -1924,6 +1997,60 @@
 </div>
 
 
+<div class="modal-overlay" id="ppob-product-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="ppob-product-modal-title">Tambah Produk PPOB</span>
+      <button class="modal-close" onclick="Modal.close('ppob-product-modal')">&times;</button>
+    </div>
+    <div class="modal-body" style="display:grid;gap:12px">
+      <input type="hidden" id="ppob-p-id">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Kategori</label>
+        <select class="form-control" id="ppob-p-category"></select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Kode Produk (sesuai kode OkeConnect, mis. T1, S20)</label>
+        <input type="text" class="form-control" id="ppob-p-code" placeholder="T1">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Nama Produk</label>
+        <input type="text" class="form-control" id="ppob-p-name" placeholder="Telkomsel 1.000">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Operator/Brand (opsional)</label>
+        <input type="text" class="form-control" id="ppob-p-operator" placeholder="Telkomsel">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Deskripsi (opsional)</label>
+        <input type="text" class="form-control" id="ppob-p-description" placeholder="Masa aktif 30 hari">
+      </div>
+      <label class="text-sm" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="ppob-p-open-denom"> Produk nominal bebas (mis. Token PLN / e-wallet bebas nominal)
+      </label>
+      <div id="ppob-p-fixed-price-wrap" class="form-group" style="margin:0">
+        <label class="form-label">Harga Modal (Rp)</label>
+        <input type="number" class="form-control" id="ppob-p-price-basic" min="1" placeholder="1000">
+      </div>
+      <div id="ppob-p-open-denom-wrap" style="display:none;gap:12px;grid-template-columns:1fr 1fr">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Nominal Minimal (Rp)</label>
+          <input type="number" class="form-control" id="ppob-p-min-qty" min="1" placeholder="10000">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Nominal Maksimal (Rp)</label>
+          <input type="number" class="form-control" id="ppob-p-max-qty" min="1" placeholder="10000000">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="Modal.close('ppob-product-modal')">Batal</button>
+      <button class="btn btn-primary" id="ppob-p-save-btn"><i class="fas fa-check"></i> Simpan</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="modal-overlay" id="pm-edit-modal">
   <div class="modal">
     <div class="modal-header">
@@ -2002,6 +2129,7 @@ const sectionLoaders = {
   vouchers: () => loadVouchers(1),
   flashsale: () => loadFlashSaleSection(1),
   topup: loadTopupSection,
+  ppob: loadPpobSection,
   socmed: loadSocmedSection,
   nokos: loadNokosSection,
   appprem: loadAppPremSection,
@@ -2026,7 +2154,7 @@ function showSection(name, el) {
     sellers:'Manajemen Seller', categories:'Kategori', stockoverview:'Monitoring Stok',
     orders:'Riwayat Order', history:'Riwayat Order (Semua Kategori)', complaints:'Komplain Order', reports:'Laporan Produk/Toko', vouchers:'Voucher Global',
     flashsale:'Flash Sale Global',
-    topup:'Topup Game', socmed:'Sosial Media', nokos:'Nomor OTP', appprem:'Auto Order App Premium', subdomain:'Auto Order Subdomain', ptero:'Panel Pterodactyl',
+    topup:'Topup Game', ppob:'PPOB', socmed:'Sosial Media', nokos:'Nomor OTP', appprem:'Auto Order App Premium', subdomain:'Auto Order Subdomain', ptero:'Panel Pterodactyl',
     panelmonitor:'Monitoring Panel',
     pterountracked:'Server Tidak Terlacak',
     resellers:'Reseller & Partner',
@@ -2846,6 +2974,203 @@ document.getElementById('topup-margin-form')?.addEventListener('submit', async (
   };
   const r = await API.post('/api/owner/topup/settings', body);
   r.success ? (Toast.success(r.message), loadTopupSection()) : Toast.error(r.message);
+});
+
+// ==== PPOB (OkeConnect) ====
+
+let ppobCategoriesCache = [];
+let ppobProductFilter = 'all';
+
+async function loadPpobSection() {
+  const res = await API.get('/api/owner/ppob/settings');
+  if (!res.success) { Toast.error(res.message); return; }
+  const d = res.data;
+
+  document.getElementById('ppob-member-id').value = d.member_id || '';
+  document.getElementById('ppob-pin').value = '';
+  document.getElementById('ppob-password').value = '';
+  document.getElementById('ppob-pin-status').textContent = d.pin_set ? '(sudah tersimpan)' : '(belum diatur)';
+  document.getElementById('ppob-password-status').textContent = d.password_set ? '(sudah tersimpan)' : '(belum diatur)';
+  document.getElementById('ppob-margin-type').value = d.margin?.type || 'percent';
+  document.getElementById('ppob-margin-value').value = d.margin?.value ?? 5;
+  document.getElementById('ppob-balance-result').textContent = '';
+
+  ppobCategoriesCache = d.categories || [];
+
+  const list = document.getElementById('ppob-categories-list');
+  list.innerHTML = ppobCategoriesCache.map((c) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <span class="text-sm" style="font-weight:600">${escapeHtml(c.name)}</span>
+      <button class="btn btn-outline btn-sm" data-action="toggle-ppob-cat" data-key="${c.key}" data-active="${c.active}" style="padding:3px 10px;font-size:11px">
+        <i class="fas fa-power-off" style="color:${c.active ? 'var(--success)' : 'var(--text-muted)'}"></i> ${c.active ? 'Aktif' : 'Nonaktif'}
+      </button>
+    </div>
+  `).join('');
+  if (!list._bound) {
+    list.addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-action="toggle-ppob-cat"]');
+      if (!btn) return;
+      const active = btn.dataset.active === 'true';
+      const r = await API.post(`/api/owner/ppob/categories/${btn.dataset.key}/toggle`, { active: !active });
+      r.success ? (Toast.success('Status kategori diperbarui'), loadPpobSection()) : Toast.error(r.message);
+    });
+    list._bound = true;
+  }
+
+  const filterWrap = document.getElementById('ppob-product-filter');
+  filterWrap.innerHTML = ['all', ...ppobCategoriesCache.map((c) => c.key)].map((key) => `
+    <button type="button" class="btn btn-sm ${ppobProductFilter === key ? 'btn-primary' : 'btn-outline'}" data-filter="${key}">
+      ${key === 'all' ? 'Semua' : escapeHtml(ppobCategoriesCache.find((c) => c.key === key)?.name || key)}
+    </button>
+  `).join('');
+  if (!filterWrap._bound) {
+    filterWrap.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-filter]');
+      if (!btn) return;
+      ppobProductFilter = btn.dataset.filter;
+      loadPpobProducts();
+      filterWrap.querySelectorAll('button').forEach((b) => { b.classList.remove('btn-primary'); b.classList.add('btn-outline'); });
+      btn.classList.remove('btn-outline'); btn.classList.add('btn-primary');
+    });
+    filterWrap._bound = true;
+  }
+
+  const catSelect = document.getElementById('ppob-p-category');
+  catSelect.innerHTML = ppobCategoriesCache.map((c) => `<option value="${c.key}">${escapeHtml(c.name)}</option>`).join('');
+
+  loadPpobProducts();
+}
+
+async function loadPpobProducts() {
+  const tbody = document.getElementById('ppob-products-tbody');
+  tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Memuat...</td></tr>`;
+  const qs = ppobProductFilter !== 'all' ? `?category=${ppobProductFilter}` : '';
+  const res = await API.get(`/api/owner/ppob/products${qs}`);
+  if (!res.success || !res.data.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Belum ada produk PPOB</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = res.data.map((p) => {
+    const catName = ppobCategoriesCache.find((c) => c.key === p.category)?.name || p.category;
+    return `
+    <tr>
+      <td class="text-sm">${escapeHtml(catName)}</td>
+      <td class="text-sm"><code>${escapeHtml(p.code)}</code></td>
+      <td class="text-sm">${escapeHtml(p.name)}</td>
+      <td class="text-sm">${p.is_open_denom ? '-' : formatRupiah(p.price_basic)}</td>
+      <td class="text-sm">${p.is_open_denom ? '<span class="badge badge-info">Nominal Bebas</span>' : '<span class="badge badge-secondary">Tetap</span>'}</td>
+      <td class="text-sm">${p.active !== false ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-secondary">Nonaktif</span>'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-outline btn-sm" data-action="edit-ppob-product" data-id="${p.id}" title="Edit"><i class="fas fa-pen"></i></button>
+        <button class="btn btn-outline btn-sm" data-action="toggle-ppob-product" data-id="${p.id}" data-active="${p.active !== false}" title="${p.active !== false ? 'Nonaktifkan' : 'Aktifkan'}"><i class="fas fa-power-off"></i></button>
+        <button class="btn btn-outline btn-sm" data-action="delete-ppob-product" data-id="${p.id}" style="color:var(--danger);border-color:var(--danger)" title="Hapus"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>
+  `;
+  }).join('');
+  window._ppobProductsCache = res.data;
+}
+
+document.getElementById('ppob-products-tbody')?.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  if (btn.dataset.action === 'edit-ppob-product') {
+    openPpobProductModal((window._ppobProductsCache || []).find((p) => p.id === id));
+  } else if (btn.dataset.action === 'toggle-ppob-product') {
+    const active = btn.dataset.active === 'true';
+    const r = await API.post(`/api/owner/ppob/products/${id}/toggle`, { active: !active });
+    r.success ? loadPpobProducts() : Toast.error(r.message);
+  } else if (btn.dataset.action === 'delete-ppob-product') {
+    if (!confirm('Hapus produk PPOB ini? Tindakan tidak bisa dibatalkan.')) return;
+    const r = await API.request('DELETE', `/api/owner/ppob/products/${id}`);
+    r.success ? (Toast.success(r.message), loadPpobProducts()) : Toast.error(r.message);
+  }
+});
+
+function togglePpobDenomFields() {
+  const isOpen = document.getElementById('ppob-p-open-denom').checked;
+  document.getElementById('ppob-p-fixed-price-wrap').style.display = isOpen ? 'none' : 'block';
+  document.getElementById('ppob-p-open-denom-wrap').style.display = isOpen ? 'grid' : 'none';
+}
+document.getElementById('ppob-p-open-denom')?.addEventListener('change', togglePpobDenomFields);
+
+function openPpobProductModal(product) {
+  document.getElementById('ppob-product-modal-title').textContent = product ? 'Edit Produk PPOB' : 'Tambah Produk PPOB';
+  document.getElementById('ppob-p-id').value = product?.id || '';
+  document.getElementById('ppob-p-category').value = product?.category || ppobCategoriesCache[0]?.key || '';
+  document.getElementById('ppob-p-category').disabled = !!product;
+  document.getElementById('ppob-p-code').value = product?.code || '';
+  document.getElementById('ppob-p-code').disabled = !!product;
+  document.getElementById('ppob-p-name').value = product?.name || '';
+  document.getElementById('ppob-p-operator').value = product?.operator || '';
+  document.getElementById('ppob-p-description').value = product?.description || '';
+  document.getElementById('ppob-p-open-denom').checked = !!product?.is_open_denom;
+  document.getElementById('ppob-p-price-basic').value = product?.price_basic || '';
+  document.getElementById('ppob-p-min-qty').value = product?.min_qty || 10000;
+  document.getElementById('ppob-p-max-qty').value = product?.max_qty || 10000000;
+  togglePpobDenomFields();
+  Modal.open('ppob-product-modal');
+}
+
+document.getElementById('ppob-add-product-btn')?.addEventListener('click', () => openPpobProductModal(null));
+
+document.getElementById('ppob-p-save-btn')?.addEventListener('click', async (e) => {
+  const id = document.getElementById('ppob-p-id').value;
+  const isOpenDenom = document.getElementById('ppob-p-open-denom').checked;
+  const body = {
+    category: document.getElementById('ppob-p-category').value,
+    code: document.getElementById('ppob-p-code').value.trim(),
+    name: document.getElementById('ppob-p-name').value.trim(),
+    operator: document.getElementById('ppob-p-operator').value.trim(),
+    description: document.getElementById('ppob-p-description').value.trim(),
+    is_open_denom: isOpenDenom,
+    price_basic: document.getElementById('ppob-p-price-basic').value,
+    min_qty: document.getElementById('ppob-p-min-qty').value,
+    max_qty: document.getElementById('ppob-p-max-qty').value,
+  };
+  if (!body.name || (!id && !body.code)) { Toast.error('Nama & kode produk wajib diisi'); return; }
+
+  e.target.classList.add('btn-loading');
+  const r = id
+    ? await API.request('PUT', `/api/owner/ppob/products/${id}`, body)
+    : await API.post('/api/owner/ppob/products', body);
+  e.target.classList.remove('btn-loading');
+
+  if (!r.success) { Toast.error(r.message); return; }
+  Toast.success(r.message);
+  Modal.close('ppob-product-modal');
+  loadPpobProducts();
+});
+
+document.getElementById('ppob-api-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = {
+    member_id: document.getElementById('ppob-member-id').value.trim(),
+    pin: document.getElementById('ppob-pin').value.trim(),
+    password: document.getElementById('ppob-password').value.trim(),
+  };
+  const r = await API.post('/api/owner/ppob/settings', body);
+  r.success ? (Toast.success(r.message), loadPpobSection()) : Toast.error(r.message);
+});
+
+document.getElementById('ppob-margin-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = {
+    margin_type: document.getElementById('ppob-margin-type').value,
+    margin_value: document.getElementById('ppob-margin-value').value,
+  };
+  const r = await API.post('/api/owner/ppob/settings', body);
+  r.success ? (Toast.success(r.message), loadPpobSection()) : Toast.error(r.message);
+});
+
+document.getElementById('ppob-check-balance')?.addEventListener('click', async (e) => {
+  e.target.classList.add('btn-loading');
+  const r = await API.get('/api/owner/ppob/balance');
+  e.target.classList.remove('btn-loading');
+  const el = document.getElementById('ppob-balance-result');
+  if (!r.success) { el.innerHTML = `<span style="color:var(--danger)">${escapeHtml(r.message || 'Gagal cek saldo')}</span>`; return; }
+  el.innerHTML = `<span style="color:var(--success)">Saldo OkeConnect saat ini: <b>${formatRupiah(r.data.balance)}</b></span>`;
 });
 
 async function loadSocmedSection() {
@@ -4142,7 +4467,7 @@ async function loadOrders(page = 1) {
 }
 
 const HISTORY_TYPE_ICON = {
-  order: 'badge-primary', topup: 'badge-warning', socmed: 'badge-info',
+  order: 'badge-primary', topup: 'badge-warning', ppob: 'badge-danger', socmed: 'badge-info',
   nokos: 'badge-success', appprem: 'badge-secondary', subdomain: 'badge-info',
 };
 let historyState = { type: 'all', search: '' };

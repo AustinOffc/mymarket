@@ -26,6 +26,7 @@
       <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
       <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
       <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/ppob"><span class="nav-icon"><i class="fas fa-receipt"></i></span> PPOB</div>
       <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
       <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
       <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
@@ -68,6 +69,7 @@
         <button class="btn btn-primary btn-sm" data-tab="all">Semua</button>
         <button class="btn btn-outline btn-sm" data-tab="account">Akun Premium</button>
         <button class="btn btn-outline btn-sm" data-tab="topup">Topup Game</button>
+        <button class="btn btn-outline btn-sm" data-tab="ppob">PPOB</button>
         <button class="btn btn-outline btn-sm" data-tab="socmed">Sosial Media</button>
         <button class="btn btn-outline btn-sm" data-tab="nokos">Nomor OTP</button>
         <button class="btn btn-outline btn-sm" data-tab="appprem">App Premium</button>
@@ -179,6 +181,7 @@
 const SOURCES = {
   account: { endpoint: '/api/order/history',   icon: 'fa-key',          iconCls: '',        label: 'Akun Premium' },
   topup:   { endpoint: '/api/topup/history',   icon: 'fa-bolt',         iconCls: 'topup',   label: 'Topup Game' },
+  ppob:    { endpoint: '/api/ppob/history',    icon: 'fa-receipt',      iconCls: 'ppob',    label: 'PPOB' },
   socmed:  { endpoint: '/api/socmed/history',  icon: 'fa-share-nodes',  iconCls: 'socmed',  label: 'Sosial Media' },
   nokos:   { endpoint: '/api/nokos/history',   icon: 'fa-sim-card',    iconCls: 'nokos',   label: 'Nomor OTP' },
   appprem: { endpoint: '/api/appprem/history', icon: 'fa-crown',       iconCls: 'appprem', label: 'App Premium' },
@@ -201,6 +204,9 @@ function normalizeRow(source, row) {
   } else if (source === 'topup') {
     title = `${row.game || row.category_name || ''} — ${row.service_name || ''}`.replace(/^ — /, '');
     sub = row.target_id ? `ID: ${row.target_id}${row.zone_id ? ' (' + row.zone_id + ')' : ''}` : (row.category_name || '-');
+  } else if (source === 'ppob') {
+    title = `${row.category_name || 'PPOB'} — ${row.product_name || ''}`.replace(/^ — /, '');
+    sub = row.dest ? `Tujuan: ${row.dest}` : (row.category_name || '-');
   } else if (source === 'socmed') {
     title = row.service_name || row.category_name || 'Sosial Media';
     sub = row.target ? `Target: ${row.target} • ${row.quantity || 0}x` : (row.category_name || '-');
@@ -223,7 +229,7 @@ function normalizeRow(source, row) {
 
 let currentTab = 'all';
 let currentPage = 1;
-let currentPages = { account: 1, topup: 1, socmed: 1, nokos: 1, appprem: 1, subdomain: 1 };
+let currentPages = { account: 1, topup: 1, ppob: 1, socmed: 1, nokos: 1, appprem: 1, subdomain: 1 };
 
 async function init() {
   const res = await Auth.check();
@@ -381,6 +387,14 @@ async function openDetail(source, id) {
     R('Layanan', escapeHtml(row.service_name || '-'));
     if (row.target_id) R('ID Tujuan', escapeHtml(row.target_id) + (row.zone_id ? ` (${escapeHtml(row.zone_id)})` : ''));
     if (row.skin_item) R('Nama Skin/Item', escapeHtml(row.skin_item));
+    if (row.trxid) R('ID Transaksi', `<code style="font-size:11px">${escapeHtml(row.trxid)}</code>`);
+    if (row.note) R('Catatan', escapeHtml(row.note));
+  } else if (source === 'ppob') {
+    R('Kategori', escapeHtml(row.category_name || '-'));
+    R('Produk', escapeHtml(row.product_name || '-'));
+    if (row.dest) R('Tujuan', `<code>${escapeHtml(row.dest)}</code>`);
+    if (row.qty) R('Nominal', formatRupiah(row.qty));
+    if (row.ref_id) R('Ref ID', `<code style="font-size:11px">${escapeHtml(row.ref_id)}</code>`);
     if (row.trxid) R('ID Transaksi', `<code style="font-size:11px">${escapeHtml(row.trxid)}</code>`);
     if (row.note) R('Catatan', escapeHtml(row.note));
   } else if (source === 'socmed') {

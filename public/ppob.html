@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PPOB — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .ppob-cat-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 18px; scrollbar-width: none; }
+    .ppob-cat-tabs::-webkit-scrollbar { display: none; }
+    .ppob-cat-tab {
+      flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 8px;
+      padding: 14px 18px; min-width: 92px; border-radius: var(--radius); cursor: pointer;
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--border-w) solid var(--border-soft); transition: border-color .15s, transform .15s, box-shadow .15s;
+    }
+    .ppob-cat-tab:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .ppob-cat-tab.active { border-color: var(--primary); background: var(--primary-light); }
+    .ppob-cat-tab .icon-wrap { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 17px; }
+    .ppob-cat-tab.active .icon-wrap { background: var(--primary); color: #fff; }
+    .ppob-cat-tab span { font-size: 11.5px; font-weight: 700; text-align: center; line-height: 1.25; white-space: nowrap; }
+
+    .ppob-dest-form { display: grid; gap: 12px; margin-bottom: 20px; max-width: 420px; }
+
+    .ppob-product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+    .ppob-product-card {
+      background: var(--bg-card); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; cursor: pointer;
+      transition: border-color .15s, transform .15s;
+    }
+    .ppob-product-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .ppob-product-card .p-name { font-weight: 700; font-size: 13.5px; margin-bottom: 3px; }
+    .ppob-product-card .p-desc { font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px; min-height: 15px; }
+    .ppob-product-card .p-price { font-family: var(--font-mono); font-weight: 700; color: var(--primary); font-size: 14px; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .empty-state i { font-size: 40px; margin-bottom: 14px; display: block; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><i class="fas fa-store"></i></div>
+        <span>Austin Store</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item active" data-href="/ppob"><span class="nav-icon"><i class="fas fa-receipt"></i></span> PPOB</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/bansos"><span class="nav-icon"><i class="fas fa-gift"></i></span> Bansos Austin</div>
+      <div class="nav-item" data-href="/subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">PPOB</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <button class="btn-icon" onclick="location.href='/history?tab=ppob'" title="Riwayat PPOB"><i class="fas fa-clock-rotate-left"></i></button>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="section-row" style="margin:0 0 12px">
+        <div><span class="eyebrow">Bayar Cepat</span><h2 style="font-size:17px">Pulsa, Token Listrik, Voucher, Kuota &amp; E-Wallet</h2></div>
+      </div>
+
+      <div class="ppob-cat-tabs" id="cat-tabs"><div class="loading-spinner"></div></div>
+
+      <div class="ppob-dest-form" id="dest-form" style="display:none">
+        <div class="form-group" style="margin:0">
+          <label class="form-label" id="dest-label">Nomor Tujuan</label>
+          <input type="text" class="form-control" id="dest-input" placeholder="">
+        </div>
+      </div>
+
+      <div class="ppob-product-grid" id="product-grid"><div class="loading-spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="order-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Konfirmasi Order</span>
+      <button class="modal-close" id="order-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="order-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="order-modal-cancel">Batal</button>
+      <button class="btn btn-primary" id="order-modal-confirm"><i class="fas fa-check"></i> Bayar Sekarang</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="result-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-circle-check" style="color:var(--success)"></i> Order Terkirim</span>
+      <button class="modal-close" id="result-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="result-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="result-modal-ok" style="width:100%">Oke, Mengerti</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+
+let categories = [];
+let currentCategory = null;
+let currentProducts = [];
+let selectedProduct = null;
+
+function iconWrap(icon) { return `<div class="icon-wrap"><i class="fas fa-${icon}"></i></div>`; }
+
+async function loadCategories() {
+  const res = await API.get('/api/ppob/categories');
+  const wrap = document.getElementById('cat-tabs');
+  if (!res.success || !res.data.length) {
+    wrap.innerHTML = `<div class="empty-state" style="width:100%"><i class="fas fa-circle-exclamation"></i><p>Layanan PPOB sedang tidak tersedia</p></div>`;
+    return;
+  }
+  categories = res.data;
+  wrap.innerHTML = categories.map((c) => `
+    <div class="ppob-cat-tab" data-key="${c.key}">
+      ${iconWrap(c.icon)}
+      <span>${escapeHtml(c.name)}</span>
+    </div>
+  `).join('');
+  wrap.querySelectorAll('.ppob-cat-tab').forEach((el) => {
+    el.addEventListener('click', () => selectCategory(el.dataset.key));
+  });
+  selectCategory(categories[0].key);
+}
+
+async function selectCategory(key) {
+  currentCategory = categories.find((c) => c.key === key);
+  if (!currentCategory) return;
+
+  document.querySelectorAll('.ppob-cat-tab').forEach((el) => el.classList.toggle('active', el.dataset.key === key));
+
+  const destForm = document.getElementById('dest-form');
+  destForm.style.display = 'grid';
+  document.getElementById('dest-label').textContent = currentCategory.destLabel || 'Nomor Tujuan';
+  const destInput = document.getElementById('dest-input');
+  destInput.placeholder = currentCategory.destPlaceholder || '';
+
+  const grid = document.getElementById('product-grid');
+  grid.innerHTML = '<div class="loading-spinner"></div>';
+
+  const res = await API.get(`/api/ppob/categories/${key}/products`);
+  if (!res.success) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-circle-exclamation"></i><p>${escapeHtml(res.message || 'Gagal memuat produk')}</p></div>`;
+    return;
+  }
+  currentProducts = res.data.items || [];
+  renderProducts();
+}
+
+function renderProducts() {
+  const grid = document.getElementById('product-grid');
+  if (!currentProducts.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-box-open"></i><p>Belum ada produk untuk kategori ini</p></div>`;
+    return;
+  }
+  grid.innerHTML = currentProducts.map((p) => `
+    <div class="ppob-product-card" data-code="${escapeHtml(p.code)}">
+      <div class="p-name">${escapeHtml(p.name)}</div>
+      <div class="p-desc">${escapeHtml(p.description || p.operator || '')}</div>
+      <div class="p-price">${p.is_open_denom ? 'Nominal Bebas' : formatRupiah(p.price)}</div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.ppob-product-card').forEach((el) => {
+    el.addEventListener('click', () => openOrderModal(el.dataset.code));
+  });
+}
+
+function openOrderModal(code) {
+  if (!Auth.requireLogin('Masuk dulu untuk melakukan order')) return;
+  const dest = document.getElementById('dest-input').value.trim();
+  if (!dest) { Toast.error(`${currentCategory.destLabel} wajib diisi dulu`); return; }
+
+  selectedProduct = currentProducts.find((p) => p.code === code);
+  if (!selectedProduct) return;
+
+  const body = document.getElementById('order-modal-body');
+  body.innerHTML = `
+    <div class="form-group">
+      <label class="form-label">Produk</label>
+      <p style="font-weight:700">${escapeHtml(selectedProduct.name)}</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">${escapeHtml(currentCategory.destLabel)}</label>
+      <p style="font-family:var(--font-mono)">${escapeHtml(dest)}</p>
+    </div>
+    ${selectedProduct.is_open_denom ? `
+    <div class="form-group">
+      <label class="form-label">Nominal (Rp)</label>
+      <input type="number" class="form-control" id="qty-input" placeholder="Contoh: 50000" min="${selectedProduct.min_qty || 10000}" max="${selectedProduct.max_qty || 10000000}">
+      <div class="text-xs text-muted" style="margin-top:6px">Min ${formatRupiah(selectedProduct.min_qty || 10000)} — Maks ${formatRupiah(selectedProduct.max_qty || 10000000)}</div>
+    </div>
+    ` : `
+    <div class="form-group">
+      <label class="form-label">Total Bayar</label>
+      <p style="font-family:var(--font-mono);font-weight:700;color:var(--primary);font-size:16px">${formatRupiah(selectedProduct.price)}</p>
+    </div>
+    `}
+    <p style="margin-top:6px;font-size:12px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> Saldo akan langsung terpotong dan order diteruskan otomatis ke sistem PPOB. Pastikan data tujuan sudah benar.</p>
+  `;
+  document.getElementById('order-modal-overlay').classList.add('open');
+}
+
+document.getElementById('order-modal-close').addEventListener('click', () => document.getElementById('order-modal-overlay').classList.remove('open'));
+document.getElementById('order-modal-cancel').addEventListener('click', () => document.getElementById('order-modal-overlay').classList.remove('open'));
+
+document.getElementById('order-modal-confirm').addEventListener('click', async (e) => {
+  if (!Auth.requireLogin('Masuk dulu untuk melakukan order')) return;
+  const dest = document.getElementById('dest-input').value.trim();
+  let qty;
+  if (selectedProduct.is_open_denom) {
+    const qtyEl = document.getElementById('qty-input');
+    qty = Number(qtyEl.value);
+    const min = selectedProduct.min_qty || 10000;
+    const max = selectedProduct.max_qty || 10000000;
+    if (!qty || qty < min || qty > max) { Toast.error(`Nominal harus antara ${formatRupiah(min)} - ${formatRupiah(max)}`); return; }
+  }
+
+  e.target.classList.add('btn-loading');
+  e.target.disabled = true;
+  const res = await API.post('/api/ppob/order', {
+    category_key: currentCategory.key,
+    product_code: selectedProduct.code,
+    dest,
+    qty,
+  });
+  e.target.classList.remove('btn-loading');
+  e.target.disabled = false;
+  document.getElementById('order-modal-overlay').classList.remove('open');
+
+  if (!res.success) {
+    Toast.error(res.message || 'Order gagal');
+    return;
+  }
+  Toast.success('Order berhasil dikirim!');
+  document.getElementById('result-modal-body').innerHTML = `
+    <p style="margin-bottom:10px"><b>${escapeHtml(selectedProduct.name)}</b> — ${formatRupiah(res.data.price)}</p>
+    <p style="font-size:12.5px;color:var(--text-muted)">Ref ID: <code>${escapeHtml(res.data.ref_id || '-')}</code></p>
+    <p style="font-size:12.5px;color:var(--text-muted)">TrxID: <code>${escapeHtml(res.data.trxid || '-')}</code></p>
+    <p style="font-size:12.5px;color:var(--text-muted)">Status: <b>${escapeHtml(res.data.status || 'processing')}</b></p>
+    <p style="margin-top:10px;font-size:12px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> Cek status terbaru kapan saja di menu Riwayat.</p>
+  `;
+  document.getElementById('result-modal-overlay').classList.add('open');
+
+  const meRes = await Auth.checkOptional();
+  if (meRes) Auth.renderUserInfo(meRes.user, meRes.wallet);
+});
+
+document.getElementById('result-modal-close').addEventListener('click', () => document.getElementById('result-modal-overlay').classList.remove('open'));
+document.getElementById('result-modal-ok').addEventListener('click', () => document.getElementById('result-modal-overlay').classList.remove('open'));
+
+async function init() {
+  const res = await Auth.checkOptional();
+  if (res) Auth.renderUserInfo(res.user, res.wallet);
+  await loadCategories();
+}
+
+init();
+</script>
+</body>
+</html>
