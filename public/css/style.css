@@ -855,7 +855,7 @@ textarea.form-control, .form-textarea { min-height: 90px; resize: vertical; line
 .banner-strip::-webkit-scrollbar { height: 6px; }
 .banner-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
 .banner-slide {
-  scroll-snap-align: start; flex: 0 0 auto; width: min(78vw, 340px); min-height: 170px;
+  scroll-snap-align: start; flex: 0 0 100%; width: 100%; max-width: 900px; aspect-ratio: 21 / 9;
   border-radius: var(--radius-lg); padding: 22px; display: flex; flex-direction: column; justify-content: flex-end;
   position: relative; overflow: hidden; border: 1px solid var(--border);
   box-shadow: var(--shadow-md);
