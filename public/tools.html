@@ -16,6 +16,14 @@
   <style>
     .tools-shell { display: grid; grid-template-columns: 240px 1fr; gap: 16px; align-items: start; }
     @media (max-width: 900px) { .tools-shell { grid-template-columns: 1fr; } }
+    /* Daftar Tools ada di samping cuma kalau layar cukup lebar (>900px, sama
+       kayak breakpoint .tools-shell di atas); di HP dia pindah ke atas panel
+       ini, jadi teks hint-nya ikut menyesuaikan supaya nggak salah arah. */
+    .tool-empty-hint-top { display: none; }
+    @media (max-width: 900px) {
+      .tool-empty-hint-side { display: none; }
+      .tool-empty-hint-top { display: inline; }
+    }
     .tool-menu-item {
       display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: var(--radius-sm);
       cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--text-muted);
@@ -123,7 +131,10 @@
             <div class="card">
               <div class="tool-empty-state">
                 <i class="fas fa-hand-pointer"></i>
-                <div>Pilih salah satu tools di samping untuk mulai.</div>
+                <div>
+                  <span class="tool-empty-hint-side">Pilih salah satu tools di samping untuk mulai.</span>
+                  <span class="tool-empty-hint-top">Pilih salah satu tools di atas untuk mulai.</span>
+                </div>
               </div>
             </div>
           </div>
