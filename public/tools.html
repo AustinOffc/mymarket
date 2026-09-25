@@ -27,6 +27,11 @@
     .tool-menu-item .soon-badge { margin-left: auto; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); background: var(--bg-soft); border-radius: 20px; padding: 2px 7px; }
     .tool-panel { display: none; }
     .tool-panel.active { display: block; }
+    .tool-empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      gap: 10px; padding: 60px 20px; color: var(--text-muted);
+    }
+    .tool-empty-state i { font-size: 30px; opacity: .5; }
     .ptero-console {
       background: #0b0f14; border: 1px solid var(--border); border-radius: var(--radius-sm);
       font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; color: #cbd5e1;
@@ -99,8 +104,11 @@
       <div class="tools-shell">
         <div class="card" style="padding:10px">
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding:6px 10px 10px">Daftar Tools</div>
-          <div class="tool-menu-item active" data-tool="ptero-install" data-path="/tools/installpterodactyl">
+          <div class="tool-menu-item" data-tool="ptero-install" data-path="/tools/installpterodactyl">
             <i class="fas fa-server"></i> Install Pterodactyl (SSH)
+          </div>
+          <div class="tool-menu-item" data-tool="ptero-wings" data-path="/tools/startwings">
+            <i class="fas fa-feather-pointed"></i> Start Wings
           </div>
           <div class="tool-menu-item disabled" title="Segera hadir">
             <i class="fas fa-rotate"></i> Restart Wings <span class="soon-badge">Segera</span>
@@ -111,7 +119,16 @@
         </div>
 
         <div>
-          <div class="tool-panel active" id="tool-panel-ptero-install">
+          <div class="tool-panel" id="tool-panel-empty">
+            <div class="card">
+              <div class="tool-empty-state">
+                <i class="fas fa-hand-pointer"></i>
+                <div>Pilih salah satu tools di samping untuk mulai.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-panel" id="tool-panel-ptero-install">
             <div class="card mb-16">
               <div class="card-header"><span class="card-title"><i class="fas fa-server" style="color:var(--primary)"></i> Install Panel Pterodactyl (via SSH)</span></div>
               <form id="ptero-install-form" style="padding:0 20px 20px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
@@ -146,6 +163,21 @@
               </form>
             </div>
 
+            <div class="card">
+              <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+                <span class="card-title"><i class="fas fa-terminal" style="color:var(--text-muted)"></i> Console Log</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="ptero-status-badge idle" id="pti-status-badge">Idle</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="pti-clear-console-btn"><i class="fas fa-broom"></i> Bersihkan</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="ptero-console" id="pti-console"><div class="cl-empty">Belum ada proses berjalan. Isi form di atas lalu klik "Mulai Install".</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-panel" id="tool-panel-ptero-wings">
             <div class="card mb-16">
               <div class="card-header"><span class="card-title"><i class="fas fa-feather-pointed" style="color:var(--warning)"></i> Start Wings</span></div>
               <form id="ptero-wings-form" style="padding:0 20px 20px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
@@ -184,12 +216,12 @@
               <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
                 <span class="card-title"><i class="fas fa-terminal" style="color:var(--text-muted)"></i> Console Log</span>
                 <div style="display:flex;align-items:center;gap:8px">
-                  <span class="ptero-status-badge idle" id="ptero-status-badge">Idle</span>
-                  <button type="button" class="btn btn-outline btn-sm" id="ptero-clear-console-btn"><i class="fas fa-broom"></i> Bersihkan</button>
+                  <span class="ptero-status-badge idle" id="ptw-status-badge">Idle</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="ptw-clear-console-btn"><i class="fas fa-broom"></i> Bersihkan</button>
                 </div>
               </div>
               <div class="card-body">
-                <div class="ptero-console" id="ptero-console"><div class="cl-empty">Belum ada proses berjalan. Isi form di atas lalu klik "Mulai Install" atau "Jalankan Start Wings".</div></div>
+                <div class="ptero-console" id="ptw-console"><div class="cl-empty">Belum ada proses berjalan. Isi form di atas lalu klik "Jalankan Start Wings".</div></div>
               </div>
             </div>
           </div>
@@ -203,9 +235,20 @@
 <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
 <script src="/js/app.js"></script>
 <script>
-// ================= Tools > Install Pterodactyl (SSH) =================
+// ================= Tools > Install Pterodactyl (SSH) / Start Wings =================
+// Dua tool ini pakai backend & mesin SSH yang sama (services/pteroSsh.service.js di
+// server), tapi ditampilkan sebagai 2 entri terpisah di Daftar Tools, masing-masing
+// dengan halamannya sendiri (/tools/installpterodactyl dan /tools/startwings) dan
+// console log sendiri-sendiri. Backend membatasi cuma 1 job jalan per user dalam satu
+// waktu, jadi aman dipakai bergantian.
+const TOOLS = {
+  'ptero-install': { path: '/tools/installpterodactyl' },
+  'ptero-wings':   { path: '/tools/startwings' },
+};
+
 let toolsSocket = null;
 let currentPteroJobId = null;
+let currentPteroTarget = null; // 'pti' (install) atau 'ptw' (wings) — nentuin console mana yang dipakai
 
 function connectToolsSocket() {
   if (toolsSocket || typeof io === 'undefined') return;
@@ -216,28 +259,31 @@ function connectToolsSocket() {
   });
 }
 
-function switchToolPanel(name, el) {
-  document.querySelectorAll('.tool-menu-item').forEach(i => i.classList.remove('active'));
-  if (el) el.classList.add('active');
+function switchToolPanel(name) {
+  document.querySelectorAll('.tool-menu-item[data-tool]').forEach(i => {
+    i.classList.toggle('active', i.getAttribute('data-tool') === name);
+  });
   document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(`tool-panel-${name}`)?.classList.add('active');
+  const panel = name && document.getElementById(`tool-panel-${name}`);
+  if (panel) panel.classList.add('active');
+  else document.getElementById('tool-panel-empty')?.classList.add('active');
 }
 
-function setPteroStatus(status) {
-  const el = document.getElementById('ptero-status-badge');
+function setPteroStatus(prefix, status) {
+  const el = document.getElementById(`${prefix}-status-badge`);
   if (!el) return;
   const labels = { idle: 'Idle', running: 'Berjalan...', success: 'Berhasil', failed: 'Gagal' };
   el.className = `ptero-status-badge ${status}`;
   el.textContent = labels[status] || status;
 }
 
-function clearPteroConsole() {
-  const box = document.getElementById('ptero-console');
+function clearPteroConsole(prefix) {
+  const box = document.getElementById(`${prefix}-console`);
   if (box) box.innerHTML = '<div class="cl-empty">Belum ada proses berjalan.</div>';
 }
 
-function appendPteroLine(cls, text) {
-  const box = document.getElementById('ptero-console');
+function appendPteroLine(prefix, cls, text) {
+  const box = document.getElementById(`${prefix}-console`);
   if (!box) return;
   if (box.querySelector('.cl-empty')) box.innerHTML = '';
   const line = document.createElement('div');
@@ -247,52 +293,54 @@ function appendPteroLine(cls, text) {
   box.scrollTop = box.scrollHeight;
 }
 
-function setPteroFormsDisabled(disabled) {
-  const a = document.getElementById('pti-submit-btn');
-  const b = document.getElementById('ptw-submit-btn');
-  if (a) a.disabled = disabled;
-  if (b) b.disabled = disabled;
+function setPteroFormDisabled(prefix, disabled) {
+  const btn = document.getElementById(`${prefix === 'pti' ? 'pti' : 'ptw'}-submit-btn`);
+  if (btn) btn.disabled = disabled;
 }
 
 function handlePteroEvent(type, data) {
+  const prefix = currentPteroTarget;
+  if (!prefix) return;
   const ts = new Date().toLocaleTimeString('id-ID', { hour12: false });
   if (type === 'stage') {
-    appendPteroLine('cl-stage', `[${ts}] ${data.text}`);
+    appendPteroLine(prefix, 'cl-stage', `[${ts}] ${data.text}`);
   } else if (type === 'log') {
-    appendPteroLine('cl-log', `[${ts}] ${data.text}`);
+    appendPteroLine(prefix, 'cl-log', `[${ts}] ${data.text}`);
   } else if (type === 'done') {
-    setPteroStatus('success');
-    setPteroFormsDisabled(false);
+    setPteroStatus(prefix, 'success');
+    setPteroFormDisabled(prefix, false);
     if (data.url) {
-      appendPteroLine('cl-done', `[${ts}] ✅ PANEL BERHASIL DIINSTALL`);
-      appendPteroLine('cl-done', `URL      : ${data.url}`);
-      appendPteroLine('cl-done', `Admin    : ${data.adminUser}`);
-      appendPteroLine('cl-done', `Password : ${data.adminPass}`);
-      appendPteroLine('cl-done', `Node     : #${data.nodeId} (${data.nodeFqdn}) — Wings ${data.wingsActive ? 'Aktif' : 'Belum aktif'}`);
-      if (data.clamped) appendPteroLine('cl-log', 'Catatan: RAM/Disk node disesuaikan dengan kapasitas asli VPS.');
-      if (data.sslWarn) appendPteroLine('cl-error', '⚠️ SSL node gagal dibuat (node memakai http). Hubungi CS bila console/upload terblokir.');
+      appendPteroLine(prefix, 'cl-done', `[${ts}] ✅ PANEL BERHASIL DIINSTALL`);
+      appendPteroLine(prefix, 'cl-done', `URL      : ${data.url}`);
+      appendPteroLine(prefix, 'cl-done', `Admin    : ${data.adminUser}`);
+      appendPteroLine(prefix, 'cl-done', `Password : ${data.adminPass}`);
+      appendPteroLine(prefix, 'cl-done', `Node     : #${data.nodeId} (${data.nodeFqdn}) — Wings ${data.wingsActive ? 'Aktif' : 'Belum aktif'}`);
+      if (data.clamped) appendPteroLine(prefix, 'cl-log', 'Catatan: RAM/Disk node disesuaikan dengan kapasitas asli VPS.');
+      if (data.sslWarn) appendPteroLine(prefix, 'cl-error', '⚠️ SSL node gagal dibuat (node memakai http). Hubungi CS bila console/upload terblokir.');
       Toast.success('Install panel selesai');
     } else {
-      appendPteroLine('cl-done', `[${ts}] ✅ WINGS ${data.alive ? 'AKTIF' : 'TERPASANG (belum aktif)'} — Node #${data.nodeId}`);
+      appendPteroLine(prefix, 'cl-done', `[${ts}] ✅ WINGS ${data.alive ? 'AKTIF' : 'TERPASANG (belum aktif)'} — Node #${data.nodeId}`);
       Toast.success('Start wings selesai');
     }
   } else if (type === 'error') {
-    setPteroStatus('failed');
-    setPteroFormsDisabled(false);
-    appendPteroLine('cl-error', `[${ts}] ❌ ${data.message}`);
+    setPteroStatus(prefix, 'failed');
+    setPteroFormDisabled(prefix, false);
+    appendPteroLine(prefix, 'cl-error', `[${ts}] ❌ ${data.message}`);
     Toast.error(data.message || 'Proses gagal');
   }
 }
 
 document.querySelectorAll('.tool-menu-item[data-tool]').forEach((el) => {
   el.addEventListener('click', () => {
-    switchToolPanel(el.getAttribute('data-tool'), el);
-    const p = el.getAttribute('data-path');
+    const name = el.getAttribute('data-tool');
+    switchToolPanel(name);
+    const p = TOOLS[name]?.path;
     if (p && window.location.pathname !== p) history.pushState(null, '', p);
   });
 });
 
-document.getElementById('ptero-clear-console-btn')?.addEventListener('click', clearPteroConsole);
+document.getElementById('pti-clear-console-btn')?.addEventListener('click', () => clearPteroConsole('pti'));
+document.getElementById('ptw-clear-console-btn')?.addEventListener('click', () => clearPteroConsole('ptw'));
 
 document.getElementById('ptero-install-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -304,15 +352,16 @@ document.getElementById('ptero-install-form')?.addEventListener('submit', async 
     ramGB: document.getElementById('pti-ram').value,
     diskGB: document.getElementById('pti-disk').value,
   };
-  clearPteroConsole();
-  setPteroStatus('running');
-  setPteroFormsDisabled(true);
-  appendPteroLine('cl-stage', 'Mengirim permintaan install...');
+  currentPteroTarget = 'pti';
+  clearPteroConsole('pti');
+  setPteroStatus('pti', 'running');
+  setPteroFormDisabled('pti', true);
+  appendPteroLine('pti', 'cl-stage', 'Mengirim permintaan install...');
   const res = await API.post('/api/tools/ptero/install', payload);
   if (!res.success) {
-    setPteroStatus('failed');
-    setPteroFormsDisabled(false);
-    appendPteroLine('cl-error', `❌ ${res.message}`);
+    setPteroStatus('pti', 'failed');
+    setPteroFormDisabled('pti', false);
+    appendPteroLine('pti', 'cl-error', `❌ ${res.message}`);
     Toast.error(res.message || 'Gagal memulai install');
     return;
   }
@@ -339,15 +388,16 @@ document.getElementById('ptero-wings-form')?.addEventListener('submit', async (e
     nodeId: document.getElementById('ptw-node-id').value,
     pasteCommand: document.getElementById('ptw-paste').value,
   };
-  clearPteroConsole();
-  setPteroStatus('running');
-  setPteroFormsDisabled(true);
-  appendPteroLine('cl-stage', 'Mengirim permintaan start wings...');
+  currentPteroTarget = 'ptw';
+  clearPteroConsole('ptw');
+  setPteroStatus('ptw', 'running');
+  setPteroFormDisabled('ptw', true);
+  appendPteroLine('ptw', 'cl-stage', 'Mengirim permintaan start wings...');
   const res = await API.post('/api/tools/ptero/start-wings', payload);
   if (!res.success) {
-    setPteroStatus('failed');
-    setPteroFormsDisabled(false);
-    appendPteroLine('cl-error', `❌ ${res.message}`);
+    setPteroStatus('ptw', 'failed');
+    setPteroFormDisabled('ptw', false);
+    appendPteroLine('ptw', 'cl-error', `❌ ${res.message}`);
     Toast.error(res.message || 'Gagal memulai start wings');
     return;
   }
@@ -361,9 +411,8 @@ async function init() {
   connectToolsSocket();
 
   const path = window.location.pathname.replace(/\/$/, '');
-  if (path === '/tools/installpterodactyl') {
-    switchToolPanel('ptero-install', document.querySelector('.tool-menu-item[data-tool="ptero-install"]'));
-  }
+  const match = Object.entries(TOOLS).find(([, v]) => v.path === path);
+  switchToolPanel(match ? match[0] : null);
 }
 init();
 </script>
