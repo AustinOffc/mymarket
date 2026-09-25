@@ -594,6 +594,15 @@ const AppLogo = {
         document.querySelectorAll('.sidebar-logo span').forEach(el => { el.textContent = data.app_name; });
         document.querySelectorAll('[data-brand-title]').forEach(el => { el.textContent = data.app_name; });
       }
+      // Menu sidebar yang disembunyikan owner lewat Owner > Pengaturan > Menu Sidebar.
+      // Sengaja hanya menyentuh sidebar menu utama (bukan panel admin/owner #admin-nav,
+      // dan bukan bottom-nav bawah yang isinya cuma shortcut akun).
+      if (Array.isArray(data.hidden_menu)) {
+        data.hidden_menu.forEach(href => {
+          document.querySelectorAll('.sidebar-nav:not(#admin-nav) .nav-item[data-href="' + href + '"]')
+            .forEach(el => { el.style.display = 'none'; });
+        });
+      }
     } catch {}
   },
 };
