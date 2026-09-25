@@ -160,6 +160,18 @@
             </div>
           </div>
 
+          <!-- Fix temuan #8 (laporan audit keamanan): UI untuk endpoint /api/auth/link-google
+               yang baru, supaya user bisa menautkan akun Google-nya sendiri dari sini
+               (setelah login pakai password, membuktikan dia memang pemilik akun). -->
+          <div class="card mb-16">
+            <div class="card-header"><span class="card-title"><i class="fab fa-google" style="color:var(--primary)"></i> Akun Google</span></div>
+            <div class="card-body">
+              <div id="google-link-alert"></div>
+              <p class="text-sm text-muted" id="google-link-status" style="margin-bottom:12px">Memeriksa status...</p>
+              <div id="google-link-box" style="display:flex;justify-content:center"></div>
+            </div>
+          </div>
+
                     <div class="card">
             <div class="card-header"><span class="card-title"><i class="fas fa-shield-alt" style="color:var(--primary)"></i> Aktivitas Login</span></div>
             <div class="table-wrapper">
