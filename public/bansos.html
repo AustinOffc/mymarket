@@ -82,6 +82,7 @@
       <div class="nav-item" data-href="/bansos"><span class="nav-icon"><i class="fas fa-gift"></i></span> Bansos Austin</div>
       <div class="nav-item" data-href="/subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
       <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/tools"><span class="nav-icon"><i class="fas fa-toolbox"></i></span> Tools</div>
       <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
     </nav>
     <div class="sidebar-footer">
@@ -133,8 +134,8 @@
 
       <div class="bansos-tabs">
         <button class="btn btn-primary" id="tab-btn-am" onclick="switchTab('am')"><i class="fas fa-film"></i> Alight Motion</button>
-        <button class="btn btn-outline" id="tab-btn-netflix" onclick="switchTab('netflix')"><i class="fas fa-tv"></i> Netflix Token</button>
         <button class="btn btn-outline" id="tab-btn-ptero" onclick="switchTab('ptero')" style="display:none"><i class="fas fa-server"></i> Panel Gratis</button>
+        <button class="btn btn-outline" id="tab-btn-netflix" onclick="switchTab('netflix')"><i class="fas fa-tv"></i> Netflix Token</button>
       </div>
 
       <div class="card" style="padding:20px">
@@ -238,7 +239,7 @@ function logMsg(msg, type = 'info') {
 function switchTab(tabId) {
   document.querySelectorAll('.bansos-tab-content').forEach(el => el.classList.remove('active'));
   document.getElementById(`tab-${tabId}`).classList.add('active');
-  ['am', 'netflix', 'ptero'].forEach(t => {
+  ['am', 'ptero', 'netflix'].forEach(t => {
     document.getElementById(`tab-btn-${t}`).className = `btn ${t === tabId ? 'btn-primary' : 'btn-outline'}`;
   });
 }
@@ -267,6 +268,7 @@ function setLoading(btn, loading) {
 }
 
 async function sendAmLink() {
+  if (!Auth.requireLogin('Masuk atau daftar dulu untuk klaim bansos.')) return;
   const email = document.getElementById('am-email').value.trim();
   if (!email) { Toast.warning('Harap masukkan alamat email.'); return; }
 
@@ -287,6 +289,7 @@ async function sendAmLink() {
 }
 
 async function verifyAm() {
+  if (!Auth.requireLogin('Masuk atau daftar dulu untuk klaim bansos.')) return;
   const email = document.getElementById('am-email').value.trim();
   const link = document.getElementById('am-link').value.trim();
   if (!link) { Toast.warning('Harap masukkan magic link.'); return; }
@@ -313,6 +316,7 @@ async function verifyAm() {
 }
 
 async function generateNetflix() {
+  if (!Auth.requireLogin('Masuk atau daftar dulu untuk klaim bansos.')) return;
   const btn = document.getElementById('netflix-btn');
   setLoading(btn, true);
   logMsg('Mengeksekusi generator token Netflix...', 'info');

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tools — Austin Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .tools-shell { display: grid; grid-template-columns: 240px 1fr; gap: 16px; align-items: start; }
+    @media (max-width: 900px) { .tools-shell { grid-template-columns: 1fr; } }
+    .tool-menu-item {
+      display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: var(--radius-sm);
+      cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--text-muted);
+      border: 1px solid transparent;
+    }
+    .tool-menu-item i { width: 18px; text-align: center; }
+    .tool-menu-item.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+    .tool-menu-item.disabled { opacity: .45; cursor: not-allowed; }
+    .tool-menu-item .soon-badge { margin-left: auto; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); background: var(--bg-soft); border-radius: 20px; padding: 2px 7px; }
+    .tool-panel { display: none; }
+    .tool-panel.active { display: block; }
+    .ptero-console {
+      background: #0b0f14; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; color: #cbd5e1;
+      padding: 14px; max-height: 340px; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+    }
+    .ptero-console .cl-stage { color: #60a5fa; font-weight: 700; }
+    .ptero-console .cl-log { color: #94a3b8; }
+    .ptero-console .cl-done { color: #34d399; font-weight: 700; }
+    .ptero-console .cl-error { color: #f87171; font-weight: 700; }
+    .ptero-console .cl-empty { color: var(--text-muted); font-style: italic; }
+    .ptero-status-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: .03em; }
+    .ptero-status-badge.idle { background: var(--bg-soft); color: var(--text-muted); }
+    .ptero-status-badge.running { background: rgba(251,191,36,.15); color: #f59e0b; }
+    .ptero-status-badge.success { background: rgba(52,211,153,.15); color: #10b981; }
+    .ptero-status-badge.failed { background: rgba(248,113,113,.15); color: #ef4444; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><i class="fas fa-store"></i></div>
+        <span>Austin Store</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/ppob"><span class="nav-icon"><i class="fas fa-receipt"></i></span> PPOB</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/bansos"><span class="nav-icon"><i class="fas fa-gift"></i></span> Bansos Austin</div>
+      <div class="nav-item" data-href="/subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/tools"><span class="nav-icon"><i class="fas fa-toolbox"></i></span> Tools</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Buyer</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:#ef4444"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Tools</div>
+      <div class="topbar-actions">
+        <span class="badge badge-primary" style="font-family:var(--font-mono)" data-balance>Rp 0</span>
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" id="notif-bell"><i class="fas fa-bell"></i></button>
+          <span class="notif-badge" id="notif-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <div class="tools-shell">
+        <div class="card" style="padding:10px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding:6px 10px 10px">Daftar Tools</div>
+          <div class="tool-menu-item active" data-tool="ptero-install" data-path="/tools/installpterodactyl">
+            <i class="fas fa-server"></i> Install Pterodactyl (SSH)
+          </div>
+          <div class="tool-menu-item disabled" title="Segera hadir">
+            <i class="fas fa-rotate"></i> Restart Wings <span class="soon-badge">Segera</span>
+          </div>
+          <div class="tool-menu-item disabled" title="Segera hadir">
+            <i class="fas fa-heart-pulse"></i> Cek Kesehatan VPS <span class="soon-badge">Segera</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="tool-panel active" id="tool-panel-ptero-install">
+            <div class="card mb-16">
+              <div class="card-header"><span class="card-title"><i class="fas fa-server" style="color:var(--primary)"></i> Install Panel Pterodactyl (via SSH)</span></div>
+              <form id="ptero-install-form" style="padding:0 20px 20px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">IP VPS</label>
+                  <input type="text" class="form-control" id="pti-ip" placeholder="1.2.3.4" autocomplete="off">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Password Root</label>
+                  <input type="password" class="form-control" id="pti-password" placeholder="Password SSH root" autocomplete="new-password">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Domain Panel</label>
+                  <input type="text" class="form-control" id="pti-panel-domain" placeholder="panel.contoh.com" autocomplete="off">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Domain Node</label>
+                  <input type="text" class="form-control" id="pti-node-domain" placeholder="node.contoh.com" autocomplete="off">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">RAM (GB)</label>
+                  <input type="number" class="form-control" id="pti-ram" placeholder="4" min="1">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Disk (GB)</label>
+                  <input type="number" class="form-control" id="pti-disk" placeholder="40" min="5">
+                </div>
+                <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <button type="submit" class="btn btn-primary" id="pti-submit-btn"><i class="fas fa-play"></i> Mulai Install</button>
+                  <span class="text-xs text-muted">Pastikan A record domain panel &amp; node sudah mengarah ke IP VPS di atas, dan VPS masih fresh (belum ada Pterodactyl).</span>
+                </div>
+              </form>
+            </div>
+
+            <div class="card mb-16">
+              <div class="card-header"><span class="card-title"><i class="fas fa-feather-pointed" style="color:var(--warning)"></i> Start Wings</span></div>
+              <form id="ptero-wings-form" style="padding:0 20px 20px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">IP VPS</label>
+                  <input type="text" class="form-control" id="ptw-ip" placeholder="1.2.3.4" autocomplete="off">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Password Root</label>
+                  <input type="password" class="form-control" id="ptw-password" placeholder="Password SSH root" autocomplete="new-password">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Token API Panel</label>
+                  <input type="text" class="form-control" id="ptw-token" placeholder="ptla_xxxxxxxxxxxx" autocomplete="off">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">URL Panel</label>
+                  <input type="text" class="form-control" id="ptw-url" placeholder="https://panel.contoh.com" autocomplete="off">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Node ID</label>
+                  <input type="number" class="form-control" id="ptw-node-id" placeholder="1" min="1">
+                </div>
+                <div class="form-group" style="margin:0;grid-column:1/-1">
+                  <label class="form-label">Atau tempel perintah <code>cd ...</code> dari halaman Node panel (opsional, otomatis isi field di atas)</label>
+                  <textarea class="form-control" id="ptw-paste" rows="2" placeholder="cd /etc/pterodactyl && sudo wings configure --panel-url https://panel.contoh.com --token ptla_xxxxx --node 1"></textarea>
+                </div>
+                <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <button type="submit" class="btn btn-primary" id="ptw-submit-btn"><i class="fas fa-play"></i> Jalankan Start Wings</button>
+                  <span class="text-xs text-muted">Wings otomatis diinstall dulu kalau belum ada di VPS tersebut.</span>
+                </div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+                <span class="card-title"><i class="fas fa-terminal" style="color:var(--text-muted)"></i> Console Log</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="ptero-status-badge idle" id="ptero-status-badge">Idle</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="ptero-clear-console-btn"><i class="fas fa-broom"></i> Bersihkan</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="ptero-console" id="ptero-console"><div class="cl-empty">Belum ada proses berjalan. Isi form di atas lalu klik "Mulai Install" atau "Jalankan Start Wings".</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+<script src="/js/app.js"></script>
+<script>
+// ================= Tools > Install Pterodactyl (SSH) =================
+let toolsSocket = null;
+let currentPteroJobId = null;
+
+function connectToolsSocket() {
+  if (toolsSocket || typeof io === 'undefined') return;
+  toolsSocket = io(window.API_BASE_URL, { path: '/socket.io', withCredentials: true, reconnection: true });
+  toolsSocket.on('tools:ptero:event', (payload) => {
+    if (!payload || payload.jobId !== currentPteroJobId) return;
+    handlePteroEvent(payload.type, payload.data);
+  });
+}
+
+function switchToolPanel(name, el) {
+  document.querySelectorAll('.tool-menu-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`tool-panel-${name}`)?.classList.add('active');
+}
+
+function setPteroStatus(status) {
+  const el = document.getElementById('ptero-status-badge');
+  if (!el) return;
+  const labels = { idle: 'Idle', running: 'Berjalan...', success: 'Berhasil', failed: 'Gagal' };
+  el.className = `ptero-status-badge ${status}`;
+  el.textContent = labels[status] || status;
+}
+
+function clearPteroConsole() {
+  const box = document.getElementById('ptero-console');
+  if (box) box.innerHTML = '<div class="cl-empty">Belum ada proses berjalan.</div>';
+}
+
+function appendPteroLine(cls, text) {
+  const box = document.getElementById('ptero-console');
+  if (!box) return;
+  if (box.querySelector('.cl-empty')) box.innerHTML = '';
+  const line = document.createElement('div');
+  line.className = cls;
+  line.textContent = text;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+function setPteroFormsDisabled(disabled) {
+  const a = document.getElementById('pti-submit-btn');
+  const b = document.getElementById('ptw-submit-btn');
+  if (a) a.disabled = disabled;
+  if (b) b.disabled = disabled;
+}
+
+function handlePteroEvent(type, data) {
+  const ts = new Date().toLocaleTimeString('id-ID', { hour12: false });
+  if (type === 'stage') {
+    appendPteroLine('cl-stage', `[${ts}] ${data.text}`);
+  } else if (type === 'log') {
+    appendPteroLine('cl-log', `[${ts}] ${data.text}`);
+  } else if (type === 'done') {
+    setPteroStatus('success');
+    setPteroFormsDisabled(false);
+    if (data.url) {
+      appendPteroLine('cl-done', `[${ts}] ✅ PANEL BERHASIL DIINSTALL`);
+      appendPteroLine('cl-done', `URL      : ${data.url}`);
+      appendPteroLine('cl-done', `Admin    : ${data.adminUser}`);
+      appendPteroLine('cl-done', `Password : ${data.adminPass}`);
+      appendPteroLine('cl-done', `Node     : #${data.nodeId} (${data.nodeFqdn}) — Wings ${data.wingsActive ? 'Aktif' : 'Belum aktif'}`);
+      if (data.clamped) appendPteroLine('cl-log', 'Catatan: RAM/Disk node disesuaikan dengan kapasitas asli VPS.');
+      if (data.sslWarn) appendPteroLine('cl-error', '⚠️ SSL node gagal dibuat (node memakai http). Hubungi CS bila console/upload terblokir.');
+      Toast.success('Install panel selesai');
+    } else {
+      appendPteroLine('cl-done', `[${ts}] ✅ WINGS ${data.alive ? 'AKTIF' : 'TERPASANG (belum aktif)'} — Node #${data.nodeId}`);
+      Toast.success('Start wings selesai');
+    }
+  } else if (type === 'error') {
+    setPteroStatus('failed');
+    setPteroFormsDisabled(false);
+    appendPteroLine('cl-error', `[${ts}] ❌ ${data.message}`);
+    Toast.error(data.message || 'Proses gagal');
+  }
+}
+
+document.querySelectorAll('.tool-menu-item[data-tool]').forEach((el) => {
+  el.addEventListener('click', () => {
+    switchToolPanel(el.getAttribute('data-tool'), el);
+    const p = el.getAttribute('data-path');
+    if (p && window.location.pathname !== p) history.pushState(null, '', p);
+  });
+});
+
+document.getElementById('ptero-clear-console-btn')?.addEventListener('click', clearPteroConsole);
+
+document.getElementById('ptero-install-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const payload = {
+    ip: document.getElementById('pti-ip').value.trim(),
+    password: document.getElementById('pti-password').value,
+    panelDomain: document.getElementById('pti-panel-domain').value.trim(),
+    nodeDomain: document.getElementById('pti-node-domain').value.trim(),
+    ramGB: document.getElementById('pti-ram').value,
+    diskGB: document.getElementById('pti-disk').value,
+  };
+  clearPteroConsole();
+  setPteroStatus('running');
+  setPteroFormsDisabled(true);
+  appendPteroLine('cl-stage', 'Mengirim permintaan install...');
+  const res = await API.post('/api/tools/ptero/install', payload);
+  if (!res.success) {
+    setPteroStatus('failed');
+    setPteroFormsDisabled(false);
+    appendPteroLine('cl-error', `❌ ${res.message}`);
+    Toast.error(res.message || 'Gagal memulai install');
+    return;
+  }
+  currentPteroJobId = res.jobId;
+});
+
+document.getElementById('ptw-paste')?.addEventListener('input', (e) => {
+  const text = e.target.value;
+  const token = (text.match(/--token[=\s]+(ptl[ac]_[A-Za-z0-9]+)/i) || [])[1];
+  const url = (text.match(/--panel-url[=\s]+(https?:\/\/[^\s]+)/i) || [])[1];
+  const node = (text.match(/--node[=\s]+(\d+)/i) || [])[1];
+  if (token) document.getElementById('ptw-token').value = token;
+  if (url) document.getElementById('ptw-url').value = url;
+  if (node) document.getElementById('ptw-node-id').value = node;
+});
+
+document.getElementById('ptero-wings-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const payload = {
+    ip: document.getElementById('ptw-ip').value.trim(),
+    password: document.getElementById('ptw-password').value,
+    token: document.getElementById('ptw-token').value.trim(),
+    panelUrl: document.getElementById('ptw-url').value.trim(),
+    nodeId: document.getElementById('ptw-node-id').value,
+    pasteCommand: document.getElementById('ptw-paste').value,
+  };
+  clearPteroConsole();
+  setPteroStatus('running');
+  setPteroFormsDisabled(true);
+  appendPteroLine('cl-stage', 'Mengirim permintaan start wings...');
+  const res = await API.post('/api/tools/ptero/start-wings', payload);
+  if (!res.success) {
+    setPteroStatus('failed');
+    setPteroFormsDisabled(false);
+    appendPteroLine('cl-error', `❌ ${res.message}`);
+    Toast.error(res.message || 'Gagal memulai start wings');
+    return;
+  }
+  currentPteroJobId = res.jobId;
+});
+
+async function init() {
+  const res = await Auth.check();
+  if (!res) return;
+  Auth.renderUserInfo(res.user, res.wallet);
+  connectToolsSocket();
+
+  const path = window.location.pathname.replace(/\/$/, '');
+  if (path === '/tools/installpterodactyl') {
+    switchToolPanel('ptero-install', document.querySelector('.tool-menu-item[data-tool="ptero-install"]'));
+  }
+}
+init();
+</script>
+</body>
+</html>
