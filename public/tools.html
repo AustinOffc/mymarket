@@ -249,14 +249,52 @@ const TOOLS = {
 let toolsSocket = null;
 let currentPteroJobId = null;
 let currentPteroTarget = null; // 'pti' (install) atau 'ptw' (wings) — nentuin console mana yang dipakai
+let pteroAppliedLog = 0;   // berapa baris job.log yang sudah ditampilkan (buat sinkron, hindari duplikat)
+let pteroPollTimer = null; // fallback polling kalau event socket telat/tidak sampai sama sekali
 
+// PENTING: socket event di bawah ini sengaja TIDAK langsung merender payload-nya.
+// Kalau event socket ke-drop (koneksi socket gagal connect/reconnect, cookie auth
+// tidak ikut kebawa di handshake WS, dsb) sebelumnya console akan macet selamanya
+// di "Mengirim permintaan install..." walau job-nya sendiri sudah lanjut/selesai
+// di server. Jadi event socket cuma dipakai sebagai "sinyal cek job", lalu kita
+// tarik ulang log lengkapnya lewat GET /api/tools/ptero/jobs/:id (endpoint ini
+// memang sudah disediakan backend untuk kasus reconnect/ketinggalan log). Polling
+// interval di bawah jadi jaring pengaman kalau socket-nya gagal total.
 function connectToolsSocket() {
   if (toolsSocket || typeof io === 'undefined') return;
   toolsSocket = io(window.API_BASE_URL, { path: '/socket.io', withCredentials: true, reconnection: true });
   toolsSocket.on('tools:ptero:event', (payload) => {
-    if (!payload || payload.jobId !== currentPteroJobId) return;
-    handlePteroEvent(payload.type, payload.data);
+    if (!payload || payload.jobId !== currentPteroJobId || !currentPteroTarget) return;
+    syncPteroJob(currentPteroTarget, currentPteroJobId);
   });
+  // Kalau socket sempat putus lalu nyambung lagi di tengah job yang masih jalan,
+  // langsung sinkron supaya tidak ketinggalan log yang lewat selama putus.
+  toolsSocket.on('connect', () => {
+    if (currentPteroTarget && currentPteroJobId) syncPteroJob(currentPteroTarget, currentPteroJobId);
+  });
+}
+
+function startPteroPoll(prefix, jobId) {
+  stopPteroPoll();
+  pteroPollTimer = setInterval(() => syncPteroJob(prefix, jobId), 4000);
+}
+
+function stopPteroPoll() {
+  if (pteroPollTimer) { clearInterval(pteroPollTimer); pteroPollTimer = null; }
+}
+
+async function syncPteroJob(prefix, jobId) {
+  if (jobId !== currentPteroJobId) return; // job lama/sudah diganti, abaikan
+  const res = await API.get(`/api/tools/ptero/jobs/${jobId}`);
+  if (!res || !res.success || !res.job) return; // transient error, coba lagi di poll berikutnya
+  const job = res.job;
+  for (let i = pteroAppliedLog; i < job.log.length; i++) {
+    const entry = job.log[i];
+    const ts = new Date(entry.t || Date.now()).toLocaleTimeString('id-ID', { hour12: false });
+    renderPteroEntry(prefix, entry.type, entry.data, ts);
+  }
+  pteroAppliedLog = job.log.length;
+  if (job.status !== 'running') stopPteroPoll();
 }
 
 function switchToolPanel(name) {
@@ -298,10 +336,7 @@ function setPteroFormDisabled(prefix, disabled) {
   if (btn) btn.disabled = disabled;
 }
 
-function handlePteroEvent(type, data) {
-  const prefix = currentPteroTarget;
-  if (!prefix) return;
-  const ts = new Date().toLocaleTimeString('id-ID', { hour12: false });
+function renderPteroEntry(prefix, type, data, ts) {
   if (type === 'stage') {
     appendPteroLine(prefix, 'cl-stage', `[${ts}] ${data.text}`);
   } else if (type === 'log') {
@@ -366,6 +401,8 @@ document.getElementById('ptero-install-form')?.addEventListener('submit', async 
     return;
   }
   currentPteroJobId = res.jobId;
+  pteroAppliedLog = 0;
+  startPteroPoll('pti', res.jobId);
 });
 
 document.getElementById('ptw-paste')?.addEventListener('input', (e) => {
@@ -402,6 +439,8 @@ document.getElementById('ptero-wings-form')?.addEventListener('submit', async (e
     return;
   }
   currentPteroJobId = res.jobId;
+  pteroAppliedLog = 0;
+  startPteroPoll('ptw', res.jobId);
 });
 
 async function init() {
