@@ -15,12 +15,9 @@
   </script>
   <style>
     .bansos-tabs {
-      display: flex; gap: 8px; margin-bottom: 18px;
-      overflow-x: auto; -webkit-overflow-scrolling: touch;
-      scrollbar-width: none; padding-bottom: 2px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px;
     }
-    .bansos-tabs::-webkit-scrollbar { display: none; }
-    .bansos-tabs .btn { flex: 0 0 auto; white-space: nowrap; }
+    .bansos-tabs .btn { white-space: nowrap; }
     .bansos-tab-content { display: none; }
     .bansos-tab-content.active { display: block; }
 
@@ -58,6 +55,18 @@
     .bansos-log-success { color: var(--success); }
     .bansos-log-error { color: var(--coral); }
     .bansos-log-warn { color: var(--warning); }
+
+    .bulk-captcha-box {
+      flex: 0 0 auto; min-width: 84px; padding: 0 14px; text-align: center; display: flex;
+      align-items: center; justify-content: center; font-weight: 800; font-size: 16px;
+      border-radius: var(--radius-sm); background: var(--warning); color: #1a1a1a;
+    }
+    .bulk-processing-box { text-align: center; padding: 26px 14px; }
+    .bulk-processing-box .loading-spinner { margin: 0 auto 14px; }
+    .bulk-processing-box .bp-title { font-weight: 700; font-size: 13.5px; margin-bottom: 4px; }
+    .bulk-processing-box .bp-sub { font-size: 11.5px; color: var(--text-muted); }
+    .bulk-account-card { margin-bottom: 10px; }
+    .bulk-account-card .bac-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: var(--success); font-weight: 700; font-size: 12px; text-transform: uppercase; }
   </style>
 </head>
 <body>
@@ -134,6 +143,7 @@
 
       <div class="bansos-tabs">
         <button class="btn btn-primary" id="tab-btn-am" onclick="switchTab('am')"><i class="fas fa-film"></i> Alight Motion</button>
+        <button class="btn btn-outline" id="tab-btn-bulk" onclick="switchTab('bulk')"><i class="fas fa-layer-group"></i> Bulk AM</button>
         <button class="btn btn-outline" id="tab-btn-ptero" onclick="switchTab('ptero')" style="display:none"><i class="fas fa-server"></i> Panel Gratis</button>
         <button class="btn btn-outline" id="tab-btn-netflix" onclick="switchTab('netflix')"><i class="fas fa-tv"></i> Netflix Token</button>
       </div>
@@ -156,6 +166,36 @@
           </div>
 
           <div id="am-result"></div>
+        </div>
+
+        <div id="tab-bulk" class="bansos-tab-content">
+          <div class="card-header" style="padding:0 0 14px 0;border:none"><span class="card-title">Bulk Generate Alight Motion</span></div>
+          <p style="font-size:12.5px;color:var(--text-muted);margin:-6px 0 16px">
+            Generate beberapa akun Alight Motion sekaligus (maks <span class="bulk-max-inline">5</span> akun/proses). Tidak memakai kuota harian — dibatasi cooldown 5 menit per proses.
+          </p>
+
+          <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px">Jumlah Akun (1-<span class="bulk-max-inline">5</span>)</label>
+          <div class="qty-stepper" style="margin-bottom:18px">
+            <button type="button" id="bulk-qty-minus">−</button>
+            <input type="text" id="bulk-qty-input" value="5" readonly>
+            <button type="button" id="bulk-qty-plus">+</button>
+          </div>
+
+          <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px">Verifikasi Keamanan</label>
+          <div style="display:flex;gap:10px;margin-bottom:18px">
+            <div class="bulk-captcha-box" id="bulk-captcha-question">- x -</div>
+            <input type="number" id="bulk-captcha-answer" class="form-control" placeholder="Hasil perkalian">
+          </div>
+
+          <button class="btn btn-primary btn-full btn-lg" id="bulk-generate-btn" onclick="generateBulkAm()"><i class="fas fa-bolt"></i> Generate Akun Sekarang</button>
+
+          <div id="bulk-processing-box" class="bansos-result-box bulk-processing-box" style="display:none">
+            <div class="loading-spinner"></div>
+            <div class="bp-title">Memproses Akun...</div>
+            <div class="bp-sub">bisa beberapa menit</div>
+          </div>
+
+          <div id="bulk-result"></div>
         </div>
 
         <div id="tab-netflix" class="bansos-tab-content">
@@ -239,9 +279,10 @@ function logMsg(msg, type = 'info') {
 function switchTab(tabId) {
   document.querySelectorAll('.bansos-tab-content').forEach(el => el.classList.remove('active'));
   document.getElementById(`tab-${tabId}`).classList.add('active');
-  ['am', 'ptero', 'netflix'].forEach(t => {
+  ['am', 'bulk', 'ptero', 'netflix'].forEach(t => {
     document.getElementById(`tab-btn-${t}`).className = `btn ${t === tabId ? 'btn-primary' : 'btn-outline'}`;
   });
+  if (tabId === 'bulk') loadBulkCaptcha();
 }
 
 async function fetchStats() {
@@ -349,6 +390,170 @@ async function generateNetflix() {
   }
 }
 
+// --- Bulk AM ---
+let bulkCaptchaToken = '';
+let bulkPollTimer = null;
+let bulkLockCountdownTimer = null;
+let bulkAccountsCache = [];
+
+document.getElementById('bulk-qty-minus').addEventListener('click', () => bulkQtyStep(-1));
+document.getElementById('bulk-qty-plus').addEventListener('click', () => bulkQtyStep(1));
+
+function bulkQtyStep(delta) {
+  const input = document.getElementById('bulk-qty-input');
+  const max = parseInt(document.querySelector('.bulk-max-inline')?.textContent, 10) || 5;
+  let v = (parseInt(input.value, 10) || 1) + delta;
+  v = Math.min(max, Math.max(1, v));
+  input.value = v;
+}
+
+async function loadBulkCaptcha() {
+  const res = await API.get('/api/bansos/am/bulk/captcha');
+  if (res.success) {
+    bulkCaptchaToken = res.data.token;
+    document.getElementById('bulk-captcha-question').textContent = res.data.question;
+    document.getElementById('bulk-captcha-answer').value = '';
+  }
+}
+
+function setBulkButtonState(state, waitSeconds) {
+  const btn = document.getElementById('bulk-generate-btn');
+  if (!btn) return;
+  clearInterval(bulkLockCountdownTimer);
+  if (state === 'processing') {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+  } else if (state === 'locked') {
+    let remaining = Math.max(0, waitSeconds || 0);
+    const tick = () => {
+      if (remaining <= 0) {
+        clearInterval(bulkLockCountdownTimer);
+        setBulkButtonState('idle');
+        fetchBulkStatus();
+        return;
+      }
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fas fa-clock"></i> Tunggu ${remaining}s...`;
+      remaining -= 1;
+    };
+    tick();
+    bulkLockCountdownTimer = setInterval(tick, 1000);
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-bolt"></i> Generate Akun Sekarang';
+  }
+}
+
+function schedulePoll(ms) {
+  clearTimeout(bulkPollTimer);
+  bulkPollTimer = setTimeout(fetchBulkStatus, ms);
+}
+
+function renderBulkResults(results) {
+  const accounts = results?.accounts || [];
+  bulkAccountsCache = accounts;
+  const box = document.getElementById('bulk-result');
+  if (!accounts.length) { box.innerHTML = ''; return; }
+
+  const cards = accounts.map((acc, i) => {
+    const emailEsc = escapeHtml(acc.email).replace(/'/g, "\\'");
+    const inboxRow = acc.inbox ? `
+        <div class="bansos-result-row"><span class="bansos-result-label">Inbox</span><span class="bansos-result-value"><a href="${escapeHtml(acc.inbox)}" target="_blank" rel="noopener">${escapeHtml(acc.inbox)}</a></span>
+          <button type="button" class="bansos-copy-btn" onclick="copyText('${escapeHtml(acc.inbox).replace(/'/g, "\\'")}', 'Link inbox')" title="Salin"><i class="fas fa-copy"></i></button></div>` : '';
+    return `
+      <div class="bansos-result-box bulk-account-card">
+        <div class="bac-head"><i class="fas fa-circle-check"></i> Akun ${i + 1}</div>
+        <div class="bansos-result-row"><span class="bansos-result-value">${escapeHtml(acc.email)}</span>
+          <button type="button" class="bansos-copy-btn" onclick="copyText('${emailEsc}', 'Email')" title="Salin"><i class="fas fa-copy"></i></button></div>
+        ${inboxRow}
+      </div>`;
+  }).join('');
+
+  box.innerHTML = `
+    <p style="font-size:13px;font-weight:700;margin:18px 0 10px">Berhasil dibuat: ${accounts.length} akun</p>
+    ${cards}
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button type="button" class="btn btn-outline btn-full" onclick="copyAllBulkAccounts()"><i class="fas fa-copy"></i> Salin Semua</button>
+      <button type="button" class="btn btn-full" style="background:var(--text);color:var(--bg-card)" onclick="downloadBulkAccounts()"><i class="fas fa-download"></i> Download .txt</button>
+    </div>`;
+}
+
+function bulkAccountsAsText() {
+  return bulkAccountsCache.map(a => `${a.email}${a.inbox ? ' | ' + a.inbox : ''}`).join('\n');
+}
+
+function copyAllBulkAccounts() {
+  if (!bulkAccountsCache.length) return;
+  copyText(bulkAccountsAsText(), 'Semua akun');
+}
+
+function downloadBulkAccounts() {
+  if (!bulkAccountsCache.length) return;
+  const blob = new Blob([bulkAccountsAsText()], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bulk-am-${Date.now()}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function fetchBulkStatus() {
+  const res = await API.get('/api/bansos/am/bulk/status');
+  if (!res.success) return;
+  const { locked, waitSeconds, job, maxTotal } = res.data;
+
+  if (maxTotal) {
+    document.querySelectorAll('.bulk-max-inline').forEach(el => { el.textContent = maxTotal; });
+  }
+
+  if (job && job.status === 'processing') {
+    document.getElementById('bulk-processing-box').style.display = '';
+    setBulkButtonState('processing');
+    schedulePoll(3000);
+    return;
+  }
+
+  document.getElementById('bulk-processing-box').style.display = 'none';
+
+  if (job && job.status === 'done' && job.results) {
+    renderBulkResults(job.results);
+    fetchStats();
+  } else if (job && job.status === 'error' && job.error) {
+    logMsg(job.error, 'error');
+  }
+
+  setBulkButtonState(locked ? 'locked' : 'idle', waitSeconds);
+}
+
+async function generateBulkAm() {
+  if (!Auth.requireLogin('Masuk atau daftar dulu untuk klaim bansos.')) return;
+
+  const total = Math.min(5, Math.max(1, parseInt(document.getElementById('bulk-qty-input').value, 10) || 1));
+  const answer = parseInt(document.getElementById('bulk-captcha-answer').value, 10);
+  if (!Number.isFinite(answer)) { Toast.warning('Isi jawaban verifikasi keamanan dulu.'); return; }
+
+  logMsg(`Memulai generate ${total} akun Premium...`, 'info');
+  const res = await API.post('/api/bansos/am/bulk', { total, answer, token: bulkCaptchaToken });
+
+  if (res.success) {
+    document.getElementById('bulk-processing-box').style.display = '';
+    document.getElementById('bulk-result').innerHTML = '';
+    setBulkButtonState('processing');
+    schedulePoll(2500);
+  } else if (res.queued) {
+    Toast.warning(res.message);
+    logMsg(res.message, 'warn');
+    setBulkButtonState('locked', res.waitSeconds || 60);
+  } else {
+    Toast.error(res.message);
+    logMsg(res.message, 'error');
+    loadBulkCaptcha();
+  }
+}
+
 async function fetchPteroStatus() {
   const res = await API.get('/api/bansos/ptero/status');
   if (!res.success) return;
@@ -418,6 +623,7 @@ async function init() {
     document.getElementById('ptero-guest-notice').style.display = '';
   }
   await fetchStats();
+  fetchBulkStatus();
 }
 init();
 </script>

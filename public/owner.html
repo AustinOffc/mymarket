@@ -1716,6 +1716,18 @@
           </div>
 
           <div class="card mb-16">
+            <div class="card-header"><span class="card-title"><i class="fas fa-table-cells" style="color:var(--success)"></i> Menu Sidebar</span></div>
+            <div class="card-body">
+              <p class="text-xs text-muted" style="margin-bottom:14px">Pilih menu yang ditampilkan di sidebar user. Menu yang di-nonaktifkan akan disembunyikan dari semua user (tidak dihapus, cuma disembunyikan — bisa diaktifkan lagi kapan saja).</p>
+              <div id="sidebar-menu-alert"></div>
+              <div id="sidebar-menu-list" style="display:flex;flex-direction:column;gap:2px;margin-bottom:14px">
+                <div class="text-xs text-muted">Memuat...</div>
+              </div>
+              <button class="btn btn-primary btn-sm" id="sidebar-menu-save-btn" onclick="saveSidebarMenu()"><i class="fas fa-save"></i> Simpan Menu Sidebar</button>
+            </div>
+          </div>
+
+          <div class="card mb-16">
             <div class="card-header"><span class="card-title"><i class="fas fa-image" style="color:var(--info)"></i> Logo Aplikasi</span></div>
             <div class="card-body">
               <div id="logo-alert"></div>
@@ -2725,6 +2737,42 @@ async function loadSettings() {
   else preview.innerHTML = `<i class="fas fa-bolt"></i>`;
 
   loadBanners();
+  loadSidebarMenu();
+}
+
+async function loadSidebarMenu() {
+  const box = document.getElementById('sidebar-menu-list');
+  const res = await API.get('/api/owner/sidebar-menu');
+  if (!res.success || !Array.isArray(res.items)) {
+    box.innerHTML = `<div class="text-xs text-muted">Gagal memuat daftar menu.</div>`;
+    return;
+  }
+  box.innerHTML = res.items.map(it => `
+    <label style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--border);cursor:pointer">
+      <input type="checkbox" data-sidebar-menu-key="${it.key}" ${it.hidden ? '' : 'checked'} style="width:16px;height:16px;flex-shrink:0">
+      <span class="nav-icon" style="width:20px;text-align:center;color:var(--text-muted)"><i class="fas ${it.icon}"></i></span>
+      <span style="flex:1;font-size:13.5px">${it.label}</span>
+      <span class="text-xs text-muted">${it.key}</span>
+    </label>
+  `).join('');
+}
+
+async function saveSidebarMenu() {
+  const btn = document.getElementById('sidebar-menu-save-btn');
+  const alertBox = document.getElementById('sidebar-menu-alert');
+  const hidden = Array.from(document.querySelectorAll('[data-sidebar-menu-key]'))
+    .filter(cb => !cb.checked)
+    .map(cb => cb.getAttribute('data-sidebar-menu-key'));
+  btnLoading(btn, true);
+  const res = await API.post('/api/owner/sidebar-menu', { hidden });
+  btnLoading(btn, false);
+  if (res.success) {
+    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+    Toast.success(res.message);
+  } else {
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    Toast.error(res.message);
+  }
 }
 
 async function loadBanners() {
