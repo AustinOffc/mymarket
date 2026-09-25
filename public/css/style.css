@@ -185,7 +185,8 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); letter-spacing: -.01e
   margin-bottom: 2px; position: relative;
 }
 .nav-item:hover { background: rgba(255,255,255,.05); color: #fff; }
-.nav-item.active { background: var(--sidebar-active-bg); color: var(--sidebar-text-active); }
+/* Item aktif: tanpa kotak background, cukup ikon+teks-nya yang berubah warna. */
+.nav-item.active { background: transparent; color: var(--primary); }
 .nav-item.active::before {
   content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
   width: 3px; height: 20px; background: var(--primary); border-radius: 0 3px 3px 0;
@@ -211,15 +212,16 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); letter-spacing: -.01e
   word-break: break-word; hyphens: auto;
 }
 .sidebar-nav:not(#admin-nav) .nav-item.active::before { display: none; }
+/* Tanpa kotak/lingkaran background di belakang ikon — cukup ikonnya sendiri
+   yang berubah warna (dan sedikit "hidup" lewat transform) saat hover/aktif. */
 .sidebar-nav:not(#admin-nav) .nav-item .nav-icon {
   width: 32px; height: 32px; border-radius: 50%;
-  background: rgba(255,255,255,.05); font-size: 15px;
-  transition: all var(--transition);
+  background: transparent; font-size: 15px; color: var(--sidebar-text);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), color var(--transition);
 }
-.sidebar-nav:not(#admin-nav) .nav-item:hover .nav-icon { background: rgba(255,255,255,.1); }
+.sidebar-nav:not(#admin-nav) .nav-item:hover .nav-icon { color: #fff; transform: translateY(-2px); }
 .sidebar-nav:not(#admin-nav) .nav-item.active .nav-icon {
-  background: var(--primary); color: #052430;
-  box-shadow: 0 6px 14px rgba(var(--primary-rgb), .35);
+  color: var(--primary); transform: scale(1.14);
 }
 .sidebar-nav:not(#admin-nav) .nav-badge {
   position: absolute; top: 4px; right: 10px; margin-left: 0;
@@ -344,6 +346,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); letter-spacing: -.01e
   cursor: pointer; border: 1px solid transparent;
   transition: transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease, background .15s ease;
   white-space: nowrap;
+  position: relative; overflow: hidden; /* buat nampung efek ripple pas ditekan */
 }
 .btn:active:not(:disabled) { transform: translateY(1px) scale(.98); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
@@ -732,8 +735,10 @@ textarea.form-control, .form-textarea { min-height: 90px; resize: vertical; line
   .sidebar-header { border-bottom: 1px solid var(--border-soft); }
   .sidebar-footer { border-top: 1px solid var(--border-soft); }
   .nav-item { color: var(--text-muted); }
-  .nav-item:hover { background: var(--primary-light); color: var(--text); }
-  .nav-item.active { color: var(--primary); }
+  /* Tanpa background kotak — di layar sentuh :hover ini gampang "nyangkut" abis
+     tap dan keliatan kayak kotak nempel di menu yang baru dibuka. */
+  .nav-item:hover { background: transparent; color: var(--text); }
+  .nav-item.active { background: transparent; color: var(--primary); }
   .sidebar-user:hover { background: var(--primary-light); }
   .sidebar-user-name { color: var(--text); }
 
@@ -1023,7 +1028,10 @@ textarea.form-control, .form-textarea { min-height: 90px; resize: vertical; line
 .csel-panel-empty { padding: 14px 12px; font-size: 13px; color: var(--text-muted); text-align: center; }
 
 /* ==== Qty Stepper (shared +/- quantity control, themed) ==== */
-.qty-stepper { display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+/* inline-flex, bukan flex: supaya box-nya shrink-to-fit ke isinya (tombol+angka),
+   bukan melebar penuh mengikuti lebar parent (yang bikin dia "memanjang ke kanan"
+   saat parent-nya bukan flex row, mis. di bansos.html). */
+.qty-stepper { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
 .qty-stepper button {
   width: 38px; height: 38px; border: none; background: var(--bg-hover); color: var(--text);
   font-size: 16px; font-weight: 700; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -1062,3 +1070,79 @@ textarea.form-control, .form-textarea { min-height: 90px; resize: vertical; line
   letter-spacing: .02em;
 }
 .auth-page > .app-credit-footer { margin-top: 20px; border-top: none; }
+
+/* ============================================================
+   Liveliness pack — biar situs kerasa hidup, bukan cuma diam.
+   Semua dibungkus prefers-reduced-motion & tidak mengubah layout,
+   jadi aman dipasang global lewat style.css yang sama di semua halaman.
+   ============================================================ */
+
+/* Dua cahaya ambient yang perlahan bergeser di belakang seluruh halaman —
+   murni dekoratif, di belakang segalanya (z-index -1), tidak bisa diklik. */
+body::before, body::after {
+  content: ''; position: fixed; z-index: -1; pointer-events: none;
+  width: 46vmax; height: 46vmax; border-radius: 50%; filter: blur(60px); opacity: .55;
+}
+body::before {
+  top: -18vmax; left: -14vmax;
+  background: radial-gradient(circle, rgba(255,61,138,.16), transparent 70%);
+}
+body::after {
+  bottom: -20vmax; right: -16vmax;
+  background: radial-gradient(circle, rgba(34,211,255,.16), transparent 70%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  body::before { animation: driftOrbA 22s ease-in-out infinite; }
+  body::after { animation: driftOrbB 26s ease-in-out infinite; }
+}
+@keyframes driftOrbA {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(6vmax,8vmax) scale(1.12); }
+}
+@keyframes driftOrbB {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(-6vmax,-6vmax) scale(1.1); }
+}
+
+/* Toast: masuk dengan sedikit "pantulan", bukan cuma nongol tiba-tiba */
+.toast { animation: toastIn .4s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(30px) scale(.9); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* Sidebar mobile: menu-nya muncul bertahap (stagger) waktu dibuka, bukan langsung semua */
+@media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .sidebar.open .nav-item { animation: navItemIn .35s cubic-bezier(.16,1,.3,1) both; }
+  .sidebar.open .nav-item:nth-child(2) { animation-delay: .02s; }
+  .sidebar.open .nav-item:nth-child(3) { animation-delay: .04s; }
+  .sidebar.open .nav-item:nth-child(4) { animation-delay: .06s; }
+  .sidebar.open .nav-item:nth-child(5) { animation-delay: .08s; }
+  .sidebar.open .nav-item:nth-child(6) { animation-delay: .1s; }
+  .sidebar.open .nav-item:nth-child(7) { animation-delay: .12s; }
+  .sidebar.open .nav-item:nth-child(n+8) { animation-delay: .14s; }
+}
+@keyframes navItemIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Empty state: ikonnya melayang pelan biar layar kosong nggak berasa mati */
+@media (prefers-reduced-motion: no-preference) {
+  .empty-state i { animation: gentleFloat 3.2s ease-in-out infinite; }
+}
+@keyframes gentleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Efek ripple saat tombol .btn ditekan (elemen <span class="ripple-wave"> disuntik lewat app.js) */
+.ripple-wave {
+  position: absolute; border-radius: 50%; transform: scale(0);
+  background: rgba(255,255,255,.35); pointer-events: none;
+  animation: rippleAnim .55s ease-out forwards;
+}
+@keyframes rippleAnim { to { transform: scale(2.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .ripple-wave { display: none; }
+}
