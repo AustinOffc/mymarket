@@ -953,3 +953,24 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => Auth.logout());
   });
 });
+
+// ==== Ripple: feedback taktil kecil tiap tombol .btn ditekan, biar UI tidak kaku ====
+// Dipasang di sini (app.js) supaya otomatis aktif di semua halaman yang sudah
+// memuat app.js, tanpa perlu ubah script per halaman.
+(function initRipple() {
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.btn');
+    if (!btn || btn.disabled) return;
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const wave = document.createElement('span');
+    wave.className = 'ripple-wave';
+    wave.style.width = wave.style.height = size + 'px';
+    wave.style.left = (e.clientX - rect.left - size / 2) + 'px';
+    wave.style.top = (e.clientY - rect.top - size / 2) + 'px';
+    btn.appendChild(wave);
+    wave.addEventListener('animationend', () => wave.remove());
+  }, { passive: true });
+})();
