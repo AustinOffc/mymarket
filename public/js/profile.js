@@ -9,6 +9,69 @@ async function init() {
   loadLoginHistory();
   loadSellerApplyCard();
   loadResellerCard();
+  loadGoogleLinkCard(res.user);
+}
+
+// Fix temuan #8 (laporan audit keamanan): dulu akun Google auto-tertaut ke akun lokal
+// manapun yang emailnya sama, tanpa konfirmasi apapun. Sekarang penautan cuma bisa
+// lewat sini (butuh sesi login yang sudah terbukti pakai password) lewat endpoint baru
+// /api/auth/link-google.
+async function loadGoogleLinkCard(user) {
+  const statusEl = document.getElementById('google-link-status');
+  const boxEl = document.getElementById('google-link-box');
+  if (!statusEl || !boxEl) return;
+
+  if (user.google_id) {
+    statusEl.innerHTML = '<i class="fas fa-check-circle" style="color:var(--success)"></i> Akun Google sudah tertaut ke akun ini.';
+    boxEl.style.display = 'none';
+    return;
+  }
+  statusEl.textContent = 'Tautkan akun Google supaya kamu juga bisa login pakai tombol "Lanjutkan dengan Google".';
+
+  const branding = await API.get('/api/public/branding');
+  if (!branding.success || !branding.google_client_id) {
+    boxEl.innerHTML = '<p class="text-sm text-muted">Login Google belum diaktifkan di server ini.</p>';
+    return;
+  }
+
+  function initGoogleLinkButton() {
+    if (!window.google || !window.google.accounts) {
+      boxEl.innerHTML = '<p class="text-sm text-muted">Google Sign-In tidak tersedia — kemungkinan diblokir ad-blocker/VPN filter di perangkat kamu.</p>';
+      return;
+    }
+    google.accounts.id.initialize({
+      client_id: branding.google_client_id,
+      callback: onGoogleLinkCredential,
+      itp_support: true,
+      use_fedcm_for_button: true,
+    });
+    google.accounts.id.renderButton(boxEl, { theme: 'outline', size: 'large', width: 320, text: 'continue_with' });
+  }
+
+  if (window.google && window.google.accounts) {
+    initGoogleLinkButton();
+  } else {
+    const gsiScript = document.createElement('script');
+    gsiScript.src = 'https://accounts.google.com/gsi/client';
+    gsiScript.async = true;
+    gsiScript.onload = initGoogleLinkButton;
+    gsiScript.onerror = () => {
+      boxEl.innerHTML = '<p class="text-sm text-muted">Gagal memuat tombol Google — coba nonaktifkan sementara ad-blocker/VPN filter atau pakai browser lain.</p>';
+    };
+    document.head.appendChild(gsiScript);
+  }
+}
+
+async function onGoogleLinkCredential(response) {
+  const alertBox = document.getElementById('google-link-alert');
+  alertBox.innerHTML = '';
+  const res = await API.post('/api/auth/link-google', { credential: response.credential });
+  if (res.success) {
+    Toast.success(res.message);
+    loadGoogleLinkCard({ ...userData, google_id: 'linked' });
+  } else {
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ${res.message}</div>`;
+  }
 }
 
 async function loadResellerCard() {
