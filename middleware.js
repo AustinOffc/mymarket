@@ -54,6 +54,10 @@ const OWNER_PAGE_ROUTES = new Set([
 
 const NOT_BUYER_ROUTES = new Set(['/withdraw', '/seller/withdraw']);
 
+// Menu Tools (Install Pterodactyl via SSH, dst) — khusus user yang sudah
+// daftar/login, peran apa pun (bukan cuma buyer, dan bukan cuma owner).
+const AUTH_REQUIRED_ROUTES = new Set(['/tools', '/tools/installpterodactyl']);
+
 function getCookie(req, name) {
   const header = req.headers.get('cookie') || '';
   const parts = header.split(';');
@@ -115,6 +119,9 @@ export default async function middleware(req) {
     const role = await getRole(req);
     if (!role) return Response.redirect(new URL('/login', req.url), 302);
     if (role === 'buyer') return Response.redirect(new URL('/dashboard', req.url), 302);
+  } else if (AUTH_REQUIRED_ROUTES.has(pathname)) {
+    const role = await getRole(req);
+    if (!role) return Response.redirect(new URL('/login', req.url), 302);
   }
 
   const res = await next();

@@ -26,6 +26,8 @@
     { "source": "/profile", "destination": "/profile.html" },
     { "source": "/download-apk", "destination": "/download-apk.html" },
     { "source": "/withdraw", "destination": "/withdraw.html" },
+    { "source": "/tools", "destination": "/tools.html" },
+    { "source": "/tools/installpterodactyl", "destination": "/tools.html" },
 
     { "source": "/seller", "destination": "/seller/dashboard.html" },
     { "source": "/seller/stock", "destination": "/seller/stock.html" },
