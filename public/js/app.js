@@ -211,6 +211,22 @@ function formatDate(iso, withTime = true) {
   return d.toLocaleString('id-ID', opts);
 }
 
+// Render badge "Stok Panel: 8/70" (dipakai di halaman Order Panel & Reseller/Partner).
+// `slots` datang dari field `slots` pada response /api/ptero/pricing atau /api/reseller/pricing.
+function renderStockMeter(slots) {
+  if (!slots || !Number.isFinite(Number(slots.max)) || Number(slots.max) <= 0) return '';
+  const max = Number(slots.max);
+  const used = Math.max(0, Number(slots.used) || 0);
+  const pct = Math.min(100, Math.round((used / max) * 100));
+  const fillClass = pct >= 100 ? 'is-full' : (pct >= 80 ? 'is-warning' : '');
+  return `
+    <div class="stock-meter">
+      <span class="stock-meter-label">Stok Panel: <b>${used}/${max}</b></span>
+      <div class="stock-meter-track"><div class="stock-meter-fill ${fillClass}" style="width:${pct}%"></div></div>
+      ${pct >= 100 ? '<span class="badge badge-danger">Penuh</span>' : ''}
+    </div>`;
+}
+
 function statusBadge(status) {
   const map = {
     pending:   ['badge-warning',   'Pending'],
