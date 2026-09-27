@@ -1183,6 +1183,17 @@
                 <input type="text" class="form-control" id="ptero-location-id" placeholder="2">
               </div>
             </div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Max Stok Panel (Node)</label>
+                <input type="number" class="form-control" id="ptero-max-slots" min="1" placeholder="70">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Node ID Stok (opsional)</label>
+                <input type="text" class="form-control" id="ptero-stock-node-id" placeholder="Kosongkan = auto dari Location ID">
+              </div>
+            </div>
+            <p class="text-xs text-muted" id="ptero-stock-status" style="margin:-6px 0 0"></p>
             <div class="form-group" style="margin:0">
               <label class="form-label">Docker Image</label>
               <input type="text" class="form-control" id="ptero-docker-image" placeholder="ghcr.io/austinoffc/eggaustin:main">
@@ -3912,6 +3923,11 @@ async function loadPteroSettings() {
   document.getElementById('ptero-location-id').value = d.location_id || '';
   document.getElementById('ptero-docker-image').value = d.docker_image || '';
   document.getElementById('ptero-root-pw-env').value = d.root_password_env_key || '';
+  document.getElementById('ptero-max-slots').value = d.max_panel_slots || '';
+  document.getElementById('ptero-stock-node-id').value = d.stock_node_id || '';
+  const s = d.slots || {};
+  const sourceLabel = { live: 'live via API', 'live-stale': 'live via API (cache lama, API sempat gagal)', 'db-fallback': 'fallback hitung baris DB (API belum/gagal terhubung)' }[s.source] || s.source || '-';
+  document.getElementById('ptero-stock-status').textContent = s.max ? `Stok saat ini: ${s.used}/${s.max} terpakai — sumber: ${sourceLabel}` : '';
   fillPricingForm(d.pricing);
 }
 
@@ -3926,6 +3942,8 @@ document.getElementById('ptero-settings-form')?.addEventListener('submit', async
     location_id: document.getElementById('ptero-location-id').value.trim(),
     docker_image: document.getElementById('ptero-docker-image').value.trim(),
     root_password_env_key: document.getElementById('ptero-root-pw-env').value.trim(),
+    max_panel_slots: document.getElementById('ptero-max-slots').value.trim(),
+    stock_node_id: document.getElementById('ptero-stock-node-id').value.trim(),
   };
   const r = await API.post('/api/owner/ptero/settings', body);
   r.success ? (Toast.success(r.message), loadPteroSettings()) : Toast.error(r.message);

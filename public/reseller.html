@@ -145,6 +145,7 @@
           </div>
           <p class="text-xs text-muted" style="margin-bottom:14px">Panel pribadi tidak memiliki masa expired, tapi akan displit otomatis jika PTPT bulan berjalan belum dibayar.</p>
           <div id="personal-loading"><div class="loading-spinner"></div></div>
+          <div id="personal-stock-meter"></div>
           <div id="personal-content" style="display:none">
             <div class="builder-card" style="margin-bottom:16px">
               <div class="builder-row" style="margin-bottom:0">
@@ -235,6 +236,7 @@
           </div>
           <p class="text-xs text-muted" style="margin-bottom:14px">Kuota unlimited. Wajib lampirkan bukti transaksi — akan diteruskan ke owner via Live Chat.</p>
           <div id="buyer-loading"><div class="loading-spinner"></div></div>
+          <div id="buyer-stock-meter"></div>
           <div id="buyer-content" style="display:none">
             <div class="builder-card" style="margin-bottom:16px">
               <div class="builder-row" style="margin-bottom:0">
@@ -596,6 +598,9 @@ async function loadPricing() {
   }
   pricing = res.data;
   ['personal-content', 'buyer-content'].forEach((id) => document.getElementById(id).style.display = 'block');
+  const stockHtml = renderStockMeter(pricing.slots);
+  document.getElementById('personal-stock-meter').innerHTML = stockHtml;
+  document.getElementById('buyer-stock-meter').innerHTML = stockHtml;
 
   setupStackSelect('p-stack', pricing); setupStackSelect('b-stack', pricing);
   setupSlider('p', pricing); setupSlider('b', pricing);
