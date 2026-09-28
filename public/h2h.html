@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>H2H API — Austin Store Marketplace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+  <style>
+    .h2h-key-box {
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; background: var(--bg-soft);
+      border: 1px dashed var(--primary); border-radius: 8px; padding: 12px 14px;
+      word-break: break-all; display: flex; align-items: center; gap: 10px; justify-content: space-between;
+    }
+    .h2h-status-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/ppob"><span class="nav-icon"><i class="fas fa-receipt"></i></span> PPOB</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/bansos"><span class="nav-icon"><i class="fas fa-gift"></i></span> Bansos Austin</div>
+      <div class="nav-item" data-href="/subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/tools"><span class="nav-icon"><i class="fas fa-toolbox"></i></span> Tools</div>
+      <div class="nav-item" data-href="/h2h"><span class="nav-icon"><i class="fas fa-plug-circle-bolt"></i></span> H2H API</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:#ef4444"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">H2H API</div>
+      <div class="topbar-actions">
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" id="notif-bell"><i class="fas fa-bell"></i></button>
+          <span class="notif-badge" id="notif-badge"></span>
+        </div>
+        <button class="btn-icon" id="theme-toggle"><i class="fas fa-moon"></i></button>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div style="max-width:720px;display:flex;flex-direction:column;gap:16px">
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-plug-circle-bolt" style="color:var(--primary)"></i> Tentang H2H API</span>
+          </div>
+          <div class="card-body">
+            <p class="text-sm text-muted" style="line-height:1.7;margin-bottom:10px">
+              H2H API memungkinkan sistem/toko kamu sendiri order produk marketplace ini
+              (Produk Umum &amp; Topup Game) secara otomatis lewat API, dipotong langsung dari
+              saldo akun kamu. Kalau saldo kurang, sistem otomatis membuatkan QRIS dan
+              melanjutkan order otomatis begitu dibayar.
+            </p>
+            <a href="/h2h-api-docs.html" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-book"></i> Buka Dokumentasi API</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-key" style="color:var(--primary)"></i> API Key Kamu</span>
+          </div>
+          <div class="card-body">
+            <div id="h2h-key-alert"></div>
+            <div class="h2h-status-row">
+              <span class="text-sm">Status:</span>
+              <span id="h2h-status-badge">-</span>
+            </div>
+            <div class="text-xs text-muted" id="h2h-key-meta" style="margin-bottom:14px"></div>
+            <div id="h2h-key-reveal" style="display:none;margin-bottom:14px">
+              <label class="form-label">API Key Baru (simpan sekarang, hanya tampil sekali)</label>
+              <div class="h2h-key-box">
+                <code id="h2h-key-value">-</code>
+                <button class="btn btn-outline btn-sm" id="h2h-copy-key-btn" type="button"><i class="fas fa-copy"></i></button>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" id="h2h-generate-btn"><i class="fas fa-rotate"></i> Generate / Ganti API Key</button>
+              <button class="btn btn-danger btn-sm" id="h2h-revoke-btn" style="display:none"><i class="fas fa-ban"></i> Nonaktifkan</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-satellite-dish" style="color:var(--primary)"></i> Webhook (Opsional)</span>
+          </div>
+          <div class="card-body">
+            <p class="text-xs text-muted" style="margin-bottom:12px">
+              Kalau diisi, kami akan kirim <code>POST</code> ke URL ini setiap order H2H selesai diproses.
+              Kosongkan &amp; simpan untuk menghapus webhook — order tetap bisa dicek manual lewat endpoint status order.
+            </p>
+            <div id="h2h-webhook-alert"></div>
+            <div class="form-group">
+              <label class="form-label">Webhook URL (harus <code>https://</code>)</label>
+              <input type="text" class="form-control" id="h2h-webhook-url" placeholder="https://sistemkamu.com/webhook/h2h">
+            </div>
+            <div id="h2h-webhook-secret-reveal" style="display:none;margin-bottom:14px">
+              <label class="form-label">Webhook Secret Baru (simpan sekarang, hanya tampil sekali)</label>
+              <div class="h2h-key-box">
+                <code id="h2h-webhook-secret-value">-</code>
+                <button class="btn btn-outline btn-sm" id="h2h-copy-secret-btn" type="button"><i class="fas fa-copy"></i></button>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="h2h-webhook-save-btn"><i class="fas fa-save"></i> Simpan Webhook</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+<script src="/js/chat.js"></script>
+<script src="/js/cs.js"></script>
+<script>
+let h2hHasKey = false;
+
+function h2hAlert(containerId, message, type = 'danger') {
+  const box = document.getElementById(containerId);
+  if (!message) { box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="alert alert-${type}" style="margin-bottom:14px"><i class="fas fa-circle-${type === 'success' ? 'check' : 'exclamation'}"></i> ${message}</div>`;
+}
+
+async function loadH2hStatus() {
+  const res = await API.get('/api/h2h/key');
+  if (!res.success) { h2hAlert('h2h-key-alert', res.message || 'Gagal memuat status API Key'); return; }
+  const d = res.data;
+  h2hHasKey = !!d.key_preview;
+
+  if (!d.h2h_enabled) {
+    document.getElementById('h2h-status-badge').innerHTML = '<span class="badge badge-secondary">H2H API sedang dinonaktifkan owner</span>';
+  } else if (!d.key_preview) {
+    document.getElementById('h2h-status-badge').innerHTML = '<span class="badge badge-secondary">Belum punya API Key</span>';
+  } else {
+    document.getElementById('h2h-status-badge').innerHTML = d.active
+      ? '<span class="badge badge-success">Aktif</span>'
+      : '<span class="badge badge-danger">Nonaktif</span>';
+  }
+
+  document.getElementById('h2h-key-meta').innerHTML = d.key_preview
+    ? `Key: <code>${d.key_preview}</code> &middot; Total request: ${d.total_requests || 0} &middot; Terakhir dipakai: ${d.lastUsedAt ? formatDate(d.lastUsedAt) : 'belum pernah'}`
+    : 'Generate API Key untuk mulai mengakses H2H API.';
+
+  document.getElementById('h2h-revoke-btn').style.display = (d.key_preview && d.active) ? '' : 'none';
+  document.getElementById('h2h-generate-btn').innerHTML = d.key_preview
+    ? '<i class="fas fa-rotate"></i> Generate Ulang API Key'
+    : '<i class="fas fa-rotate"></i> Generate API Key';
+
+  document.getElementById('h2h-webhook-url').value = d.webhook_url || '';
+}
+
+document.getElementById('h2h-generate-btn').addEventListener('click', async () => {
+  if (h2hHasKey && !await showConfirm('API Key lama akan langsung nonaktif dan diganti API Key baru. Semua sistem yang masih pakai key lama akan berhenti bisa akses H2H API. Lanjutkan?', { title: 'Generate Ulang API Key', okText: 'Ya, Generate', danger: true })) return;
+  const r = await API.post('/api/h2h/key/generate');
+  if (!r.success) { h2hAlert('h2h-key-alert', r.message); return; }
+  h2hAlert('h2h-key-alert', r.message, 'success');
+  document.getElementById('h2h-key-value').textContent = r.data.api_key;
+  document.getElementById('h2h-key-reveal').style.display = '';
+  loadH2hStatus();
+});
+
+document.getElementById('h2h-revoke-btn').addEventListener('click', async () => {
+  if (!await showConfirm('Nonaktifkan API Key kamu? Sistem yang masih pakai key ini akan berhenti bisa akses H2H API.', { title: 'Nonaktifkan API Key', okText: 'Nonaktifkan', danger: true })) return;
+  const r = await API.post('/api/h2h/key/revoke');
+  r.success ? (Toast.success(r.message), loadH2hStatus()) : Toast.error(r.message);
+});
+
+document.getElementById('h2h-webhook-save-btn').addEventListener('click', async () => {
+  const url = document.getElementById('h2h-webhook-url').value.trim();
+  const r = await API.post('/api/h2h/key/webhook', { webhook_url: url });
+  if (!r.success) { h2hAlert('h2h-webhook-alert', r.message); return; }
+  h2hAlert('h2h-webhook-alert', r.message, 'success');
+  if (r.data && r.data.webhook_secret) {
+    document.getElementById('h2h-webhook-secret-value').textContent = r.data.webhook_secret;
+    document.getElementById('h2h-webhook-secret-reveal').style.display = '';
+  } else {
+    document.getElementById('h2h-webhook-secret-reveal').style.display = 'none';
+  }
+  loadH2hStatus();
+});
+
+document.getElementById('h2h-copy-key-btn').addEventListener('click', () => {
+  navigator.clipboard.writeText(document.getElementById('h2h-key-value').textContent);
+  Toast.success('API Key disalin');
+});
+document.getElementById('h2h-copy-secret-btn').addEventListener('click', () => {
+  navigator.clipboard.writeText(document.getElementById('h2h-webhook-secret-value').textContent);
+  Toast.success('Webhook secret disalin');
+});
+
+async function init() {
+  const res = await Auth.check();
+  if (!res) return;
+  Auth.renderUserInfo(res.user, res.wallet);
+  loadH2hStatus();
+}
+init();
+</script>
+</body>
+</html>

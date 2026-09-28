@@ -92,6 +92,7 @@
       <div class="nav-item" data-href="/subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
       <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
       <div class="nav-item" data-href="/tools"><span class="nav-icon"><i class="fas fa-toolbox"></i></span> Tools</div>
+      <div class="nav-item" data-href="/h2h"><span class="nav-icon"><i class="fas fa-plug-circle-bolt"></i></span> H2H API</div>
       <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
     </nav>
     <div class="sidebar-footer">
@@ -357,21 +358,49 @@ document.getElementById('order-modal-confirm').addEventListener('click', async (
     return;
   }
   Toast.success('Order berhasil dikirim!');
-  document.getElementById('result-modal-body').innerHTML = `
-    <p style="margin-bottom:10px"><b>${escapeHtml(selectedProduct.name)}</b> — ${formatRupiah(res.data.price)}</p>
-    <p style="font-size:12.5px;color:var(--text-muted)">Ref ID: <code>${escapeHtml(res.data.ref_id || '-')}</code></p>
-    <p style="font-size:12.5px;color:var(--text-muted)">TrxID: <code>${escapeHtml(res.data.trxid || '-')}</code></p>
-    <p style="font-size:12.5px;color:var(--text-muted)">Status: <b>${escapeHtml(res.data.status || 'processing')}</b></p>
-    <p style="margin-top:10px;font-size:12px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> Cek status terbaru kapan saja di menu Riwayat.</p>
-  `;
+  renderResultModal(res.data.status || 'processing', res.data);
   document.getElementById('result-modal-overlay').classList.add('open');
+  startResultPolling(res.data.order_id);
 
   const meRes = await Auth.checkOptional();
   if (meRes) Auth.renderUserInfo(meRes.user, meRes.wallet);
 });
 
-document.getElementById('result-modal-close').addEventListener('click', () => document.getElementById('result-modal-overlay').classList.remove('open'));
-document.getElementById('result-modal-ok').addEventListener('click', () => document.getElementById('result-modal-overlay').classList.remove('open'));
+function renderResultModal(status, data) {
+  const statusLabel = { processing: 'Diproses', success: 'Berhasil', completed: 'Berhasil', failed: 'Gagal' }[status] || status;
+  document.getElementById('result-modal-body').innerHTML = `
+    <p style="margin-bottom:10px"><b>${escapeHtml(selectedProduct.name)}</b> — ${formatRupiah(data.price)}</p>
+    <p style="font-size:12.5px;color:var(--text-muted)">Ref ID: <code>${escapeHtml(data.ref_id || '-')}</code></p>
+    <p style="font-size:12.5px;color:var(--text-muted)">TrxID: <code>${escapeHtml(data.trxid || '-')}</code></p>
+    <p style="font-size:12.5px;color:var(--text-muted)">Status: <b id="result-status-val">${escapeHtml(statusLabel)}</b>${status === 'processing' ? ' <i class="fas fa-spinner fa-spin" style="margin-left:2px"></i>' : ''}</p>
+    <p style="margin-top:10px;font-size:12px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> ${status === 'processing' ? 'Halaman ini otomatis memperbarui status setiap beberapa detik. Kamu juga bisa cek ulang kapan saja di menu Riwayat.' : 'Cek riwayat lengkap kapan saja di menu Riwayat.'}</p>
+  `;
+}
+
+let resultPollTimer = null;
+function stopResultPolling() { if (resultPollTimer) { clearInterval(resultPollTimer); resultPollTimer = null; } }
+function startResultPolling(orderId) {
+  stopResultPolling();
+  resultPollTimer = setInterval(async () => {
+    if (!document.getElementById('result-modal-overlay').classList.contains('open')) { stopResultPolling(); return; }
+    const r = await API.get(`/api/ppob/status/${orderId}`);
+    if (!r.success) return;
+    if (['success', 'completed', 'failed'].includes(r.data.status)) {
+      stopResultPolling();
+      renderResultModal(r.data.status, { price: r.data.price_sell, ref_id: r.data.ref_id, trxid: r.data.trxid });
+      if (r.data.status === 'failed') {
+        Toast.warning('Order gagal, saldo sudah dikembalikan.');
+      } else {
+        Toast.success('Order berhasil diproses!');
+      }
+      const meRes = await Auth.checkOptional();
+      if (meRes) Auth.renderUserInfo(meRes.user, meRes.wallet);
+    }
+  }, 8000);
+}
+
+document.getElementById('result-modal-close').addEventListener('click', () => { stopResultPolling(); document.getElementById('result-modal-overlay').classList.remove('open'); });
+document.getElementById('result-modal-ok').addEventListener('click', () => { stopResultPolling(); document.getElementById('result-modal-overlay').classList.remove('open'); });
 
 async function init() {
   const res = await Auth.checkOptional();

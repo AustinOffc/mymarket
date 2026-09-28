@@ -34,6 +34,7 @@
       <div class="nav-item" data-href="/subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
       <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
       <div class="nav-item" data-href="/tools"><span class="nav-icon"><i class="fas fa-toolbox"></i></span> Tools</div>
+      <div class="nav-item" data-href="/h2h"><span class="nav-icon"><i class="fas fa-plug-circle-bolt"></i></span> H2H API</div>
       <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
     </nav>
     <div class="sidebar-footer">
@@ -398,6 +399,9 @@ async function openDetail(source, id) {
     if (row.ref_id) R('Ref ID', `<code style="font-size:11px">${escapeHtml(row.ref_id)}</code>`);
     if (row.trxid) R('ID Transaksi', `<code style="font-size:11px">${escapeHtml(row.trxid)}</code>`);
     if (row.note) R('Catatan', escapeHtml(row.note));
+    if (row.status === 'processing') {
+      credentialHtml = `<div class="text-sm text-muted" style="margin-top:14px"><i class="fas fa-circle-notch fa-spin"></i> Order masih diproses OkeConnect. Status diperiksa ulang otomatis di background — atau cek sekarang lewat tombol di bawah.</div>`;
+    }
   } else if (source === 'socmed') {
     R('Layanan', escapeHtml(row.service_name || row.category_name || '-'));
     R('Target', escapeHtml(row.target || '-'));
@@ -428,9 +432,30 @@ async function openDetail(source, id) {
   }
 
   body.innerHTML = rowsHtml.join('') + credentialHtml;
+  const checkStatusBtnHtml = (source === 'ppob' && row.status === 'processing')
+    ? `<button class="btn btn-outline" id="ppob-check-status-btn" onclick="checkPpobStatus('${row.id}')"><i class="fas fa-rotate"></i> Cek Status</button>`
+    : '';
   footer.innerHTML = (canRate
     ? `<button class="btn btn-primary" onclick="Modal.close('detail-modal'); openRatingModal('${row.id}')"><i class="fas fa-star"></i> Beri Rating</button>`
-    : `<button class="btn btn-outline" onclick="Modal.close('detail-modal')">Tutup</button>`) + complaintFooterHtml;
+    : `<button class="btn btn-outline" onclick="Modal.close('detail-modal')">Tutup</button>`) + complaintFooterHtml + checkStatusBtnHtml;
+}
+
+async function checkPpobStatus(orderId) {
+  const btn = document.getElementById('ppob-check-status-btn');
+  if (btn) { btn.disabled = true; btn.classList.add('btn-loading'); }
+  const res = await API.get(`/api/ppob/status/${orderId}`);
+  if (btn) { btn.disabled = false; btn.classList.remove('btn-loading'); }
+  if (!res.success) { Toast.error(res.message || 'Gagal cek status'); return; }
+
+  if (res.data.status === 'processing') {
+    Toast.info('Masih diproses OkeConnect, coba cek lagi sebentar.');
+    return;
+  }
+  Toast.success(res.data.status === 'failed' ? 'Order gagal, saldo sudah dikembalikan.' : 'Order berhasil diproses!');
+  Modal.close('detail-modal');
+  loadData(currentPage);
+  const meRes = await Auth.checkOptional();
+  if (meRes) Auth.renderUserInfo(meRes.user, meRes.wallet);
 }
 
 function copyCredential() {
