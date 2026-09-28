@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dokumentasi H2H API</title>
+<title>Dokumentasi H2H API — MyMarket</title>
 <link rel="stylesheet" href="/css/style.css">
 <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -17,61 +17,113 @@ code, pre { font-family: var(--mono); }
 body { background: var(--bg); color: var(--text); }
 .docs-shell { display: flex; max-width: 1180px; margin: 0 auto; align-items: flex-start; }
 .docs-nav {
-  width: 220px; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+  width: 230px; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
   overflow-y: auto; padding: 28px 14px; border-right: 1px solid var(--border);
 }
 .docs-nav a {
   display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 7px;
   font-size: 12.5px; color: var(--text-muted); text-decoration: none; margin-bottom: 2px;
 }
+.docs-nav a i { width: 14px; text-align: center; font-size: 11.5px; }
 .docs-nav a:hover, .docs-nav a.active { background: var(--bg-card); color: var(--text); }
 .docs-nav .nav-title { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin: 16px 10px 6px; }
 .docs-main { flex: 1; min-width: 0; padding: 28px 32px 100px; }
-.docs-container { max-width: 820px; margin: 0 auto; }
+.docs-container { max-width: 840px; margin: 0 auto; }
 
 .hero { margin-bottom: 40px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
 .hero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); margin-bottom: 10px; }
 .hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 10px; letter-spacing: -.02em; }
-.hero-sub { color: var(--text-muted); font-size: 14px; max-width: 600px; line-height: 1.7; margin-bottom: 18px; }
+.hero-sub { color: var(--text-muted); font-size: 14px; max-width: 640px; line-height: 1.7; margin-bottom: 18px; }
 .hero-pills { display: flex; gap: 8px; flex-wrap: wrap; }
 .pill { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-card); border: 1px solid var(--border); padding: 5px 12px; border-radius: 20px; font-size: 11.5px; color: var(--text-muted); }
-.pill code { color: var(--primary); }
+.pill code { color: var(--primary); word-break: break-all; }
 
-.docs-section { margin-bottom: 44px; scroll-margin-top: 20px; }
+.docs-section { margin-bottom: 48px; scroll-margin-top: 20px; }
 .docs-section h2 { font-size: 19px; font-weight: 800; margin-bottom: 6px; }
 .docs-section > p.lead { color: var(--text-muted); font-size: 13.5px; margin-bottom: 18px; line-height: 1.7; }
+.docs-section p.txt { color: var(--text-muted); font-size: 13px; line-height: 1.7; margin: 8px 0; }
+.docs-section code { color: var(--primary); font-size: 12px; }
+.docs-section ol.steps { margin: 6px 0 0 18px; color: var(--text-muted); font-size: 13px; line-height: 1.85; }
+.docs-section ol.steps strong { color: var(--text); }
 
 .endpoint-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
 .endpoint-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
 .method-badge { font-family: var(--mono); font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 5px; }
 .method-get { background: var(--get-bg); color: var(--get); }
 .method-post { background: var(--post-bg); color: var(--post); }
-.endpoint-path { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+.endpoint-path { font-family: var(--mono); font-size: 13px; font-weight: 600; word-break: break-all; }
+.ep-tag { margin-left: auto; font-size: 10.5px; color: var(--text-muted); border: 1px solid var(--border); border-radius: 20px; padding: 2px 9px; }
 .endpoint-desc { padding: 12px 16px 0; font-size: 12.5px; color: var(--text-muted); line-height: 1.6; }
 .endpoint-body { padding: 12px 16px 16px; }
 
 .code-wrap { position: relative; margin: 10px 0; }
 .code-header { display: flex; justify-content: space-between; align-items: center; background: #10151f; border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; padding: 6px 10px; }
+.code-header-dots { display: flex; gap: 5px; }
+.code-header-dots span { width: 9px; height: 9px; border-radius: 50%; }
+.dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+.code-header .code-lang { margin-left: 12px; margin-right: auto; }
 .code-lang { font-size: 10.5px; color: #8ea2c4; font-family: var(--mono); text-transform: uppercase; letter-spacing: .05em; }
 .copy-btn { font-size: 10.5px; background: transparent; border: 1px solid #2a3550; color: #8ea2c4; border-radius: 5px; padding: 3px 8px; cursor: pointer; }
 .copy-btn:hover { color: #fff; border-color: var(--primary); }
 .copy-btn.copied { color: var(--success); border-color: var(--success); }
-pre.code-block { background: #0b0f17; color: #c9d6ef; border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 14px; font-size: 12px; line-height: 1.6; overflow-x: auto; margin: 0; }
+pre.code-block { background: #0b0f17; color: #c9d6ef; border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 14px; font-size: 12px; line-height: 1.6; overflow-x: auto; margin: 0; tab-size: 4; }
+pre.code-block code { color: inherit; font-size: inherit; }
+
+.reqgroup { margin: 8px 0 4px; }
+.reqtabs { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+.reqtab {
+  font-size: 11.5px; padding: 5px 13px; border-radius: 6px; background: transparent;
+  border: 1px solid var(--border); cursor: pointer; color: var(--text-muted);
+  transition: .12s; font-weight: 600; font-family: inherit;
+}
+.reqtab:hover { color: var(--text); border-color: var(--primary); }
+.reqtab.active { color: var(--text); border-color: var(--primary); background: var(--primary-light); }
+.reqpanel { display: none; }
+.reqpanel.active { display: block; }
+.reqpanel .code-wrap { margin-top: 0; }
+
+.table-scroll { overflow-x: auto; }
 .field-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0 4px; }
-.field-table th, .field-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); }
-.field-table th { color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.field-table th, .field-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.field-table th { color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+.field-table td { color: var(--text-muted); line-height: 1.55; }
+.field-table td:first-child { white-space: nowrap; }
 .field-table code { color: var(--primary); font-size: 11.5px; }
-.note { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: 6px; padding: 10px 14px; font-size: 12.5px; color: var(--text-muted); margin: 12px 0; line-height: 1.6; }
-.note.warn { border-left-color: #f59e0b; }
-h4.sub { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin: 16px 0 6px; }
-@media (max-width: 860px) { .docs-nav { display: none; } .docs-main { padding: 20px; } }
+.req { color: var(--danger); font-size: 10.5px; font-weight: 700; margin-left: 4px; }
+.opt { color: var(--text-muted); font-size: 10.5px; margin-left: 4px; }
+
+.s-badge { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 5px; }
+.s-ok { background: var(--success-light); color: var(--success); }
+.s-wait { background: var(--warning-light); color: var(--warning); }
+.s-bad { background: var(--danger-light); color: var(--danger); }
+.s-info { background: var(--info-light); color: var(--info); }
+
+.note { display: flex; gap: 10px; align-items: flex-start; background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: 6px; padding: 10px 14px; font-size: 12.5px; color: var(--text-muted); margin: 12px 0; line-height: 1.6; }
+.note i { margin-top: 3px; color: var(--primary); font-size: 12px; }
+.note.warn { border-left-color: #f59e0b; } .note.warn i { color: #f59e0b; }
+.note.ok { border-left-color: var(--success); } .note.ok i { color: var(--success); }
+.note strong { color: var(--text); }
+h4.sub { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin: 18px 0 6px; }
+
+.flow { display: grid; gap: 8px; margin: 12px 0; }
+.flow-step { display: flex; gap: 12px; align-items: flex-start; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; font-size: 12.5px; color: var(--text-muted); line-height: 1.6; }
+.flow-step b { color: var(--text); }
+.flow-n { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-weight: 700; font-size: 11.5px; display: grid; place-items: center; }
+
+@media (max-width: 860px) {
+  .docs-nav { display: none; }
+  .docs-main { padding: 20px 16px 80px; }
+}
 </style>
 </head>
 <body>
 <div class="docs-shell">
   <nav class="docs-nav">
     <a href="#intro"><i class="fas fa-book"></i> Pengantar</a>
+    <a href="#quickstart"><i class="fas fa-rocket"></i> Mulai Cepat</a>
+    <a href="#baseurl"><i class="fas fa-link"></i> Base URL</a>
     <a href="#auth"><i class="fas fa-key"></i> Autentikasi</a>
+    <a href="#conventions"><i class="fas fa-code"></i> Format Respons</a>
     <div class="nav-title">Endpoint</div>
     <a href="#catalog"><i class="fas fa-list"></i> Katalog Produk</a>
     <a href="#topup-items"><i class="fas fa-gamepad"></i> Item Topup Game</a>
@@ -79,45 +131,152 @@ h4.sub { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-sp
     <a href="#order"><i class="fas fa-bolt"></i> Buat Order</a>
     <a href="#order-status"><i class="fas fa-search"></i> Cek Status Order</a>
     <div class="nav-title">Lainnya</div>
+    <a href="#lifecycle"><i class="fas fa-diagram-project"></i> Alur &amp; Status Order</a>
     <a href="#webhook"><i class="fas fa-satellite-dish"></i> Webhook</a>
+    <a href="#integration"><i class="fas fa-plug"></i> Contoh Integrasi Lengkap</a>
     <a href="#pricing"><i class="fas fa-tags"></i> Harga H2H</a>
+    <a href="#limits"><i class="fas fa-gauge-high"></i> Rate Limit</a>
     <a href="#errors"><i class="fas fa-triangle-exclamation"></i> Kode Error</a>
+    <a href="#troubleshooting"><i class="fas fa-screwdriver-wrench"></i> Troubleshooting</a>
   </nav>
 
   <main class="docs-main">
     <div class="docs-container">
 
       <section class="hero" id="intro">
-        <div class="hero-eyebrow">H2H API — Host to Host</div>
+        <div class="hero-eyebrow">H2H API v1 — Host to Host</div>
         <h1>Dokumentasi H2H API</h1>
-        <p class="hero-sub">Integrasikan sistem/toko kamu langsung ke katalog produk kami: produk marketplace biasa dan Topup Game, lengkap dengan skema input per produk. Order otomatis dipotong dari saldo akunmu — kalau saldo kurang, sistem otomatis membuatkan QRIS dan order akan lanjut diproses sendiri begitu QRIS-nya dibayar.</p>
+        <p class="hero-sub">Integrasikan sistem/toko kamu langsung ke katalog produk MyMarket: produk marketplace biasa dan Topup Game, lengkap dengan skema input per produk. Order otomatis dipotong dari saldo akunmu — kalau saldo kurang, sistem otomatis membuatkan QRIS dan order akan lanjut diproses sendiri begitu QRIS-nya dibayar.</p>
         <div class="hero-pills">
-          <div class="pill"><i class="fas fa-link"></i> Base URL: <code>https://austinstore.id/api/h2h/v1</code></div>
+          <div class="pill"><i class="fas fa-link"></i> Base URL: <code>https://api.mymarket.web.id/api/h2h/v1</code></div>
           <div class="pill"><i class="fas fa-shield-halved"></i> Auth: header <code>X-API-Key</code></div>
           <div class="pill"><i class="fas fa-code"></i> Format: <code>JSON</code></div>
         </div>
       </section>
 
+      <section class="docs-section" id="quickstart">
+        <h2>Mulai Cepat</h2>
+        <p class="lead">Empat langkah dari nol sampai order pertama berhasil.</p>
+        <div class="flow">
+          <div class="flow-step"><div class="flow-n">1</div><div><b>Buat API Key.</b> Login ke akun MyMarket, buka menu <b>H2H API</b>, lalu klik generate. Key hanya tampil sekali — simpan di tempat aman (server, bukan di aplikasi klien).</div></div>
+          <div class="flow-step"><div class="flow-n">2</div><div><b>Tes koneksi.</b> Panggil <code>GET /balance</code>. Kalau dapat saldo akunmu, Base URL dan API Key sudah benar.</div></div>
+          <div class="flow-step"><div class="flow-n">3</div><div><b>Ambil katalog.</b> Panggil <code>GET /catalog</code> (dan <code>GET /catalog/topup/:category_key</code> untuk Topup Game) untuk mendapat <code>product_variant_id</code>, <code>service_code</code>, harga, dan field input yang wajib diisi.</div></div>
+          <div class="flow-step"><div class="flow-n">4</div><div><b>Buat order.</b> Kirim <code>POST /order</code> dengan <code>ref_id</code> unik dari sistemmu, lalu pantau hasilnya lewat webhook atau <code>GET /order/:id</code>.</div></div>
+        </div>
+        <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl — tes koneksi</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl "https://api.mymarket.web.id/api/h2h/v1/balance" \
+  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx"</code></pre></div>
+      </section>
+
+      <section class="docs-section" id="baseurl">
+        <h2>Base URL</h2>
+        <p class="lead">Semua endpoint H2H diakses lewat host API MyMarket berikut, selalu dengan HTTPS.</p>
+        <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">base url</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>https://api.mymarket.web.id/api/h2h/v1</code></pre></div>
+        <div class="note warn"><i class="fas fa-triangle-exclamation"></i><div>Gunakan <strong>host API</strong> di atas, bukan domain website (tempat kamu login) dan bukan domain layanan lain. Kalau respons yang kamu terima berupa halaman HTML atau <code>404</code> dari host lain, hampir pasti Base URL-nya salah.</div></div>
+        <p class="txt">Semua path di dokumentasi ini ditulis relatif terhadap Base URL. Contoh: <code>GET /balance</code> berarti <code>GET https://api.mymarket.web.id/api/h2h/v1/balance</code>.</p>
+      </section>
+
       <section class="docs-section" id="auth">
         <h2>Autentikasi</h2>
-        <p class="lead">Ambil API Key kamu dari halaman akun (menu <strong>H2H API</strong> setelah login) — satu key aktif per akun. Sertakan di header <code>X-API-Key</code> pada setiap request ke <code>/api/h2h/v1/*</code>. Semua order dipotong dari saldo akun pemilik key tersebut, jadi pastikan saldo cukup atau siap dibayar via QRIS otomatis.</p>
-        <div class="code-wrap">
-          <div class="code-header"><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
-          <pre class="code-block"><code>curl https://austinstore.id/api/h2h/v1/balance \
-  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx"</code></pre>
-        </div>
-        <div class="note warn"><i class="fas fa-triangle-exclamation"></i> API Key hanya ditampilkan <strong>sekali</strong> saat digenerate/regenerate. Kalau hilang, generate ulang dari halaman akun (key lama otomatis nonaktif).</div>
+        <p class="lead">Sertakan API Key di header <code>X-API-Key</code> pada setiap request ke <code>/api/h2h/v1/*</code>. Satu akun punya satu key aktif. Semua order dipotong dari saldo akun pemilik key, jadi pastikan saldo cukup atau siap dibayar via QRIS otomatis.</p>
+        <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
+$curl = curl_init();
+curl_setopt_array($curl, [
+    CURLOPT_URL            =&gt; "https://api.mymarket.web.id/api/h2h/v1/balance",
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_TIMEOUT        =&gt; 30,
+    CURLOPT_HTTPHEADER     =&gt; [
+        "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx",
+    ],
+]);
+$response = curl_exec($curl);
+curl_close($curl);
+$hasil = json_decode($response, true);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const res = await fetch("https://api.mymarket.web.id/api/h2h/v1/balance", {
+  headers: { "X-API-Key": "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx" },
+});
+const data = await res.json();</code></pre></div></div><div class="reqpanel" data-lang="java"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">java</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create("https://api.mymarket.web.id/api/h2h/v1/balance"))
+        .header("X-API-Key", "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx")
+        .GET()
+        .build();</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl "https://api.mymarket.web.id/api/h2h/v1/balance" \
+  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx"</code></pre></div></div></div>
+        <div class="table-scroll"><table class="field-table"><tr><th>Header</th><th>Wajib</th><th>Ket.</th></tr><tr><td><code>X-API-Key</code></td><td>Ya</td><td>API Key H2H milikmu (diawali <code>h2h_live_</code>)</td></tr><tr><td><code>Content-Type</code></td><td>Untuk POST</td><td><code>application/json</code></td></tr><tr><td><code>Accept</code></td><td>Disarankan</td><td><code>application/json</code></td></tr></table></div>
+        <div class="note warn"><i class="fas fa-triangle-exclamation"></i><div>API Key hanya ditampilkan <strong>sekali</strong> saat digenerate/regenerate. Kalau hilang, generate ulang dari halaman akun — key lama otomatis nonaktif. Jangan pernah menaruh key di kode front-end, aplikasi mobile, atau repository publik; panggil API ini hanya dari server kamu.</div></div>
+      </section>
+
+      <section class="docs-section" id="conventions">
+        <h2>Format Respons</h2>
+        <p class="lead">Semua respons berupa JSON dengan field <code>success</code>. Ada <strong>dua lapis</strong> hasil yang perlu kamu bedakan:</p>
+        <div class="table-scroll"><table class="field-table"><tr><th>Kondisi</th><th>Bentuk respons</th><th>Artinya</th></tr><tr><td>Ditolak sebelum order dibuat</td><td>HTTP 200, <code>"success": false</code> + <code>message</code></td><td>Input kurang/salah, produk habis, dll. Order <strong>belum terbentuk</strong> dan tidak ada saldo terpotong — aman dicoba lagi.</td></tr><tr><td>Order terbentuk</td><td>HTTP 200, <code>"success": true</code> + <code>data</code></td><td>Cek <code>data.status</code>: bisa <code>success</code>, <code>partial</code>, <code>failed</code>, atau <code>awaiting_payment</code>.</td></tr><tr><td>Masalah autentikasi / akses / limit</td><td>HTTP 401 / 403 / 429</td><td>Lihat bagian Kode Error.</td></tr><tr><td>Error server</td><td>HTTP 500</td><td>Coba lagi sebentar. Untuk order, cek status pakai <code>ref_id</code> sebelum membuat ulang.</td></tr></table></div>
+        <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json — ditolak (success:false)</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{ "success": false, "message": "Zone ID wajib diisi" }</code></pre></div>
+        <div class="note warn"><i class="fas fa-triangle-exclamation"></i><div><code>success: true</code> <strong>tidak selalu</strong> berarti order berhasil. Order yang terbentuk lalu gagal diproses tetap dibalas <code>success: true</code> dengan <code>data.status = "failed"</code> dan alasannya di <code>data.result.message</code>. Selalu periksa <code>data.status</code>.</div></div>
       </section>
 
       <section class="docs-section" id="catalog">
         <h2>Katalog Produk</h2>
-        <p class="lead">Ringkasan seluruh produk yang dibuka untuk akses H2H. Kategori/modul yang dinonaktifkan owner (misal Nomor OTP) tidak akan muncul di sini. Harga yang dikembalikan <strong>sudah</strong> memperhitungkan diskon khusus H2H (lihat bagian <a href="#pricing">Harga H2H</a>).</p>
+        <p class="lead">Ringkasan seluruh produk yang dibuka untuk akses H2H. Kategori/modul yang dinonaktifkan owner (misal Nomor OTP) tidak akan muncul. Harga yang dikembalikan <strong>sudah</strong> memperhitungkan diskon khusus H2H (lihat <a href="#pricing">Harga H2H</a>).</p>
         <div class="endpoint-card">
-          <div class="endpoint-head"><span class="method-badge method-get">GET</span><span class="endpoint-path">/catalog</span></div>
+          <div class="endpoint-head"><span class="method-badge method-get">GET</span><span class="endpoint-path">/catalog</span><span class="ep-tag">tanpa parameter</span></div>
           <div class="endpoint-body">
-            <div class="code-wrap">
-              <div class="code-header"><span class="code-lang">json — response</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
-              <pre class="code-block"><code>{
+            <h4 class="sub">Contoh request</h4>
+            <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
+$apiKey = "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx";
+
+$curl = curl_init();
+curl_setopt_array($curl, [
+    CURLOPT_URL            =&gt; "https://api.mymarket.web.id/api/h2h/v1/catalog",
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_TIMEOUT        =&gt; 30,
+    CURLOPT_HTTPHEADER     =&gt; [
+        "X-API-Key: " . $apiKey,
+        "Accept: application/json",
+    ],
+]);
+$response = curl_exec($curl);
+if ($response === false) {
+    die("cURL error: " . curl_error($curl));
+}
+$httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+curl_close($curl);
+
+$hasil = json_decode($response, true);
+print_r($hasil);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const res = await fetch("https://api.mymarket.web.id/api/h2h/v1/catalog", {
+  headers: {
+    "X-API-Key": "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "Accept": "application/json",
+  },
+});
+const data = await res.json();
+console.log(res.status, data);</code></pre></div></div><div class="reqpanel" data-lang="java"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">java</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+
+public class CatalogExample {
+    public static void main(String[] args) throws Exception {
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.mymarket.web.id/api/h2h/v1/catalog"))
+                .timeout(Duration.ofSeconds(30))
+                .header("X-API-Key", "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx")
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse&lt;String&gt; response =
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println(response.statusCode());
+        System.out.println(response.body()); // parse pakai Jackson / Gson
+    }
+}</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl "https://api.mymarket.web.id/api/h2h/v1/catalog" \
+  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "Accept: application/json"</code></pre></div></div></div>
+            <h4 class="sub">Response</h4>
+            <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{
   "success": true,
   "data": {
     "modules": { "general": true, "topup": true, "nokos": false },
@@ -125,8 +284,9 @@ h4.sub { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-sp
     "general": [
       {
         "product_type": "general",
-        "product_variant_id": "b2f1...",
+        "product_variant_id": "b2f1c9e0-....",
         "name": "Akun Netflix Private 1 Bulan",
+        "category_id": "5d7a....",
         "category_name": "Akun Premium",
         "image_url": "https://.../netflix.png",
         "price": 14985,
@@ -148,22 +308,84 @@ h4.sub { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-sp
       }
     ]
   }
-}</code></pre>
-            </div>
-            <div class="note">Untuk produk <code>general</code>, order langsung pakai <code>product_variant_id</code> + <code>quantity</code>. Untuk <code>topup</code>, ambil dulu daftar layanan lengkap per kategori lewat endpoint <a href="#topup-items">Item Topup Game</a> di bawah untuk dapat <code>service_code</code> dan harga per item.</div>
+}</code></pre></div>
+            <h4 class="sub">Field produk general</h4>
+            <div class="table-scroll"><table class="field-table"><tr><th>Field</th><th>Tipe</th><th>Ket.</th></tr><tr><td><code>product_variant_id</code></td><td>string</td><td>ID varian — dipakai saat membuat order</td></tr><tr><td><code>name</code></td><td>string</td><td>Nama produk/varian</td></tr><tr><td><code>category_id</code> / <code>category_name</code></td><td>string</td><td>Kategori produk</td></tr><tr><td><code>image_url</code></td><td>string</td><td>URL gambar produk (bisa kosong)</td></tr><tr><td><code>price</code></td><td>number</td><td>Harga akhir per unit (Rupiah), sudah termasuk diskon H2H</td></tr><tr><td><code>min_order_qty</code></td><td>number</td><td>Jumlah minimum per order</td></tr><tr><td><code>stock_available</code></td><td>number</td><td>Stok tersedia saat ini</td></tr><tr><td><code>input_fields</code></td><td>array</td><td>Selalu kosong untuk produk general</td></tr></table></div>
+            <h4 class="sub">Field kategori topup</h4>
+            <div class="table-scroll"><table class="field-table"><tr><th>Field</th><th>Tipe</th><th>Ket.</th></tr><tr><td><code>category_key</code></td><td>string</td><td>Kunci kategori — dipakai di <code>/catalog/topup/:category_key</code> dan saat order</td></tr><tr><td><code>category_name</code></td><td>string</td><td>Nama game/layanan</td></tr><tr><td><code>image</code> / <code>icon</code></td><td>string</td><td>Gambar &amp; ikon kategori untuk etalasemu</td></tr><tr><td><code>input_fields</code></td><td>array</td><td>Field input wajib untuk order (<code>target_id</code>, <code>zone_id</code>, dst.) beserta label &amp; status <code>required</code></td></tr></table></div>
+            <div class="note"><i class="fas fa-circle-info"></i><div>Untuk produk <code>general</code>, order langsung memakai <code>product_variant_id</code> + <code>quantity</code>. Untuk <code>topup</code>, ambil dulu daftar layanan lengkap per kategori lewat <a href="#topup-items">Item Topup Game</a> untuk mendapat <code>service_code</code> dan harga per item.</div></div>
+            <div class="note"><i class="fas fa-circle-info"></i><div>Bagian <code>modules</code> menunjukkan modul mana yang sedang dibuka untuk H2H. Kalau <code>topup</code> bernilai <code>false</code>, list <code>topup_categories</code> akan kosong.</div></div>
           </div>
         </div>
       </section>
 
       <section class="docs-section" id="topup-items">
         <h2>Item Topup Game per Kategori</h2>
-        <p class="lead">Daftar lengkap layanan/nominal dalam satu kategori topup, sudah termasuk gambar kategori dan skema input yang dibutuhkan — cocok dipakai untuk membangun etalase produk di sistem kamu sendiri.</p>
+        <p class="lead">Daftar lengkap layanan/nominal dalam satu kategori topup, sudah termasuk gambar kategori dan skema input yang dibutuhkan — cocok dipakai untuk membangun etalase produk di sistem kamu sendiri. Item diurutkan dari harga termurah.</p>
         <div class="endpoint-card">
           <div class="endpoint-head"><span class="method-badge method-get">GET</span><span class="endpoint-path">/catalog/topup/:category_key</span></div>
           <div class="endpoint-body">
-            <div class="code-wrap">
-              <div class="code-header"><span class="code-lang">json — response</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
-              <pre class="code-block"><code>{
+            <div class="table-scroll"><table class="field-table"><tr><th>Parameter path</th><th>Tipe</th><th>Ket.</th></tr><tr><td><code>category_key</code><span class="req">wajib</span></td><td>string</td><td>Dari field <code>category_key</code> di endpoint Katalog, mis. <code>mobile-legends</code></td></tr></table></div>
+            <h4 class="sub">Contoh request</h4>
+            <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
+$apiKey = "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx";
+
+$curl = curl_init();
+curl_setopt_array($curl, [
+    CURLOPT_URL            =&gt; "https://api.mymarket.web.id/api/h2h/v1/catalog/topup/mobile-legends",
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_TIMEOUT        =&gt; 30,
+    CURLOPT_HTTPHEADER     =&gt; [
+        "X-API-Key: " . $apiKey,
+        "Accept: application/json",
+    ],
+]);
+$response = curl_exec($curl);
+if ($response === false) {
+    die("cURL error: " . curl_error($curl));
+}
+$httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+curl_close($curl);
+
+$hasil = json_decode($response, true);
+print_r($hasil);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const res = await fetch("https://api.mymarket.web.id/api/h2h/v1/catalog/topup/mobile-legends", {
+  headers: {
+    "X-API-Key": "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "Accept": "application/json",
+  },
+});
+const data = await res.json();
+console.log(res.status, data);</code></pre></div></div><div class="reqpanel" data-lang="java"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">java</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+
+public class TopupItemsExample {
+    public static void main(String[] args) throws Exception {
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.mymarket.web.id/api/h2h/v1/catalog/topup/mobile-legends"))
+                .timeout(Duration.ofSeconds(30))
+                .header("X-API-Key", "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx")
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse&lt;String&gt; response =
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println(response.statusCode());
+        System.out.println(response.body()); // parse pakai Jackson / Gson
+    }
+}</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl "https://api.mymarket.web.id/api/h2h/v1/catalog/topup/mobile-legends" \
+  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "Accept: application/json"</code></pre></div></div></div>
+            <h4 class="sub">Response</h4>
+            <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{
   "success": true,
   "data": {
     "category": {
@@ -177,178 +399,888 @@ h4.sub { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-sp
       "notice": null
     },
     "items": [
-      { "product_type": "topup", "category_key": "mobile-legends", "service_code": "ML86", "service_name": "86 Diamond", "price": 21000, "stock_status": "available" },
-      { "product_type": "topup", "category_key": "mobile-legends", "service_code": "ML172", "service_name": "172 Diamond", "price": 41500, "stock_status": "available" }
+      { "product_type": "topup", "category_key": "mobile-legends", "category_name": "Mobile Legends",
+        "service_code": "ML86", "service_name": "86 Diamond", "price": 21000, "stock_status": "available" },
+      { "product_type": "topup", "category_key": "mobile-legends", "category_name": "Mobile Legends",
+        "service_code": "ML172", "service_name": "172 Diamond", "price": 41500, "stock_status": "available" }
     ]
   }
-}</code></pre>
-            </div>
+}</code></pre></div>
+            <div class="table-scroll"><table class="field-table"><tr><th>Field item</th><th>Tipe</th><th>Ket.</th></tr><tr><td><code>service_code</code></td><td>string</td><td>Kode layanan — dipakai saat order</td></tr><tr><td><code>service_name</code></td><td>string</td><td>Nama nominal/paket</td></tr><tr><td><code>price</code></td><td>number</td><td>Harga akhir (Rupiah), sudah termasuk diskon H2H</td></tr><tr><td><code>stock_status</code></td><td>string</td><td><code>available</code> = bisa dipesan. Selain itu order akan ditolak (<code>Item tidak tersedia</code>)</td></tr></table></div>
+            <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json — kategori tidak ada</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{ "success": false, "message": "Kategori tidak ditemukan" }</code></pre></div>
+            <div class="note"><i class="fas fa-circle-info"></i><div>Modul Topup Game yang dimatikan owner membalas <code>403</code> dengan pesan <em>Modul Topup Game tidak dibuka untuk H2H API</em>.</div></div>
           </div>
         </div>
       </section>
 
       <section class="docs-section" id="balance">
         <h2>Cek Saldo</h2>
-        <p class="lead">Mengembalikan saldo akun pemilik API Key saat ini.</p>
+        <p class="lead">Mengembalikan saldo akun pemilik API Key saat ini (Rupiah). Endpoint paling ringan — cocok untuk tes koneksi dan health check.</p>
         <div class="endpoint-card">
-          <div class="endpoint-head"><span class="method-badge method-get">GET</span><span class="endpoint-path">/balance</span></div>
+          <div class="endpoint-head"><span class="method-badge method-get">GET</span><span class="endpoint-path">/balance</span><span class="ep-tag">tanpa parameter</span></div>
           <div class="endpoint-body">
-            <div class="code-wrap">
-              <div class="code-header"><span class="code-lang">json — response</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
-              <pre class="code-block"><code>{ "success": true, "data": { "balance": 250000 } }</code></pre>
-            </div>
+            <h4 class="sub">Contoh request</h4>
+            <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
+$apiKey = "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx";
+
+$curl = curl_init();
+curl_setopt_array($curl, [
+    CURLOPT_URL            =&gt; "https://api.mymarket.web.id/api/h2h/v1/balance",
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_TIMEOUT        =&gt; 30,
+    CURLOPT_HTTPHEADER     =&gt; [
+        "X-API-Key: " . $apiKey,
+        "Accept: application/json",
+    ],
+]);
+$response = curl_exec($curl);
+if ($response === false) {
+    die("cURL error: " . curl_error($curl));
+}
+$httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+curl_close($curl);
+
+$hasil = json_decode($response, true);
+print_r($hasil);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const res = await fetch("https://api.mymarket.web.id/api/h2h/v1/balance", {
+  headers: {
+    "X-API-Key": "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "Accept": "application/json",
+  },
+});
+const data = await res.json();
+console.log(res.status, data);</code></pre></div></div><div class="reqpanel" data-lang="java"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">java</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+
+public class BalanceExample {
+    public static void main(String[] args) throws Exception {
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.mymarket.web.id/api/h2h/v1/balance"))
+                .timeout(Duration.ofSeconds(30))
+                .header("X-API-Key", "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx")
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse&lt;String&gt; response =
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println(response.statusCode());
+        System.out.println(response.body()); // parse pakai Jackson / Gson
+    }
+}</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl "https://api.mymarket.web.id/api/h2h/v1/balance" \
+  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "Accept: application/json"</code></pre></div></div></div>
+            <h4 class="sub">Response</h4>
+            <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{ "success": true, "data": { "balance": 250000 } }</code></pre></div>
           </div>
         </div>
       </section>
 
       <section class="docs-section" id="order">
         <h2>Buat Order</h2>
-        <p class="lead">Membuat order baru. Kirim <code>ref_id</code> milikmu sendiri supaya request bisa aman diulang (idempotent) — kalau <code>ref_id</code> yang sama dikirim lagi, API akan mengembalikan order yang sudah ada, bukan membuat order baru.</p>
+        <p class="lead">Membuat order baru. Kirim <code>ref_id</code> milikmu sendiri supaya request aman diulang (idempotent) — kalau <code>ref_id</code> yang sama dikirim lagi, API mengembalikan order yang sudah ada, bukan membuat order baru.</p>
 
         <h4 class="sub">Body — produk general</h4>
-        <table class="field-table">
-          <tr><th>Field</th><th>Tipe</th><th>Ket.</th></tr>
-          <tr><td><code>product_type</code></td><td>string</td><td>selalu <code>"general"</code></td></tr>
-          <tr><td><code>product_variant_id</code></td><td>string</td><td>dari endpoint Katalog</td></tr>
-          <tr><td><code>quantity</code></td><td>number</td><td>default 1, maks 50</td></tr>
-          <tr><td><code>ref_id</code></td><td>string</td><td>opsional, id transaksi milikmu</td></tr>
-        </table>
+        <div class="table-scroll"><table class="field-table"><tr><th>Field</th><th>Tipe</th><th>Ket.</th></tr><tr><td><code>product_type</code></td><td>string</td><td><code>"general"</code> (default kalau tidak dikirim)</td></tr><tr><td><code>product_variant_id</code><span class="req">wajib</span></td><td>string</td><td>Dari endpoint Katalog</td></tr><tr><td><code>quantity</code><span class="opt">opsional</span></td><td>number</td><td>Default 1, minimal 1, maksimal 50. Tiap unit diproses satu per satu</td></tr><tr><td><code>ref_id</code><span class="opt">opsional</span></td><td>string</td><td>ID transaksi milikmu, maks 100 karakter, unik per akun</td></tr></table></div>
 
         <h4 class="sub">Body — produk topup game</h4>
-        <table class="field-table">
-          <tr><th>Field</th><th>Tipe</th><th>Ket.</th></tr>
-          <tr><td><code>product_type</code></td><td>string</td><td>selalu <code>"topup"</code></td></tr>
-          <tr><td><code>category_key</code></td><td>string</td><td>dari endpoint Katalog</td></tr>
-          <tr><td><code>service_code</code></td><td>string</td><td>dari endpoint Item Topup Game</td></tr>
-          <tr><td><code>target_id</code></td><td>string</td><td>User ID / nomor tujuan</td></tr>
-          <tr><td><code>zone_id</code></td><td>string</td><td>Zone ID, hanya untuk game yang butuh (lihat <code>input_fields</code>)</td></tr>
-          <tr><td><code>ref_id</code></td><td>string</td><td>opsional, id transaksi milikmu</td></tr>
-        </table>
+        <div class="table-scroll"><table class="field-table"><tr><th>Field</th><th>Tipe</th><th>Ket.</th></tr><tr><td><code>product_type</code><span class="req">wajib</span></td><td>string</td><td>Selalu <code>"topup"</code></td></tr><tr><td><code>category_key</code><span class="req">wajib</span></td><td>string</td><td>Dari endpoint Katalog</td></tr><tr><td><code>service_code</code><span class="req">wajib</span></td><td>string</td><td>Dari endpoint Item Topup Game</td></tr><tr><td><code>target_id</code><span class="req">wajib*</span></td><td>string</td><td>User ID / nomor tujuan</td></tr><tr><td><code>zone_id</code><span class="opt">tergantung game</span></td><td>string</td><td>Zone/Server ID — hanya untuk game yang meminta (lihat <code>input_fields</code>)</td></tr><tr><td><code>additional_data</code><span class="opt">opsional</span></td><td>string</td><td>Data tambahan untuk layanan tertentu (mis. joki), bila diminta</td></tr><tr><td><code>ref_id</code><span class="opt">opsional</span></td><td>string</td><td>ID transaksi milikmu, maks 100 karakter, unik per akun</td></tr></table></div>
+        <div class="note"><i class="fas fa-circle-info"></i><div>* Field mana saja yang <strong>wajib</strong> ditentukan oleh <code>input_fields</code> kategori (properti <code>required: true</code>). Kalau ada yang kosong, API membalas <code>success:false</code> dengan pesan seperti <em>Zone ID wajib diisi</em>.</div></div>
 
         <div class="endpoint-card">
           <div class="endpoint-head"><span class="method-badge method-post">POST</span><span class="endpoint-path">/order</span></div>
           <div class="endpoint-body">
-            <div class="code-wrap">
-              <div class="code-header"><span class="code-lang">json — request</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
-              <pre class="code-block"><code>{
+            <h4 class="sub">Contoh request — topup game</h4>
+            <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
+$apiKey = "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx";
+
+$payload = [
+    "product_type" =&gt; "topup",
+    "category_key" =&gt; "mobile-legends",
+    "service_code" =&gt; "ML86",
+    "target_id" =&gt; "123456789",
+    "zone_id" =&gt; "1234",
+    "ref_id" =&gt; "TRX-INVOICE-0001",
+];
+
+$curl = curl_init();
+curl_setopt_array($curl, [
+    CURLOPT_URL            =&gt; "https://api.mymarket.web.id/api/h2h/v1/order",
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_TIMEOUT        =&gt; 60,
+    CURLOPT_POST           =&gt; true,
+    CURLOPT_POSTFIELDS     =&gt; json_encode($payload),
+    CURLOPT_HTTPHEADER     =&gt; [
+        "X-API-Key: " . $apiKey,
+        "Content-Type: application/json",
+        "Accept: application/json",
+    ],
+]);
+$response = curl_exec($curl);
+if ($response === false) {
+    // Timeout / koneksi putus: JANGAN buat order baru dengan ref_id lain.
+    // Cek dulu lewat GET /order/{ref_id} (lihat bagian Cek Status Order).
+    die("cURL error: " . curl_error($curl));
+}
+$httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+curl_close($curl);
+
+$hasil = json_decode($response, true);
+print_r($hasil);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const payload = {
+  product_type: "topup",
+  category_key: "mobile-legends",
+  service_code: "ML86",
+  target_id: "123456789",
+  zone_id: "1234",
+  ref_id: "TRX-INVOICE-0001",
+};
+
+const res = await fetch("https://api.mymarket.web.id/api/h2h/v1/order", {
+  method: "POST",
+  headers: {
+    "X-API-Key": "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+  },
+  body: JSON.stringify(payload),
+});
+const data = await res.json();
+console.log(res.status, data);</code></pre></div></div><div class="reqpanel" data-lang="java"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">java</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+
+public class OrderTopupExample {
+    public static void main(String[] args) throws Exception {
+        String json = "{"
+            + "\"product_type\":\"topup\","
+            + "\"category_key\":\"mobile-legends\","
+            + "\"service_code\":\"ML86\","
+            + "\"target_id\":\"123456789\","
+            + "\"zone_id\":\"1234\","
+            + "\"ref_id\":\"TRX-INVOICE-0001\""
+            + "}";
+
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.mymarket.web.id/api/h2h/v1/order"))
+                .timeout(Duration.ofSeconds(60))
+                .header("X-API-Key", "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx")
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        HttpResponse&lt;String&gt; response =
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println(response.statusCode());
+        System.out.println(response.body()); // parse pakai Jackson / Gson
+    }
+}</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl -X POST "https://api.mymarket.web.id/api/h2h/v1/order" \
+  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
   "product_type": "topup",
   "category_key": "mobile-legends",
   "service_code": "ML86",
   "target_id": "123456789",
   "zone_id": "1234",
   "ref_id": "TRX-INVOICE-0001"
-}</code></pre>
-            </div>
+}'</code></pre></div></div></div>
+            <h4 class="sub">Contoh request — produk general</h4>
+            <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
+$apiKey = "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx";
 
-            <h4 class="sub">Kalau saldo cukup — langsung diproses</h4>
-            <div class="code-wrap">
-              <div class="code-header"><span class="code-lang">json — response</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
-              <pre class="code-block"><code>{
+$payload = [
+    "product_type" =&gt; "general",
+    "product_variant_id" =&gt; "b2f1c9e0-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "quantity" =&gt; 2,
+    "ref_id" =&gt; "TRX-INVOICE-0002",
+];
+
+$curl = curl_init();
+curl_setopt_array($curl, [
+    CURLOPT_URL            =&gt; "https://api.mymarket.web.id/api/h2h/v1/order",
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_TIMEOUT        =&gt; 60,
+    CURLOPT_POST           =&gt; true,
+    CURLOPT_POSTFIELDS     =&gt; json_encode($payload),
+    CURLOPT_HTTPHEADER     =&gt; [
+        "X-API-Key: " . $apiKey,
+        "Content-Type: application/json",
+        "Accept: application/json",
+    ],
+]);
+$response = curl_exec($curl);
+if ($response === false) {
+    // Timeout / koneksi putus: JANGAN buat order baru dengan ref_id lain.
+    // Cek dulu lewat GET /order/{ref_id} (lihat bagian Cek Status Order).
+    die("cURL error: " . curl_error($curl));
+}
+$httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+curl_close($curl);
+
+$hasil = json_decode($response, true);
+print_r($hasil);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const payload = {
+  product_type: "general",
+  product_variant_id: "b2f1c9e0-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  quantity: 2,
+  ref_id: "TRX-INVOICE-0002",
+};
+
+const res = await fetch("https://api.mymarket.web.id/api/h2h/v1/order", {
+  method: "POST",
+  headers: {
+    "X-API-Key": "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+  },
+  body: JSON.stringify(payload),
+});
+const data = await res.json();
+console.log(res.status, data);</code></pre></div></div><div class="reqpanel" data-lang="java"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">java</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+
+public class OrderGeneralExample {
+    public static void main(String[] args) throws Exception {
+        String json = "{"
+            + "\"product_type\":\"general\","
+            + "\"product_variant_id\":\"b2f1c9e0-xxxx-xxxx-xxxx-xxxxxxxxxxxx\","
+            + "\"quantity\":2,"
+            + "\"ref_id\":\"TRX-INVOICE-0002\""
+            + "}";
+
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.mymarket.web.id/api/h2h/v1/order"))
+                .timeout(Duration.ofSeconds(60))
+                .header("X-API-Key", "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx")
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        HttpResponse&lt;String&gt; response =
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println(response.statusCode());
+        System.out.println(response.body()); // parse pakai Jackson / Gson
+    }
+}</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl -X POST "https://api.mymarket.web.id/api/h2h/v1/order" \
+  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "product_type": "general",
+  "product_variant_id": "b2f1c9e0-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "quantity": 2,
+  "ref_id": "TRX-INVOICE-0002"
+}'</code></pre></div></div></div>
+
+            <h4 class="sub">Saldo cukup — langsung diproses (topup)</h4>
+            <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{
   "success": true,
   "data": {
-    "id": "a1b2...",
+    "id": "a1b2c3d4-....",
     "ref_id": "TRX-INVOICE-0001",
     "product_type": "topup",
     "status": "success",
     "price": 20979,
+    "quantity": 1,
+    "target_id": "123456789",
+    "zone_id": "1234",
     "payment_method": "saldo",
     "payment": null,
-    "result": { "topup_order_id": "c3d4...", "trxid": "VP123456", "status": "success" },
+    "result": { "topup_order_id": "c3d4e5f6-....", "trxid": "VP123456", "status": "waiting" },
     "createdAt": "2026-09-28T10:00:00.000Z",
     "completedAt": "2026-09-28T10:00:02.000Z"
   }
-}</code></pre>
-            </div>
+}</code></pre></div>
+            <div class="note"><i class="fas fa-circle-info"></i><div>Untuk topup, <code>data.status = "success"</code> berarti order <strong>sudah diterima provider dan saldo terpotong</strong>. <code>result.status</code> adalah status dari provider saat order dibuat (misalnya <code>waiting</code> = sedang diproses) — proses masuk ke akun game bisa butuh beberapa saat.</div></div>
 
-            <h4 class="sub">Kalau saldo kurang — otomatis dibuatkan QRIS</h4>
-            <div class="code-wrap">
-              <div class="code-header"><span class="code-lang">json — response</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
-              <pre class="code-block"><code>{
+            <h4 class="sub">Saldo cukup — produk general</h4>
+            <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{
   "success": true,
   "data": {
-    "id": "a1b2...",
+    "id": "e5f6a7b8-....",
+    "ref_id": "TRX-INVOICE-0002",
+    "product_type": "general",
+    "status": "success",
+    "price": 29970,
+    "quantity": 2,
+    "target_id": null,
+    "zone_id": null,
+    "payment_method": "saldo",
+    "payment": null,
+    "result": {
+      "units": [
+        { "success": true, "message": null, "order_id": "9a8b....", "credential": "email1@mail.com|password1" },
+        { "success": true, "message": null, "order_id": "7c6d....", "credential": "email2@mail.com|password2" }
+      ]
+    },
+    "createdAt": "2026-09-28T10:05:00.000Z",
+    "completedAt": "2026-09-28T10:05:01.000Z"
+  }
+}</code></pre></div>
+            <p class="txt">Isi produk (akun, voucher, dll.) ada di <code>result.units[].credential</code>, satu entri per unit yang dipesan.</p>
+
+            <h4 class="sub">Saldo kurang — otomatis dibuatkan QRIS</h4>
+            <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{
+  "success": true,
+  "data": {
+    "id": "a1b2c3d4-....",
     "ref_id": "TRX-INVOICE-0001",
+    "product_type": "topup",
     "status": "awaiting_payment",
     "price": 20979,
+    "quantity": 1,
+    "target_id": "123456789",
+    "zone_id": "1234",
     "payment_method": "qris",
     "payment": {
       "transaction_id": "DP-xxxxxx",
       "qr_string": "00020101021226...",
-      "qr_image": "data:image/png;base64,...",
+      "qr_image": "data:image/png;base64,iVBORw0KGgo...",
       "expired_at": "2026-09-28T10:15:00.000Z",
       "amount": 20979
     },
     "result": null,
-    "createdAt": "2026-09-28T10:00:00.000Z"
+    "createdAt": "2026-09-28T10:00:00.000Z",
+    "completedAt": null
   }
-}</code></pre>
-            </div>
-            <div class="note">Order dengan status <code>awaiting_payment</code> akan <strong>otomatis lanjut diproses</strong> begitu QRIS di atas dibayar — tidak perlu request order baru. Pantau progressnya lewat <a href="#webhook">Webhook</a> atau <a href="#order-status">Cek Status Order</a>.</div>
+}</code></pre></div>
+            <div class="note ok"><i class="fas fa-circle-check"></i><div>Order berstatus <code>awaiting_payment</code> akan <strong>otomatis lanjut diproses</strong> begitu QRIS di atas dibayar — tidak perlu request order baru. Nominal QRIS adalah <strong>harga penuh order</strong> (bukan selisih saldo). Pantau progres lewat <a href="#webhook">Webhook</a> atau <a href="#order-status">Cek Status Order</a>.</div></div>
+
+            <h4 class="sub">Order terbentuk tapi gagal diproses</h4>
+            <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{
+  "success": true,
+  "data": {
+    "id": "a1b2c3d4-....",
+    "ref_id": "TRX-INVOICE-0003",
+    "product_type": "topup",
+    "status": "failed",
+    "price": 20979,
+    "payment_method": "saldo",
+    "payment": null,
+    "result": { "message": "Order gagal: Target tidak valid. Saldo dikembalikan." },
+    "createdAt": "2026-09-28T10:20:00.000Z",
+    "completedAt": "2026-09-28T10:20:02.000Z"
+  }
+}</code></pre></div>
+
+            <h4 class="sub">Sebagian unit berhasil (general, quantity &gt; 1)</h4>
+            <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{
+  "success": true,
+  "data": {
+    "id": "e5f6a7b8-....",
+    "ref_id": "TRX-INVOICE-0004",
+    "product_type": "general",
+    "status": "partial",
+    "quantity": 3,
+    "result": {
+      "units": [
+        { "success": true,  "message": null, "order_id": "9a8b....", "credential": "email1@mail.com|password1" },
+        { "success": true,  "message": null, "order_id": "7c6d....", "credential": "email2@mail.com|password2" },
+        { "success": false, "message": "Stok habis", "order_id": null, "credential": null }
+      ]
+    }
+  }
+}</code></pre></div>
+            <p class="txt">Status <code>partial</code> berarti sebagian unit berhasil dan sebagian gagal. Hanya unit yang berhasil yang dikenakan biaya; cek tiap entri di <code>result.units</code>.</p>
+
+            <h4 class="sub">Request diulang dengan ref_id yang sama</h4>
+            <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{
+  "success": true,
+  "message": "ref_id sudah pernah dipakai, mengembalikan order yang sama (idempotent)",
+  "data": { "id": "a1b2c3d4-....", "ref_id": "TRX-INVOICE-0001", "status": "success", "...": "..." }
+}</code></pre></div>
           </div>
         </div>
       </section>
 
       <section class="docs-section" id="order-status">
         <h2>Cek Status Order</h2>
-        <p class="lead">Bisa dipanggil pakai <code>id</code> internal atau <code>ref_id</code> milikmu sendiri. Kalau statusnya masih <code>awaiting_payment</code>, endpoint ini otomatis mengecek ke penyedia QRIS dan langsung melanjutkan order kalau ternyata sudah dibayar — jadi aman dipakai untuk polling walau kamu tidak pasang webhook.</p>
+        <p class="lead">Bisa dipanggil pakai <code>id</code> internal atau <code>ref_id</code> milikmu sendiri. Kalau statusnya masih <code>awaiting_payment</code>, endpoint ini otomatis mengecek ke penyedia QRIS dan langsung melanjutkan order kalau ternyata sudah dibayar — jadi aman dipakai untuk polling walau kamu tidak memasang webhook.</p>
         <div class="endpoint-card">
           <div class="endpoint-head"><span class="method-badge method-get">GET</span><span class="endpoint-path">/order/:id</span></div>
           <div class="endpoint-body">
-            <div class="code-wrap">
-              <div class="code-header"><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
-              <pre class="code-block"><code>curl https://austinstore.id/api/h2h/v1/order/TRX-INVOICE-0001 \
-  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx"</code></pre>
-            </div>
+            <div class="table-scroll"><table class="field-table"><tr><th>Parameter path</th><th>Tipe</th><th>Ket.</th></tr><tr><td><code>id</code><span class="req">wajib</span></td><td>string</td><td><code>id</code> order dari respons <code>/order</code>, <strong>atau</strong> <code>ref_id</code> milikmu</td></tr></table></div>
+            <h4 class="sub">Contoh request (pakai ref_id)</h4>
+            <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
+$apiKey = "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx";
+
+$curl = curl_init();
+curl_setopt_array($curl, [
+    CURLOPT_URL            =&gt; "https://api.mymarket.web.id/api/h2h/v1/order/TRX-INVOICE-0001",
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_TIMEOUT        =&gt; 30,
+    CURLOPT_HTTPHEADER     =&gt; [
+        "X-API-Key: " . $apiKey,
+        "Accept: application/json",
+    ],
+]);
+$response = curl_exec($curl);
+if ($response === false) {
+    die("cURL error: " . curl_error($curl));
+}
+$httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+curl_close($curl);
+
+$hasil = json_decode($response, true);
+print_r($hasil);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const res = await fetch("https://api.mymarket.web.id/api/h2h/v1/order/TRX-INVOICE-0001", {
+  headers: {
+    "X-API-Key": "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "Accept": "application/json",
+  },
+});
+const data = await res.json();
+console.log(res.status, data);</code></pre></div></div><div class="reqpanel" data-lang="java"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">java</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+
+public class OrderStatusExample {
+    public static void main(String[] args) throws Exception {
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.mymarket.web.id/api/h2h/v1/order/TRX-INVOICE-0001"))
+                .timeout(Duration.ofSeconds(30))
+                .header("X-API-Key", "h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx")
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse&lt;String&gt; response =
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println(response.statusCode());
+        System.out.println(response.body()); // parse pakai Jackson / Gson
+    }
+}</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl "https://api.mymarket.web.id/api/h2h/v1/order/TRX-INVOICE-0001" \
+  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "Accept: application/json"</code></pre></div></div></div>
+            <h4 class="sub">Response</h4>
+            <p class="txt">Bentuk <code>data</code> sama persis dengan respons <a href="#order">Buat Order</a>.</p>
+            <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{
+  "success": true,
+  "data": {
+    "id": "a1b2c3d4-....",
+    "ref_id": "TRX-INVOICE-0001",
+    "product_type": "topup",
+    "status": "success",
+    "price": 20979,
+    "quantity": 1,
+    "target_id": "123456789",
+    "zone_id": "1234",
+    "payment_method": "saldo",
+    "payment": null,
+    "result": { "topup_order_id": "c3d4e5f6-....", "trxid": "VP123456", "status": "waiting" },
+    "createdAt": "2026-09-28T10:00:00.000Z",
+    "completedAt": "2026-09-28T10:00:02.000Z"
+  }
+}</code></pre></div>
+            <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 404 Not Found</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{ "success": false, "message": "Order tidak ditemukan" }</code></pre></div>
+            <div class="note"><i class="fas fa-circle-info"></i><div>Order hanya bisa dibaca oleh akun pemilik API Key yang membuatnya. Order milik akun lain selalu dijawab <code>404</code>.</div></div>
+            <div class="note warn"><i class="fas fa-triangle-exclamation"></i><div><strong>Frekuensi polling:</strong> cukup tiap 5–10 detik dan berhenti begitu status akhir tercapai (<code>success</code>, <code>failed</code>, <code>partial</code>). Untuk QRIS, pakai <code>payment.expired_at</code> sebagai batas menunggu.</div></div>
           </div>
         </div>
       </section>
 
+      <section class="docs-section" id="lifecycle">
+        <h2>Alur &amp; Status Order</h2>
+        <p class="lead">Status yang bisa muncul di <code>data.status</code>:</p>
+        <div class="table-scroll"><table class="field-table"><tr><th>Status</th><th>Artinya</th><th>Tindakan</th></tr><tr><td><span class="s-badge s-wait">awaiting_payment</span></td><td>Saldo kurang; QRIS sudah dibuat dan menunggu pembayaran.</td><td>Bayar QRIS sebelum <code>payment.expired_at</code>. Order lanjut otomatis setelah terbayar.</td></tr><tr><td><span class="s-badge s-info">processing</span></td><td>Order sedang diproses (status sementara, sesaat setelah dibayar/dipotong saldo).</td><td>Tunggu beberapa detik lalu cek status lagi.</td></tr><tr><td><span class="s-badge s-ok">success</span></td><td>Order selesai. Topup: diterima provider &amp; saldo terpotong. General: semua unit berhasil.</td><td>Ambil hasil dari <code>result</code>.</td></tr><tr><td><span class="s-badge s-wait">partial</span></td><td>General dengan <code>quantity</code> &gt; 1: sebagian unit berhasil, sebagian gagal.</td><td>Cek tiap <code>result.units[]</code>. Hanya unit berhasil yang ditagihkan.</td></tr><tr><td><span class="s-badge s-bad">failed</span></td><td>Order gagal diproses. Saldo yang sempat terpotong dikembalikan.</td><td>Baca <code>result.message</code>. Buat order baru dengan <code>ref_id</code> baru bila perlu.</td></tr></table></div>
+        <h4 class="sub">Alur singkat</h4>
+        <div class="flow">
+          <div class="flow-step"><div class="flow-n">1</div><div><b>Saldo cukup</b> → order langsung diproses → respons berisi status akhir (<code>success</code> / <code>partial</code> / <code>failed</code>) dan webhook dikirim bila diatur.</div></div>
+          <div class="flow-step"><div class="flow-n">2</div><div><b>Saldo kurang</b> → respons berstatus <code>awaiting_payment</code> berisi QRIS → setelah dibayar order diproses otomatis → status berubah ke status akhir dan webhook dikirim bila diatur.</div></div>
+        </div>
+        <div class="note warn"><i class="fas fa-triangle-exclamation"></i><div>Jika QRIS kedaluwarsa tanpa dibayar, sistem tidak memproses order tersebut. Anggap order batal setelah <code>expired_at</code> lewat, dan kirim order baru dengan <code>ref_id</code> baru (memakai <code>ref_id</code> yang sama hanya akan mengembalikan order lama).</div></div>
+      </section>
+
       <section class="docs-section" id="webhook">
         <h2>Webhook</h2>
-        <p class="lead">Kalau kamu atur <code>webhook_url</code> dari halaman akun (menu H2H API), kami akan mengirim <code>POST</code> ke URL tersebut setiap kali order selesai diproses (baik langsung lewat saldo maupun setelah QRIS dibayar). Tidak pasang webhook? Tidak masalah — cukup gunakan <a href="#order-status">Cek Status Order</a> secara berkala.</p>
+        <p class="lead">Kalau kamu mengatur <code>webhook_url</code> dari halaman akun (menu H2H API), kami mengirim <code>POST</code> ke URL tersebut setiap kali order selesai diproses — baik langsung lewat saldo maupun setelah QRIS dibayar. Tidak memasang webhook? Tidak masalah, cukup gunakan <a href="#order-status">Cek Status Order</a> secara berkala.</p>
 
         <h4 class="sub">Payload</h4>
-        <div class="code-wrap">
-          <div class="code-header"><span class="code-lang">json</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
-          <pre class="code-block"><code>{
+        <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{
   "event": "order.success",
-  "data": { "id": "a1b2...", "ref_id": "TRX-INVOICE-0001", "status": "success", "price": 20979, "result": { "...": "..." } },
+  "data": {
+    "id": "a1b2c3d4-....",
+    "ref_id": "TRX-INVOICE-0001",
+    "product_type": "topup",
+    "status": "success",
+    "price": 20979,
+    "quantity": 1,
+    "target_id": "123456789",
+    "zone_id": "1234",
+    "payment_method": "qris",
+    "payment": null,
+    "result": { "topup_order_id": "c3d4e5f6-....", "trxid": "VP123456", "status": "waiting" },
+    "createdAt": "2026-09-28T10:00:00.000Z",
+    "completedAt": "2026-09-28T10:15:04.000Z"
+  },
   "sent_at": "2026-09-28T10:15:04.000Z"
-}</code></pre>
-        </div>
-        <p style="font-size:12.5px;color:var(--text-muted);margin:6px 0 4px;">Kemungkinan nilai <code>event</code>: <code>order.success</code>, <code>order.failed</code>.</p>
+}</code></pre></div>
+        <div class="table-scroll"><table class="field-table"><tr><th>Event</th><th>Dikirim saat</th></tr><tr><td><code>order.success</code></td><td>Status akhir <code>success</code> <strong>atau</strong> <code>partial</code> — cek <code>data.status</code> untuk membedakan</td></tr><tr><td><code>order.failed</code></td><td>Status akhir <code>failed</code></td></tr></table></div>
 
-        <h4 class="sub">Verifikasi Signature</h4>
-        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:6px;">Setiap request webhook disertai header <code>X-H2H-Signature</code>: HMAC-SHA256 dari raw body, ditandatangani pakai <code>webhook_secret</code> milikmu (ditampilkan sekali saat kamu set webhook URL).</p>
-        <div class="code-wrap">
-          <div class="code-header"><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
-          <pre class="code-block"><code>const crypto = require("crypto");
+        <h4 class="sub">Header yang kami kirim</h4>
+        <div class="table-scroll"><table class="field-table"><tr><th>Header</th><th>Isi</th></tr><tr><td><code>Content-Type</code></td><td><code>application/json</code></td></tr><tr><td><code>X-H2H-Event</code></td><td>Nama event, mis. <code>order.success</code></td></tr><tr><td><code>X-H2H-Signature</code></td><td>HMAC-SHA256 (hex) dari <strong>raw body</strong>, ditandatangani dengan <code>webhook_secret</code> milikmu</td></tr></table></div>
 
-function isValid(rawBody, signatureHeader, webhookSecret) {
-  const expected = crypto.createHmac("sha256", webhookSecret)
-    .update(rawBody)
-    .digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signatureHeader));
-}</code></pre>
-        </div>
-        <div class="note warn"><i class="fas fa-triangle-exclamation"></i> Gunakan <em>raw body</em> (string mentah sebelum di-parse JSON) untuk verifikasi, bukan hasil <code>JSON.stringify()</code> ulang — urutan key yang berubah akan bikin signature tidak cocok.</div>
+        <h4 class="sub">Verifikasi signature</h4>
+        <p class="txt"><code>webhook_secret</code> ditampilkan sekali saat kamu mengatur webhook URL. Hitung HMAC-SHA256 dari body mentah, bandingkan dengan header <code>X-H2H-Signature</code> memakai perbandingan waktu-konstan.</p>
+        <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
+// webhook.php  — URL ini yang kamu isi di halaman H2H API sebagai webhook_url
+$webhookSecret = "whsec_xxxxxxxxxxxxxxxx";   // ditampilkan sekali saat webhook diatur
+
+$raw       = file_get_contents("php://input");                 // body MENTAH
+$signature = $_SERVER["HTTP_X_H2H_SIGNATURE"] ?? "";
+$expected  = hash_hmac("sha256", $raw, $webhookSecret);
+
+if (!hash_equals($expected, $signature)) {
+    http_response_code(401);
+    exit("invalid signature");
+}
+
+$payload = json_decode($raw, true);
+$event   = $payload["event"] ?? "";           // order.success | order.failed
+$order   = $payload["data"]  ?? [];
+
+// TODO: update transaksi di sistem kamu berdasarkan $order["ref_id"]
+// Idempotent: webhook bisa terkirim lebih dari sekali untuk order yang sama.
+
+http_response_code(200);                       // balas 2xx secepatnya
+echo json_encode(["received" =&gt; true]);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const express = require("express");
+const crypto = require("crypto");
+
+const app = express();
+const WEBHOOK_SECRET = "whsec_xxxxxxxxxxxxxxxx"; // ditampilkan sekali saat webhook diatur
+
+// PENTING: pakai express.raw supaya body tetap mentah untuk verifikasi signature
+app.post("/webhook/mymarket", express.raw({ type: "application/json" }), (req, res) =&gt; {
+  const raw = req.body; // Buffer
+  const expected = crypto.createHmac("sha256", WEBHOOK_SECRET).update(raw).digest("hex");
+  const signature = req.get("X-H2H-Signature") || "";
+
+  const valid =
+    signature.length === expected.length &amp;&amp;
+    crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  if (!valid) return res.sendStatus(401);
+
+  const { event, data } = JSON.parse(raw.toString("utf8"));
+  // event: "order.success" | "order.failed"
+  // TODO: update transaksi di sistem kamu berdasarkan data.ref_id (buat idempotent)
+
+  res.sendStatus(200); // balas 2xx secepatnya
+});
+
+app.listen(3000);</code></pre></div></div><div class="reqpanel" data-lang="java"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">java</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
+public class H2hWebhookVerifier {
+
+    /** rawBody = isi body MENTAH persis seperti yang diterima (jangan di-serialize ulang). */
+    public static boolean isValid(String rawBody, String signatureHeader, String webhookSecret) throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(webhookSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        byte[] digest = mac.doFinal(rawBody.getBytes(StandardCharsets.UTF_8));
+
+        StringBuilder hex = new StringBuilder();
+        for (byte b : digest) hex.append(String.format("%02x", b));
+
+        return MessageDigest.isEqual(
+                hex.toString().getBytes(StandardCharsets.UTF_8),
+                (signatureHeader == null ? "" : signatureHeader).getBytes(StandardCharsets.UTF_8));
+    }
+}
+
+// Contoh pemakaian di Spring Boot:
+//
+// @PostMapping("/webhook/mymarket")
+// public ResponseEntity&lt;String&gt; webhook(
+//         @RequestBody String rawBody,
+//         @RequestHeader("X-H2H-Signature") String signature) throws Exception {
+//     if (!H2hWebhookVerifier.isValid(rawBody, signature, "whsec_xxxxxxxxxxxxxxxx")) {
+//         return ResponseEntity.status(401).body("invalid signature");
+//     }
+//     // parse rawBody (Jackson/Gson) lalu update transaksi berdasarkan ref_id
+//     return ResponseEntity.ok("{\"received\":true}");
+// }</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code># Simulasi webhook untuk mengetes endpoint milikmu sendiri
+SECRET="whsec_xxxxxxxxxxxxxxxx"
+BODY='{"event":"order.success","data":{"ref_id":"TRX-INVOICE-0001","status":"success","price":20979},"sent_at":"2026-09-28T10:15:04.000Z"}'
+
+SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$SECRET" | sed 's/^.* //')
+
+curl -X POST "https://domain-kamu.com/webhook/mymarket" \
+  -H "Content-Type: application/json" \
+  -H "X-H2H-Event: order.success" \
+  -H "X-H2H-Signature: $SIG" \
+  -d "$BODY"</code></pre></div></div></div>
+        <div class="note warn"><i class="fas fa-triangle-exclamation"></i><div>Gunakan <em>raw body</em> (string mentah sebelum di-parse JSON) untuk verifikasi, bukan hasil serialisasi ulang — perubahan urutan key atau spasi akan membuat signature tidak cocok.</div></div>
+
+        <h4 class="sub">Aturan pengiriman</h4>
+        <div class="table-scroll"><table class="field-table"><tr><th>Aspek</th><th>Perilaku</th></tr><tr><td>Balasan yang diharapkan</td><td>HTTP <code>2xx</code>. Selain itu dianggap gagal.</td></tr><tr><td>Timeout</td><td>10 detik per percobaan — balas cepat, proses berat lakukan di belakang.</td></tr><tr><td>Percobaan ulang</td><td>Maksimal 3 kali dengan jeda bertahap (sekitar 1,5 dan 3 detik). Setelah itu pengiriman dihentikan.</td></tr><tr><td>Duplikat</td><td>Anggap webhook bisa datang lebih dari sekali. Buat proses di sisimu idempotent memakai <code>data.ref_id</code>.</td></tr><tr><td>Cadangan</td><td>Kalau webhook tidak sampai, status tetap bisa diambil lewat <code>GET /order/:id</code>.</td></tr></table></div>
+      </section>
+
+      <section class="docs-section" id="integration">
+        <h2>Contoh Integrasi Lengkap</h2>
+        <p class="lead">Klien kecil siap pakai yang membungkus semua endpoint, menangani respons non-JSON, dan menunjukkan pola aman untuk order: simpan <code>ref_id</code> lebih dulu, lalu cek status bila koneksi putus.</p>
+        <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
+class MyMarketH2H
+{
+    private string $baseUrl = "https://api.mymarket.web.id/api/h2h/v1";
+
+    public function __construct(private string $apiKey) {}
+
+    private function request(string $method, string $path, ?array $body = null): array
+    {
+        $curl = curl_init();
+        $opts = [
+            CURLOPT_URL            =&gt; $this-&gt;baseUrl . $path,
+            CURLOPT_CUSTOMREQUEST  =&gt; $method,
+            CURLOPT_RETURNTRANSFER =&gt; true,
+            CURLOPT_CONNECTTIMEOUT =&gt; 10,
+            CURLOPT_TIMEOUT        =&gt; 60,
+            CURLOPT_HTTPHEADER     =&gt; [
+                "X-API-Key: " . $this-&gt;apiKey,
+                "Content-Type: application/json",
+                "Accept: application/json",
+            ],
+        ];
+        if ($body !== null) {
+            $opts[CURLOPT_POSTFIELDS] = json_encode($body);
+        }
+        curl_setopt_array($curl, $opts);
+
+        $raw  = curl_exec($curl);
+        $err  = curl_error($curl);
+        $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+
+        if ($raw === false) {
+            return ["success" =&gt; false, "network_error" =&gt; true, "message" =&gt; $err];
+        }
+        $json = json_decode($raw, true);
+        if (!is_array($json)) {
+            return ["success" =&gt; false, "http_code" =&gt; $code, "message" =&gt; "Respons bukan JSON (cek Base URL)"];
+        }
+        $json["http_code"] = $code;
+        return $json;
+    }
+
+    public function catalog(): array                { return $this-&gt;request("GET", "/catalog"); }
+    public function topupItems(string $key): array  { return $this-&gt;request("GET", "/catalog/topup/" . rawurlencode($key)); }
+    public function balance(): array                { return $this-&gt;request("GET", "/balance"); }
+    public function order(array $payload): array    { return $this-&gt;request("POST", "/order", $payload); }
+    public function status(string $idOrRef): array  { return $this-&gt;request("GET", "/order/" . rawurlencode($idOrRef)); }
+}
+
+// ---- Pemakaian ----
+$api   = new MyMarketH2H("h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx");
+$refId = "TRX-" . date("YmdHis") . "-" . random_int(1000, 9999); // simpan di DB kamu SEBELUM request
+
+$res = $api-&gt;order([
+    "product_type" =&gt; "topup",
+    "category_key" =&gt; "mobile-legends",
+    "service_code" =&gt; "ML86",
+    "target_id"    =&gt; "123456789",
+    "zone_id"      =&gt; "1234",
+    "ref_id"       =&gt; $refId,
+]);
+
+if (!empty($res["network_error"])) {
+    // timeout / koneksi putus -&gt; order MUNGKIN sudah terbentuk. Jangan buat ref_id baru,
+    // cek dulu dengan $api-&gt;status($refId) beberapa detik lagi.
+} elseif (!$res["success"]) {
+    echo "Ditolak: " . $res["message"];             // order belum terbentuk, aman dicoba ulang
+} else {
+    $order = $res["data"];
+    switch ($order["status"]) {
+        case "success":          /* selesai */ break;
+        case "failed":           echo $order["result"]["message"]; break;
+        case "awaiting_payment": /* tampilkan QR: $order["payment"]["qr_image"] */ break;
+    }
+}</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>class MyMarketH2H {
+  constructor(apiKey, baseUrl = "https://api.mymarket.web.id/api/h2h/v1") {
+    this.apiKey = apiKey;
+    this.baseUrl = baseUrl;
+  }
+
+  async request(method, path, body) {
+    try {
+      const res = await fetch(this.baseUrl + path, {
+        method,
+        headers: {
+          "X-API-Key": this.apiKey,
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: body ? JSON.stringify(body) : undefined,
+        signal: AbortSignal.timeout(60000),
+      });
+      const text = await res.text();
+      let json;
+      try { json = JSON.parse(text); }
+      catch { return { success: false, httpCode: res.status, message: "Respons bukan JSON (cek Base URL)" }; }
+      return { ...json, httpCode: res.status };
+    } catch (err) {
+      return { success: false, networkError: true, message: err.message };
+    }
+  }
+
+  catalog()          { return this.request("GET", "/catalog"); }
+  topupItems(key)    { return this.request("GET", "/catalog/topup/" + encodeURIComponent(key)); }
+  balance()          { return this.request("GET", "/balance"); }
+  order(payload)     { return this.request("POST", "/order", payload); }
+  status(idOrRef)    { return this.request("GET", "/order/" + encodeURIComponent(idOrRef)); }
+}
+
+// ---- Pemakaian ----
+const api = new MyMarketH2H("h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx");
+const refId = `TRX-${Date.now()}`; // simpan di DB kamu SEBELUM request
+
+const res = await api.order({
+  product_type: "topup",
+  category_key: "mobile-legends",
+  service_code: "ML86",
+  target_id: "123456789",
+  zone_id: "1234",
+  ref_id: refId,
+});
+
+if (res.networkError) {
+  // timeout -&gt; order MUNGKIN sudah terbentuk. Cek pakai api.status(refId), jangan ganti ref_id.
+} else if (!res.success) {
+  console.log("Ditolak:", res.message); // order belum terbentuk, aman dicoba ulang
+} else {
+  const o = res.data;
+  if (o.status === "success") console.log("Selesai", o.result);
+  else if (o.status === "failed") console.log("Gagal:", o.result.message);
+  else if (o.status === "awaiting_payment") console.log("Bayar QRIS sebelum", o.payment.expired_at);
+}</code></pre></div></div><div class="reqpanel" data-lang="java"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">java</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+
+public class MyMarketH2H {
+    private static final String BASE_URL = "https://api.mymarket.web.id/api/h2h/v1";
+
+    private final String apiKey;
+    private final HttpClient client = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .build();
+
+    public MyMarketH2H(String apiKey) { this.apiKey = apiKey; }
+
+    private HttpResponse&lt;String&gt; send(String method, String path, String jsonBody) throws Exception {
+        HttpRequest.Builder b = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + path))
+                .timeout(Duration.ofSeconds(60))
+                .header("X-API-Key", apiKey)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json");
+
+        if ("POST".equals(method)) b.POST(HttpRequest.BodyPublishers.ofString(jsonBody));
+        else b.GET();
+
+        return client.send(b.build(), HttpResponse.BodyHandlers.ofString());
+    }
+
+    public String catalog() throws Exception           { return send("GET", "/catalog", null).body(); }
+    public String topupItems(String key) throws Exception { return send("GET", "/catalog/topup/" + key, null).body(); }
+    public String balance() throws Exception           { return send("GET", "/balance", null).body(); }
+    public String order(String json) throws Exception  { return send("POST", "/order", json).body(); }
+    public String status(String idOrRef) throws Exception { return send("GET", "/order/" + idOrRef, null).body(); }
+
+    public static void main(String[] args) throws Exception {
+        MyMarketH2H api = new MyMarketH2H("h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx");
+        String refId = "TRX-" + System.currentTimeMillis(); // simpan di DB kamu SEBELUM request
+
+        String json = "{"
+                + "\"product_type\":\"topup\","
+                + "\"category_key\":\"mobile-legends\","
+                + "\"service_code\":\"ML86\","
+                + "\"target_id\":\"123456789\","
+                + "\"zone_id\":\"1234\","
+                + "\"ref_id\":\"" + refId + "\""
+                + "}";
+
+        try {
+            System.out.println(api.order(json));
+        } catch (java.io.IOException timeoutOrNetwork) {
+            // Order MUNGKIN sudah terbentuk. Cek dengan api.status(refId); jangan ganti ref_id.
+            System.out.println(api.status(refId));
+        }
+    }
+}</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>#!/usr/bin/env bash
+API="https://api.mymarket.web.id/api/h2h/v1"
+KEY="h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx"
+REF="TRX-$(date +%s)"
+
+# 1) Buat order
+curl -s -X POST "$API/order" \
+  -H "X-API-Key: $KEY" -H "Content-Type: application/json" \
+  -d "{\"product_type\":\"topup\",\"category_key\":\"mobile-legends\",\"service_code\":\"ML86\",\"target_id\":\"123456789\",\"zone_id\":\"1234\",\"ref_id\":\"$REF\"}"
+
+# 2) Pantau status pakai ref_id yang sama
+for i in 1 2 3 4 5 6; do
+  sleep 5
+  curl -s "$API/order/$REF" -H "X-API-Key: $KEY"
+  echo
+done</code></pre></div></div></div>
+        <div class="note ok"><i class="fas fa-circle-check"></i><div><strong>Pola aman saat timeout:</strong> kalau request <code>POST /order</code> terputus sebelum ada respons, order mungkin sudah terbentuk. Jangan membuat order dengan <code>ref_id</code> baru — panggil <code>GET /order/:ref_id</code> (atau kirim ulang <code>POST /order</code> dengan <code>ref_id</code> yang <strong>sama</strong>) supaya tidak terjadi order ganda.</div></div>
       </section>
 
       <section class="docs-section" id="pricing">
         <h2>Harga Khusus H2H</h2>
-        <p class="lead">Semua harga yang dikembalikan lewat H2H API (katalog, item topup, hasil order) sudah dihitung dengan diskon khusus H2H yang diatur owner toko — kamu tidak perlu menghitung ulang. Diskon ini otomatis dikreditkan kembali ke saldomu setelah order berhasil, jadi harga yang kamu lihat di respons API memang harga akhir yang kamu bayar.</p>
+        <p class="lead">Semua harga yang dikembalikan lewat H2H API (katalog, item topup, hasil order) sudah dihitung dengan diskon khusus H2H yang diatur owner toko — kamu tidak perlu menghitung ulang. Diskon ini otomatis dikreditkan kembali ke saldomu setelah order berhasil, jadi harga yang kamu lihat di respons API adalah harga akhir yang kamu bayar.</p>
+        <p class="txt">Persentase diskon aktif bisa dilihat di <code>data.discount_percent</code> pada respons <a href="#catalog">Katalog Produk</a>. Nilainya dapat berubah sewaktu-waktu, jadi ambil katalog secara berkala bila kamu menampilkan harga di etalasemu sendiri.</p>
+      </section>
+
+      <section class="docs-section" id="limits">
+        <h2>Rate Limit</h2>
+        <p class="lead">Batas request dihitung per alamat IP pengirim. Bila terlampaui, API membalas HTTP <code>429</code>.</p>
+        <div class="table-scroll"><table class="field-table"><tr><th>Cakupan</th><th>Batas</th></tr><tr><td><code>POST /order</code></td><td>30 request per menit</td></tr><tr><td>Endpoint H2H lainnya (katalog, saldo, status)</td><td>120 request per menit</td></tr><tr><td>Seluruh <code>/api/*</code> (gabungan)</td><td>600 request per 15 menit</td></tr></table></div>
+        <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 429 Too Many Requests</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{ "success": false, "message": "Terlalu banyak request order H2H API, coba lagi sebentar" }</code></pre></div>
+        <div class="note"><i class="fas fa-circle-info"></i><div>Simpan katalog di cache sisi kamu (misalnya 1–5 menit) daripada memanggil <code>/catalog</code> di setiap permintaan pengguna, dan beri jeda (backoff) sebelum mencoba lagi setelah menerima <code>429</code>.</div></div>
       </section>
 
       <section class="docs-section" id="errors">
         <h2>Kode Error</h2>
-        <table class="field-table">
-          <tr><th>HTTP</th><th>Kondisi</th></tr>
-          <tr><td>401</td><td>Header <code>X-API-Key</code> tidak ada / tidak valid / key dinonaktifkan</td></tr>
-          <tr><td>403</td><td>Akun disuspend, H2H API sedang dimatikan owner, atau modul/kategori produk tidak dibuka untuk H2H</td></tr>
-          <tr><td>404</td><td>Order dengan <code>id</code>/<code>ref_id</code> tersebut tidak ditemukan</td></tr>
-          <tr><td>429</td><td>Terlalu banyak request, coba lagi sebentar</td></tr>
-          <tr><td>200 (<code>success:false</code>)</td><td>Error bisnis biasa (saldo kurang, produk habis, input kurang lengkap, dst) — pesan lengkap ada di <code>message</code></td></tr>
-        </table>
+        <div class="table-scroll"><table class="field-table"><tr><th>HTTP</th><th>Kondisi</th></tr><tr><td>401</td><td>Header <code>X-API-Key</code> tidak ada / tidak valid / key dinonaktifkan</td></tr><tr><td>403</td><td>Akun disuspend, H2H API sedang dimatikan owner, atau modul/kategori produk tidak dibuka untuk H2H</td></tr><tr><td>404</td><td>Order dengan <code>id</code>/<code>ref_id</code> tersebut tidak ditemukan</td></tr><tr><td>429</td><td>Terlalu banyak request, coba lagi sebentar</td></tr><tr><td>500</td><td>Kesalahan server sementara — coba lagi; untuk order, cek status dulu</td></tr><tr><td>200 (<code>success:false</code>)</td><td>Error bisnis biasa (saldo kurang, produk habis, input kurang lengkap, dst.) — pesan lengkap ada di <code>message</code></td></tr></table></div>
+        <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 401 Unauthorized</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{ "success": false, "message": "API Key tidak valid atau sudah dinonaktifkan" }</code></pre></div>
+
+        <h4 class="sub">Pesan yang sering muncul</h4>
+        <div class="table-scroll"><table class="field-table"><tr><th>Pesan</th><th>Penyebab / solusi</th></tr><tr><td>Header X-API-Key wajib diisi</td><td>Header tidak terkirim atau namanya salah.</td></tr><tr><td>API Key tidak valid atau sudah dinonaktifkan</td><td>Key salah, sudah diganti (regenerate), atau dicabut. Generate ulang di halaman akun.</td></tr><tr><td>Akun pemilik API Key tidak aktif</td><td>Akun sedang disuspend. Hubungi admin.</td></tr><tr><td>H2H API sedang dinonaktifkan oleh owner</td><td>Fitur H2H dimatikan sementara.</td></tr><tr><td>Modul produk '…' tidak dibuka untuk akses H2H API</td><td>Modul tersebut tidak dibuka untuk H2H (cek <code>modules</code> di katalog).</td></tr><tr><td>Produk tidak tersedia</td><td><code>product_variant_id</code> salah, produk nonaktif, atau belum disetujui.</td></tr><tr><td>Produk ini tidak dibuka untuk akses H2H API</td><td>Kategori produk tersebut dikecualikan dari H2H.</td></tr><tr><td>Kategori topup tidak valid</td><td><code>category_key</code> salah.</td></tr><tr><td>Item tidak tersedia</td><td><code>service_code</code> salah atau layanan sedang tidak tersedia.</td></tr><tr><td>… wajib diisi (mis. Zone ID wajib diisi)</td><td>Field input wajib untuk kategori itu belum dikirim.</td></tr><tr><td>Gagal membuat QRIS: …</td><td>QRIS tidak bisa dibuat saat itu. Order dibatalkan; coba lagi dengan <code>ref_id</code> baru.</td></tr><tr><td>Saldo tidak cukup saat diproses</td><td>Saldo berubah di antara pengecekan dan pemrosesan. Muncul di <code>data.result.message</code> dengan status <code>failed</code>.</td></tr><tr><td>Order tidak ditemukan</td><td><code>id</code>/<code>ref_id</code> salah atau bukan milik akunmu.</td></tr></table></div>
+      </section>
+
+      <section class="docs-section" id="troubleshooting">
+        <h2>Troubleshooting</h2>
+        <div class="table-scroll"><table class="field-table"><tr><th>Gejala</th><th>Kemungkinan penyebab</th><th>Solusi</th></tr><tr><td>Respons berupa HTML, bukan JSON</td><td>Base URL salah (memakai domain website atau domain lain).</td><td>Pakai <code>https://api.mymarket.web.id/api/h2h/v1</code>.</td></tr><tr><td><code>401</code> padahal key sudah benar</td><td>Key lama setelah regenerate, atau header dikirim sebagai query string.</td><td>Kirim lewat header <code>X-API-Key</code> dan pakai key terbaru. Query <code>?apikey=</code> <strong>tidak</strong> dipakai di H2H API.</td></tr><tr><td>Order jalan tapi tidak tahu hasilnya</td><td>Webhook belum diatur / tidak terverifikasi.</td><td>Cek <code>GET /order/:ref_id</code>, atau atur webhook dan pastikan endpoint-mu membalas <code>2xx</code>.</td></tr><tr><td>Timeout saat <code>POST /order</code></td><td>Koneksi putus sebelum respons diterima.</td><td>Jangan buat <code>ref_id</code> baru. Cek <code>GET /order/:ref_id</code> — kalau <code>404</code>, order belum terbentuk dan aman dikirim ulang dengan <code>ref_id</code> yang sama.</td></tr><tr><td>Signature webhook selalu tidak cocok</td><td>Body sudah di-parse/diserialisasi ulang, atau secret salah.</td><td>Hitung dari body mentah dan pakai <code>webhook_secret</code> yang benar (lihat contoh verifikasi).</td></tr><tr><td>Order <code>awaiting_payment</code> tidak berubah</td><td>QRIS belum dibayar atau sudah kedaluwarsa.</td><td>Cek <code>payment.expired_at</code>. Jika lewat, buat order baru dengan <code>ref_id</code> baru.</td></tr><tr><td><code>429</code> berulang</td><td>Melewati batas request.</td><td>Cache katalog, kurangi frekuensi polling, dan beri backoff.</td></tr></table></div>
       </section>
 
     </div>
@@ -356,27 +1288,46 @@ function isValid(rawBody, signatureHeader, webhookSecret) {
 </div>
 
 <script>
-document.querySelectorAll('.copy-btn').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const pre = btn.closest('.code-wrap')?.querySelector('pre.code-block');
-    if (!pre) return;
-    navigator.clipboard.writeText(pre.innerText).then(() => {
-      btn.classList.add('copied');
-      const old = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-check"></i> Copied';
-      setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = old; }, 1500);
-    });
-  });
+/* Copy */
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest('.copy-btn');
+  if (!btn) return;
+  var pre = btn.closest('.code-wrap') && btn.closest('.code-wrap').querySelector('pre.code-block');
+  if (!pre) return;
+  var done = function () {
+    btn.classList.add('copied');
+    var old = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+    setTimeout(function () { btn.classList.remove('copied'); btn.innerHTML = old; }, 1500);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(pre.innerText).then(done, function () {});
+  }
 });
 
-const navLinks = document.querySelectorAll('.docs-nav a');
-const sections = [...document.querySelectorAll('.docs-section')];
-window.addEventListener('scroll', () => {
-  let current = sections[0]?.id;
-  for (const s of sections) {
-    if (window.scrollY + 100 >= s.offsetTop) current = s.id;
-  }
-  navLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+/* Tab bahasa: pilihan bahasa berlaku ke SEMUA contoh di halaman & diingat */
+function setLang(lang) {
+  document.querySelectorAll('.reqtab').forEach(function (t) { t.classList.toggle('active', t.dataset.lang === lang); });
+  document.querySelectorAll('.reqpanel').forEach(function (p) { p.classList.toggle('active', p.dataset.lang === lang); });
+}
+document.addEventListener('click', function (e) {
+  var tab = e.target.closest('.reqtab');
+  if (!tab) return;
+  setLang(tab.dataset.lang);
+  try { localStorage.setItem('h2h_docs_lang', tab.dataset.lang); } catch (err) {}
+});
+try {
+  var saved = localStorage.getItem('h2h_docs_lang');
+  if (saved) setLang(saved);
+} catch (err) {}
+
+/* Scroll spy */
+var navLinks = document.querySelectorAll('.docs-nav a');
+var sections = Array.prototype.slice.call(document.querySelectorAll('.docs-section, .hero'));
+window.addEventListener('scroll', function () {
+  var current = sections[0] && sections[0].id;
+  sections.forEach(function (s) { if (window.scrollY + 100 >= s.offsetTop) current = s.id; });
+  navLinks.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
 }, { passive: true });
 </script>
 </body>
