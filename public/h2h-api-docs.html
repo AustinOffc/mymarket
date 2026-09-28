@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dokumentasi H2H API</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --mono: 'JetBrains Mono', monospace;
+  --get: #38bdf8; --get-bg: rgba(56,189,248,.1);
+  --post: #34d399; --post-bg: rgba(52,211,153,.1);
+}
+code, pre { font-family: var(--mono); }
+body { background: var(--bg); color: var(--text); }
+.docs-shell { display: flex; max-width: 1180px; margin: 0 auto; align-items: flex-start; }
+.docs-nav {
+  width: 220px; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+  overflow-y: auto; padding: 28px 14px; border-right: 1px solid var(--border);
+}
+.docs-nav a {
+  display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 7px;
+  font-size: 12.5px; color: var(--text-muted); text-decoration: none; margin-bottom: 2px;
+}
+.docs-nav a:hover, .docs-nav a.active { background: var(--bg-card); color: var(--text); }
+.docs-nav .nav-title { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin: 16px 10px 6px; }
+.docs-main { flex: 1; min-width: 0; padding: 28px 32px 100px; }
+.docs-container { max-width: 820px; margin: 0 auto; }
+
+.hero { margin-bottom: 40px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+.hero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); margin-bottom: 10px; }
+.hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 10px; letter-spacing: -.02em; }
+.hero-sub { color: var(--text-muted); font-size: 14px; max-width: 600px; line-height: 1.7; margin-bottom: 18px; }
+.hero-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-card); border: 1px solid var(--border); padding: 5px 12px; border-radius: 20px; font-size: 11.5px; color: var(--text-muted); }
+.pill code { color: var(--primary); }
+
+.docs-section { margin-bottom: 44px; scroll-margin-top: 20px; }
+.docs-section h2 { font-size: 19px; font-weight: 800; margin-bottom: 6px; }
+.docs-section > p.lead { color: var(--text-muted); font-size: 13.5px; margin-bottom: 18px; line-height: 1.7; }
+
+.endpoint-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
+.endpoint-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.method-badge { font-family: var(--mono); font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 5px; }
+.method-get { background: var(--get-bg); color: var(--get); }
+.method-post { background: var(--post-bg); color: var(--post); }
+.endpoint-path { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+.endpoint-desc { padding: 12px 16px 0; font-size: 12.5px; color: var(--text-muted); line-height: 1.6; }
+.endpoint-body { padding: 12px 16px 16px; }
+
+.code-wrap { position: relative; margin: 10px 0; }
+.code-header { display: flex; justify-content: space-between; align-items: center; background: #10151f; border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; padding: 6px 10px; }
+.code-lang { font-size: 10.5px; color: #8ea2c4; font-family: var(--mono); text-transform: uppercase; letter-spacing: .05em; }
+.copy-btn { font-size: 10.5px; background: transparent; border: 1px solid #2a3550; color: #8ea2c4; border-radius: 5px; padding: 3px 8px; cursor: pointer; }
+.copy-btn:hover { color: #fff; border-color: var(--primary); }
+.copy-btn.copied { color: var(--success); border-color: var(--success); }
+pre.code-block { background: #0b0f17; color: #c9d6ef; border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 14px; font-size: 12px; line-height: 1.6; overflow-x: auto; margin: 0; }
+.field-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0 4px; }
+.field-table th, .field-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); }
+.field-table th { color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.field-table code { color: var(--primary); font-size: 11.5px; }
+.note { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: 6px; padding: 10px 14px; font-size: 12.5px; color: var(--text-muted); margin: 12px 0; line-height: 1.6; }
+.note.warn { border-left-color: #f59e0b; }
+h4.sub { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin: 16px 0 6px; }
+@media (max-width: 860px) { .docs-nav { display: none; } .docs-main { padding: 20px; } }
+</style>
+</head>
+<body>
+<div class="docs-shell">
+  <nav class="docs-nav">
+    <a href="#intro"><i class="fas fa-book"></i> Pengantar</a>
+    <a href="#auth"><i class="fas fa-key"></i> Autentikasi</a>
+    <div class="nav-title">Endpoint</div>
+    <a href="#catalog"><i class="fas fa-list"></i> Katalog Produk</a>
+    <a href="#topup-items"><i class="fas fa-gamepad"></i> Item Topup Game</a>
+    <a href="#balance"><i class="fas fa-wallet"></i> Cek Saldo</a>
+    <a href="#order"><i class="fas fa-bolt"></i> Buat Order</a>
+    <a href="#order-status"><i class="fas fa-search"></i> Cek Status Order</a>
+    <div class="nav-title">Lainnya</div>
+    <a href="#webhook"><i class="fas fa-satellite-dish"></i> Webhook</a>
+    <a href="#pricing"><i class="fas fa-tags"></i> Harga H2H</a>
+    <a href="#errors"><i class="fas fa-triangle-exclamation"></i> Kode Error</a>
+  </nav>
+
+  <main class="docs-main">
+    <div class="docs-container">
+
+      <section class="hero" id="intro">
+        <div class="hero-eyebrow">H2H API — Host to Host</div>
+        <h1>Dokumentasi H2H API</h1>
+        <p class="hero-sub">Integrasikan sistem/toko kamu langsung ke katalog produk kami: produk marketplace biasa dan Topup Game, lengkap dengan skema input per produk. Order otomatis dipotong dari saldo akunmu — kalau saldo kurang, sistem otomatis membuatkan QRIS dan order akan lanjut diproses sendiri begitu QRIS-nya dibayar.</p>
+        <div class="hero-pills">
+          <div class="pill"><i class="fas fa-link"></i> Base URL: <code>https://austinstore.id/api/h2h/v1</code></div>
+          <div class="pill"><i class="fas fa-shield-halved"></i> Auth: header <code>X-API-Key</code></div>
+          <div class="pill"><i class="fas fa-code"></i> Format: <code>JSON</code></div>
+        </div>
+      </section>
+
+      <section class="docs-section" id="auth">
+        <h2>Autentikasi</h2>
+        <p class="lead">Ambil API Key kamu dari halaman akun (menu <strong>H2H API</strong> setelah login) — satu key aktif per akun. Sertakan di header <code>X-API-Key</code> pada setiap request ke <code>/api/h2h/v1/*</code>. Semua order dipotong dari saldo akun pemilik key tersebut, jadi pastikan saldo cukup atau siap dibayar via QRIS otomatis.</p>
+        <div class="code-wrap">
+          <div class="code-header"><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-block"><code>curl https://austinstore.id/api/h2h/v1/balance \
+  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx"</code></pre>
+        </div>
+        <div class="note warn"><i class="fas fa-triangle-exclamation"></i> API Key hanya ditampilkan <strong>sekali</strong> saat digenerate/regenerate. Kalau hilang, generate ulang dari halaman akun (key lama otomatis nonaktif).</div>
+      </section>
+
+      <section class="docs-section" id="catalog">
+        <h2>Katalog Produk</h2>
+        <p class="lead">Ringkasan seluruh produk yang dibuka untuk akses H2H. Kategori/modul yang dinonaktifkan owner (misal Nomor OTP) tidak akan muncul di sini. Harga yang dikembalikan <strong>sudah</strong> memperhitungkan diskon khusus H2H (lihat bagian <a href="#pricing">Harga H2H</a>).</p>
+        <div class="endpoint-card">
+          <div class="endpoint-head"><span class="method-badge method-get">GET</span><span class="endpoint-path">/catalog</span></div>
+          <div class="endpoint-body">
+            <div class="code-wrap">
+              <div class="code-header"><span class="code-lang">json — response</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
+              <pre class="code-block"><code>{
+  "success": true,
+  "data": {
+    "modules": { "general": true, "topup": true, "nokos": false },
+    "discount_percent": 0.1,
+    "general": [
+      {
+        "product_type": "general",
+        "product_variant_id": "b2f1...",
+        "name": "Akun Netflix Private 1 Bulan",
+        "category_name": "Akun Premium",
+        "image_url": "https://.../netflix.png",
+        "price": 14985,
+        "min_order_qty": 1,
+        "stock_available": 12,
+        "input_fields": []
+      }
+    ],
+    "topup_categories": [
+      {
+        "category_key": "mobile-legends",
+        "category_name": "Mobile Legends",
+        "image": "https://.../ml.png",
+        "icon": "fa-solid fa-gamepad",
+        "input_fields": [
+          { "key": "target_id", "label": "User ID", "required": true },
+          { "key": "zone_id", "label": "Zone ID", "required": true }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+            </div>
+            <div class="note">Untuk produk <code>general</code>, order langsung pakai <code>product_variant_id</code> + <code>quantity</code>. Untuk <code>topup</code>, ambil dulu daftar layanan lengkap per kategori lewat endpoint <a href="#topup-items">Item Topup Game</a> di bawah untuk dapat <code>service_code</code> dan harga per item.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="docs-section" id="topup-items">
+        <h2>Item Topup Game per Kategori</h2>
+        <p class="lead">Daftar lengkap layanan/nominal dalam satu kategori topup, sudah termasuk gambar kategori dan skema input yang dibutuhkan — cocok dipakai untuk membangun etalase produk di sistem kamu sendiri.</p>
+        <div class="endpoint-card">
+          <div class="endpoint-head"><span class="method-badge method-get">GET</span><span class="endpoint-path">/catalog/topup/:category_key</span></div>
+          <div class="endpoint-body">
+            <div class="code-wrap">
+              <div class="code-header"><span class="code-lang">json — response</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
+              <pre class="code-block"><code>{
+  "success": true,
+  "data": {
+    "category": {
+      "key": "mobile-legends",
+      "name": "Mobile Legends",
+      "image": "https://.../ml.png",
+      "input_fields": [
+        { "key": "target_id", "label": "User ID", "required": true },
+        { "key": "zone_id", "label": "Zone ID", "required": true }
+      ],
+      "notice": null
+    },
+    "items": [
+      { "product_type": "topup", "category_key": "mobile-legends", "service_code": "ML86", "service_name": "86 Diamond", "price": 21000, "stock_status": "available" },
+      { "product_type": "topup", "category_key": "mobile-legends", "service_code": "ML172", "service_name": "172 Diamond", "price": 41500, "stock_status": "available" }
+    ]
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="docs-section" id="balance">
+        <h2>Cek Saldo</h2>
+        <p class="lead">Mengembalikan saldo akun pemilik API Key saat ini.</p>
+        <div class="endpoint-card">
+          <div class="endpoint-head"><span class="method-badge method-get">GET</span><span class="endpoint-path">/balance</span></div>
+          <div class="endpoint-body">
+            <div class="code-wrap">
+              <div class="code-header"><span class="code-lang">json — response</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
+              <pre class="code-block"><code>{ "success": true, "data": { "balance": 250000 } }</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="docs-section" id="order">
+        <h2>Buat Order</h2>
+        <p class="lead">Membuat order baru. Kirim <code>ref_id</code> milikmu sendiri supaya request bisa aman diulang (idempotent) — kalau <code>ref_id</code> yang sama dikirim lagi, API akan mengembalikan order yang sudah ada, bukan membuat order baru.</p>
+
+        <h4 class="sub">Body — produk general</h4>
+        <table class="field-table">
+          <tr><th>Field</th><th>Tipe</th><th>Ket.</th></tr>
+          <tr><td><code>product_type</code></td><td>string</td><td>selalu <code>"general"</code></td></tr>
+          <tr><td><code>product_variant_id</code></td><td>string</td><td>dari endpoint Katalog</td></tr>
+          <tr><td><code>quantity</code></td><td>number</td><td>default 1, maks 50</td></tr>
+          <tr><td><code>ref_id</code></td><td>string</td><td>opsional, id transaksi milikmu</td></tr>
+        </table>
+
+        <h4 class="sub">Body — produk topup game</h4>
+        <table class="field-table">
+          <tr><th>Field</th><th>Tipe</th><th>Ket.</th></tr>
+          <tr><td><code>product_type</code></td><td>string</td><td>selalu <code>"topup"</code></td></tr>
+          <tr><td><code>category_key</code></td><td>string</td><td>dari endpoint Katalog</td></tr>
+          <tr><td><code>service_code</code></td><td>string</td><td>dari endpoint Item Topup Game</td></tr>
+          <tr><td><code>target_id</code></td><td>string</td><td>User ID / nomor tujuan</td></tr>
+          <tr><td><code>zone_id</code></td><td>string</td><td>Zone ID, hanya untuk game yang butuh (lihat <code>input_fields</code>)</td></tr>
+          <tr><td><code>ref_id</code></td><td>string</td><td>opsional, id transaksi milikmu</td></tr>
+        </table>
+
+        <div class="endpoint-card">
+          <div class="endpoint-head"><span class="method-badge method-post">POST</span><span class="endpoint-path">/order</span></div>
+          <div class="endpoint-body">
+            <div class="code-wrap">
+              <div class="code-header"><span class="code-lang">json — request</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
+              <pre class="code-block"><code>{
+  "product_type": "topup",
+  "category_key": "mobile-legends",
+  "service_code": "ML86",
+  "target_id": "123456789",
+  "zone_id": "1234",
+  "ref_id": "TRX-INVOICE-0001"
+}</code></pre>
+            </div>
+
+            <h4 class="sub">Kalau saldo cukup — langsung diproses</h4>
+            <div class="code-wrap">
+              <div class="code-header"><span class="code-lang">json — response</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
+              <pre class="code-block"><code>{
+  "success": true,
+  "data": {
+    "id": "a1b2...",
+    "ref_id": "TRX-INVOICE-0001",
+    "product_type": "topup",
+    "status": "success",
+    "price": 20979,
+    "payment_method": "saldo",
+    "payment": null,
+    "result": { "topup_order_id": "c3d4...", "trxid": "VP123456", "status": "success" },
+    "createdAt": "2026-09-28T10:00:00.000Z",
+    "completedAt": "2026-09-28T10:00:02.000Z"
+  }
+}</code></pre>
+            </div>
+
+            <h4 class="sub">Kalau saldo kurang — otomatis dibuatkan QRIS</h4>
+            <div class="code-wrap">
+              <div class="code-header"><span class="code-lang">json — response</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
+              <pre class="code-block"><code>{
+  "success": true,
+  "data": {
+    "id": "a1b2...",
+    "ref_id": "TRX-INVOICE-0001",
+    "status": "awaiting_payment",
+    "price": 20979,
+    "payment_method": "qris",
+    "payment": {
+      "transaction_id": "DP-xxxxxx",
+      "qr_string": "00020101021226...",
+      "qr_image": "data:image/png;base64,...",
+      "expired_at": "2026-09-28T10:15:00.000Z",
+      "amount": 20979
+    },
+    "result": null,
+    "createdAt": "2026-09-28T10:00:00.000Z"
+  }
+}</code></pre>
+            </div>
+            <div class="note">Order dengan status <code>awaiting_payment</code> akan <strong>otomatis lanjut diproses</strong> begitu QRIS di atas dibayar — tidak perlu request order baru. Pantau progressnya lewat <a href="#webhook">Webhook</a> atau <a href="#order-status">Cek Status Order</a>.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="docs-section" id="order-status">
+        <h2>Cek Status Order</h2>
+        <p class="lead">Bisa dipanggil pakai <code>id</code> internal atau <code>ref_id</code> milikmu sendiri. Kalau statusnya masih <code>awaiting_payment</code>, endpoint ini otomatis mengecek ke penyedia QRIS dan langsung melanjutkan order kalau ternyata sudah dibayar — jadi aman dipakai untuk polling walau kamu tidak pasang webhook.</p>
+        <div class="endpoint-card">
+          <div class="endpoint-head"><span class="method-badge method-get">GET</span><span class="endpoint-path">/order/:id</span></div>
+          <div class="endpoint-body">
+            <div class="code-wrap">
+              <div class="code-header"><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
+              <pre class="code-block"><code>curl https://austinstore.id/api/h2h/v1/order/TRX-INVOICE-0001 \
+  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx"</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="docs-section" id="webhook">
+        <h2>Webhook</h2>
+        <p class="lead">Kalau kamu atur <code>webhook_url</code> dari halaman akun (menu H2H API), kami akan mengirim <code>POST</code> ke URL tersebut setiap kali order selesai diproses (baik langsung lewat saldo maupun setelah QRIS dibayar). Tidak pasang webhook? Tidak masalah — cukup gunakan <a href="#order-status">Cek Status Order</a> secara berkala.</p>
+
+        <h4 class="sub">Payload</h4>
+        <div class="code-wrap">
+          <div class="code-header"><span class="code-lang">json</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-block"><code>{
+  "event": "order.success",
+  "data": { "id": "a1b2...", "ref_id": "TRX-INVOICE-0001", "status": "success", "price": 20979, "result": { "...": "..." } },
+  "sent_at": "2026-09-28T10:15:04.000Z"
+}</code></pre>
+        </div>
+        <p style="font-size:12.5px;color:var(--text-muted);margin:6px 0 4px;">Kemungkinan nilai <code>event</code>: <code>order.success</code>, <code>order.failed</code>.</p>
+
+        <h4 class="sub">Verifikasi Signature</h4>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:6px;">Setiap request webhook disertai header <code>X-H2H-Signature</code>: HMAC-SHA256 dari raw body, ditandatangani pakai <code>webhook_secret</code> milikmu (ditampilkan sekali saat kamu set webhook URL).</p>
+        <div class="code-wrap">
+          <div class="code-header"><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-block"><code>const crypto = require("crypto");
+
+function isValid(rawBody, signatureHeader, webhookSecret) {
+  const expected = crypto.createHmac("sha256", webhookSecret)
+    .update(rawBody)
+    .digest("hex");
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signatureHeader));
+}</code></pre>
+        </div>
+        <div class="note warn"><i class="fas fa-triangle-exclamation"></i> Gunakan <em>raw body</em> (string mentah sebelum di-parse JSON) untuk verifikasi, bukan hasil <code>JSON.stringify()</code> ulang — urutan key yang berubah akan bikin signature tidak cocok.</div>
+      </section>
+
+      <section class="docs-section" id="pricing">
+        <h2>Harga Khusus H2H</h2>
+        <p class="lead">Semua harga yang dikembalikan lewat H2H API (katalog, item topup, hasil order) sudah dihitung dengan diskon khusus H2H yang diatur owner toko — kamu tidak perlu menghitung ulang. Diskon ini otomatis dikreditkan kembali ke saldomu setelah order berhasil, jadi harga yang kamu lihat di respons API memang harga akhir yang kamu bayar.</p>
+      </section>
+
+      <section class="docs-section" id="errors">
+        <h2>Kode Error</h2>
+        <table class="field-table">
+          <tr><th>HTTP</th><th>Kondisi</th></tr>
+          <tr><td>401</td><td>Header <code>X-API-Key</code> tidak ada / tidak valid / key dinonaktifkan</td></tr>
+          <tr><td>403</td><td>Akun disuspend, H2H API sedang dimatikan owner, atau modul/kategori produk tidak dibuka untuk H2H</td></tr>
+          <tr><td>404</td><td>Order dengan <code>id</code>/<code>ref_id</code> tersebut tidak ditemukan</td></tr>
+          <tr><td>429</td><td>Terlalu banyak request, coba lagi sebentar</td></tr>
+          <tr><td>200 (<code>success:false</code>)</td><td>Error bisnis biasa (saldo kurang, produk habis, input kurang lengkap, dst) — pesan lengkap ada di <code>message</code></td></tr>
+        </table>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+document.querySelectorAll('.copy-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const pre = btn.closest('.code-wrap')?.querySelector('pre.code-block');
+    if (!pre) return;
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      btn.classList.add('copied');
+      const old = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+      setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = old; }, 1500);
+    });
+  });
+});
+
+const navLinks = document.querySelectorAll('.docs-nav a');
+const sections = [...document.querySelectorAll('.docs-section')];
+window.addEventListener('scroll', () => {
+  let current = sections[0]?.id;
+  for (const s of sections) {
+    if (window.scrollY + 100 >= s.offsetTop) current = s.id;
+  }
+  navLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+}, { passive: true });
+</script>
+</body>
+</html>
