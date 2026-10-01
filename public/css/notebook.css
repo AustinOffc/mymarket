@@ -32,7 +32,7 @@
   --border: var(--nb-border);
   --border-soft: rgba(29,27,24,.28);
   --text: #1D1B18;
-  --text-muted: #6B6355;
+  --text-muted: #5A5346;
   --primary: #A3232B;
   --primary-rgb: 163,35,43;
   --primary-dark: #7C1A21;
@@ -151,7 +151,7 @@ code, pre, kbd, .mono { font-family: var(--font-mono); }
   content: 'catatan belanja digital'; display: block; position: absolute; opacity: 0; pointer-events: none;
 }
 .nav-section-label {
-  font-family: var(--font-mono); font-size: 10.5px; color: var(--primary); letter-spacing: .08em;
+  font-family: var(--font-mono); font-size: 12px; color: var(--primary); letter-spacing: .08em;
   border: 1.4px dashed var(--primary); display: inline-block; padding: 2px 8px; margin: 10px 0 6px;
 }
 .nav-item {
@@ -173,7 +173,7 @@ code, pre, kbd, .mono { font-family: var(--font-mono); }
 .sidebar-footer { border-top: 2px solid var(--nb-border); }
 .sidebar-user:hover { background: var(--sticky); }
 .sidebar-user-name { color: var(--text); font-weight: 700; }
-.sidebar-user-role { color: var(--text-muted); font-family: var(--font-mono); font-size: 10.5px; }
+.sidebar-user-role { color: var(--text-muted); font-family: var(--font-mono); font-size: 12px; }
 .user-avatar {
   background: var(--primary); color: #fff; border: 2px solid var(--nb-border); border-radius: var(--wobble);
 }
@@ -205,18 +205,16 @@ code, pre, kbd, .mono { font-family: var(--font-mono); }
   box-shadow: 3px 4px 0 var(--nb-shadow); backdrop-filter: none; -webkit-backdrop-filter: none;
 }
 .card:hover, .game-tile:hover, .seller-tile:hover, .cat-icon-tile:hover, .order-card:hover, .ticket-card:hover {
-  transform: translate(-1px,-2px) rotate(-.3deg); box-shadow: 5px 6px 0 var(--nb-shadow); border-color: var(--nb-border);
+  transform: translate(-1px,-2px); box-shadow: 5px 6px 0 var(--nb-shadow); border-color: var(--nb-border);
 }
 .card-header { border-bottom: 1.4px dashed var(--border-soft); }
 .card-title, .modal-title, .section-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; }
-.stats-grid .stat-card:nth-child(odd) { transform: rotate(-.35deg); }
-.stats-grid .stat-card:nth-child(even) { transform: rotate(.3deg); }
 .stat-icon {
   border: 1.6px solid var(--nb-border); border-radius: var(--wobble); box-shadow: 2px 2px 0 var(--nb-shadow);
   color: var(--ink);
 }
 .stat-value { font-family: var(--font-display); font-size: 2rem; font-weight: 700; }
-.stat-label, .stat-sub { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+.stat-label, .stat-sub { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
 .game-tile .thumb-fallback, .game-tile img { border-bottom: 1.4px solid var(--nb-border); }
 .divider { border-color: var(--border-soft); border-top-style: dashed; }
 
@@ -266,7 +264,7 @@ a:hover { color: inherit; }
 }
 [data-theme="dark"] .section-row h2 { background: linear-gradient(transparent 58%, rgba(255,242,122,.28) 58% 92%, transparent 92%); }
 .eyebrow {
-  display: inline-block; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: .06em;
+  display: inline-block; font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: .06em;
   color: var(--primary); border: 1.4px dashed var(--primary); padding: 2px 8px; margin-bottom: 4px; background: transparent;
 }
 
@@ -286,7 +284,7 @@ a:hover { color: inherit; }
 }
 .market-search input { font-family: var(--font-body); background: transparent; color: var(--text); }
 .input-addon { background: var(--paper-header); color: var(--text); border-color: var(--nb-border); font-family: var(--font-mono); }
-.form-hint { color: var(--text-muted); font-family: var(--font-mono); font-size: 11.5px; }
+.form-hint { color: var(--text-muted); font-family: var(--font-mono); font-size: 12px; }
 .form-error { color: var(--danger); }
 .csel-panel { box-shadow: 3px 4px 0 var(--nb-shadow); }
 .csel-option:hover, .csel-option.active, .csel-option.selected { background: var(--sticky); color: var(--ink); }
@@ -333,7 +331,7 @@ input[type=checkbox], input[type=radio] { accent-color: var(--primary); }
 .page-btn { background: var(--bg-card); color: var(--text); border: 1.5px solid var(--nb-border); border-radius: 5px; font-family: var(--font-body); font-weight: 700; box-shadow: 2px 2px 0 var(--nb-shadow); }
 .page-btn:hover { background: var(--sticky); color: var(--ink); border-color: var(--nb-border); }
 .page-btn.active { background: var(--primary); color: #fff; }
-.pagination-info { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-muted); }
+.pagination-info { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
 
 /* ---------- Bottom nav (mobile) ---------- */
 .bottom-nav { background: var(--paper-header); backdrop-filter: none; border-top: 2px solid var(--nb-border); }
@@ -346,7 +344,7 @@ input[type=checkbox], input[type=radio] { accent-color: var(--primary); }
 }
 .wallet-hero * { color: inherit; }
 .wallet-balance { font-family: var(--font-display); font-size: 2.6rem; font-weight: 700; }
-.wallet-label { font-family: var(--font-mono); font-size: 11px; opacity: .8; }
+.wallet-label { font-family: var(--font-mono); font-size: 12px; opacity: .8; }
 .wallet-hero .btn { background: var(--sticky); color: var(--ink); border-color: var(--ink); }
 .wallet-hero .btn-white, .wallet-hero .btn-outline { background: transparent; color: #F3EEE2; border-color: #F3EEE2; }
 
@@ -358,14 +356,14 @@ input[type=checkbox], input[type=radio] { accent-color: var(--primary); }
 .chat-msg.own .chat-bubble, .chat-msg.mine .chat-bubble, .chat-msg-me .chat-bubble { background: var(--primary-light); }
 .chat-input-row { border-top: 1.5px solid var(--nb-border); background: var(--paper-header); }
 .chat-send-btn { background: var(--primary); color: #fff; border: 1.6px solid var(--nb-border); border-radius: 6px; }
-.chat-time, .chat-msg-time, .notif-item-time { font-family: var(--font-mono); font-size: 10.5px; }
+.chat-time, .chat-msg-time, .notif-item-time { font-family: var(--font-mono); font-size: 12px; }
 .notif-item:hover { background: rgba(255,242,122,.3); }
 
 /* ---------- Auth ---------- */
 .auth-page { background: transparent; }
 .auth-card { border-width: 2px; box-shadow: 5px 6px 0 var(--nb-shadow); position: relative; overflow: visible; }
 .auth-logo h1 { font-family: var(--font-display); font-size: 40px; line-height: 1; }
-.auth-logo p { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-muted); }
+.auth-logo p { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
 
 /* ---------- Lain-lain ---------- */
 .loading-spinner { border: 3px solid var(--border-soft); border-top-color: var(--primary); }
@@ -376,7 +374,7 @@ input[type=checkbox], input[type=radio] { accent-color: var(--primary); }
 .live-dot, .polling-dot { background: var(--success); box-shadow: none; }
 .empty-state { color: var(--text-muted); font-family: var(--font-display); font-size: 22px; }
 .empty-state i { animation: none; }
-.app-credit-footer { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+.app-credit-footer { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
 .rank-badge { border: 1.5px solid var(--nb-border); border-radius: 5px; }
 .wobble { border-radius: var(--wobble); }
 
@@ -387,4 +385,64 @@ input[type=checkbox], input[type=radio] { accent-color: var(--primary); }
   .topbar-title { font-size: 22px !important; }
   .section-row h2 { font-size: 24px !important; }
   .btn { font-size: 18px; }
+}
+
+
+/* ============================================================
+   PERBAIKAN v2 — teks tajam + daftar produk 3 kolom di HP
+   ============================================================ */
+
+/* 1) Teks blur: penyebab utamanya (a) font tulisan tangan hanya punya bobot
+   regular, jadi "bold" dipalsukan browser dan jadi buram, (b) ukuran terlalu kecil,
+   (c) elemen yang dimiringkan. Di sini bold palsu dimatikan; penekanan diganti
+   garis tipis tepat di huruf (text-stroke) yang tetap tajam. */
+html { font-synthesis: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  font-size: 17px; text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+strong, b, th, label, .fw-600, .fw-700, .form-label, .badge, .p-name, .stat-label,
+.order-card-title, .sidebar-user-name, .nav-item.active, .page-btn,
+[style*="font-weight:600"], [style*="font-weight: 600"],
+[style*="font-weight:700"], [style*="font-weight: 700"],
+[style*="font-weight:800"], [style*="font-weight: 800"] {
+  font-weight: 400; -webkit-text-stroke: .35px currentColor;
+}
+.btn, h1, h2, h3, h4, h5, h6, .card-title, .modal-title, .section-title, .stat-value,
+.topbar-title, .sidebar-logo span, .wallet-balance, .see-all, .empty-state, .auth-logo h1 {
+  -webkit-text-stroke: 0; font-weight: 700;
+}
+.form-control, .csel-trigger, .market-search input, select, textarea { font-size: 17px; }
+.text-muted, .text-xs, .text-sm { color: var(--text-muted); }
+.text-xs { font-size: 13px; } .text-sm { font-size: 14.5px; }
+/* teks mono kecil (tanggal, ukuran, kode) tetap tegas */
+.form-hint, .stat-sub, .pagination-info, .eyebrow, .nav-section-label, .sidebar-user-role,
+.chat-msg-time, .notif-item-time, .app-credit-footer { font-size: 12.5px; font-weight: 500; }
+
+/* 2) Daftar produk 3 kolom ke samping di HP (desktop tidak diubah). */
+@media (max-width: 768px) {
+  .ppob-product-grid,
+  .variant-grid,
+  .wish-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  .game-grid, .cat-grid, .seller-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  .ppob-product-card { padding: 10px 8px !important; min-width: 0; }
+  .variant-card, .wish-card { min-width: 0; }
+  .variant-card-top { padding: 10px 8px !important; }
+  .variant-card-bottom { padding: 8px 8px 10px !important; gap: 6px !important; }
+  .variant-divider { margin: 0 8px !important; }
+  .variant-card h4 { font-size: 14px !important; line-height: 1.25; overflow-wrap: anywhere; }
+  .variant-card .desc { font-size: 13px !important; min-height: 0 !important; }
+  .variant-price { font-size: 15px !important; }
+  .variant-card-actions { flex-wrap: wrap; }
+  .variant-card-actions .btn { padding: 5px 8px; font-size: 16px; }
+  .ppob-product-card .p-name { font-size: 13.5px !important; line-height: 1.25; overflow-wrap: anywhere; }
+  .ppob-product-card .p-desc { font-size: 13px !important; min-height: 0 !important; margin-bottom: 4px !important; overflow-wrap: anywhere; }
+  .ppob-product-card .p-price { font-size: 13.5px !important; letter-spacing: -.02em; }
+  .ppob-product-card:hover { transform: none; }
 }
