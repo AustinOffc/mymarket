@@ -49,6 +49,10 @@
     .variant-tile:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--primary); }
     .variant-tile h4 { font-size: 13.5px; font-weight: 700; }
     .variant-tile .count { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .variant-tile.special { border-style: dashed; border-color: var(--primary); }
+    .variant-tile.special h4 { color: var(--primary); }
+    .server-heading { font-weight: 700; font-size: 14px; margin: 16px 0 8px; padding-bottom: 4px; border-bottom: 1px dashed var(--border, #bbb); }
+    .server-heading:first-child { margin-top: 0; }
 
     .item-list { display: flex; flex-direction: column; gap: 10px; }
     .item-row {
@@ -310,7 +314,7 @@ async function openCategory(cat, push = true) {
   currentCategory = { ...cat, inputMode: res.data.category.inputMode, fields: res.data.category.fields, notice: res.data.category.notice, termsTitle: res.data.category.termsTitle, terms: res.data.category.terms };
   currentVariants = res.data.variants;
   grid.innerHTML = currentVariants.map(v => `
-    <div class="variant-tile" data-slug="${escapeAttr(v.slug)}">
+    <div class="variant-tile${v.special ? ' special' : ''}" data-slug="${escapeAttr(v.slug)}">
       <h4>${escapeHtml(v.game)}</h4>
       <div class="count">${v.count} item tersedia</div>
     </div>
@@ -338,15 +342,25 @@ async function openVariant(variant, push = true) {
     return;
   }
   currentItems = res.data.items;
-  list.innerHTML = currentItems.map(it => `
+  const renderRow = (it) => `
     <div class="item-row" data-code="${escapeAttr(it.code)}">
       <div>
         <div class="item-name">${escapeHtml(it.name)}</div>
         ${it.description ? `<div class="item-desc">${escapeHtml((() => { const d = it.description.replace(/\n+/g, ' • '); return d.length > 200 ? d.slice(0, 200) + '...' : d; })())}</div>` : ''}
       </div>
       <div class="item-price">${formatRupiah(it.price)}</div>
-    </div>
-  `).join('');
+    </div>`;
+  if (variant.special) {
+    // Sub kategori lintas server: pisahkan per server/region dengan judul.
+    let lastServer = null;
+    list.innerHTML = currentItems.map(it => {
+      const head = it.server !== lastServer ? `<div class="server-heading">${escapeHtml(it.server || 'Lainnya')}</div>` : '';
+      lastServer = it.server;
+      return head + renderRow(it);
+    }).join('');
+  } else {
+    list.innerHTML = currentItems.map(renderRow).join('');
+  }
   list.querySelectorAll('.item-row').forEach(el => {
     el.addEventListener('click', () => {
       const it = currentItems.find(x => x.code === el.dataset.code);
@@ -473,6 +487,7 @@ function openOrderModal(item) {
   document.getElementById('order-modal-body').innerHTML = `
     <div class="card" style="padding:14px;border-color:var(--primary);margin-bottom:14px">
       <div style="font-weight:700">${escapeHtml(item.name)}</div>
+      ${currentVariant && currentVariant.special && item.server ? `<div style="font-size:13px;color:var(--text-muted);margin-top:2px">Server: ${escapeHtml(item.server)}</div>` : ''}
       <div style="margin-top:6px;font-family:var(--font-mono);font-weight:700;color:var(--primary);font-size:18px">${formatRupiah(item.price)}</div>
     </div>
     ${noticeHtml}
@@ -606,7 +621,7 @@ document.getElementById('order-modal-confirm').addEventListener('click', async (
   }
   Toast.success('Order berhasil dikirim!');
   document.getElementById('result-modal-body').innerHTML = `
-    <p style="margin-bottom:10px"><b>${escapeHtml(selectedItem.name)}</b> — ${formatRupiah(res.data.price)}</p>
+    <p style="margin-bottom:10px"><b>${escapeHtml(selectedItem.name)}</b>${currentVariant && currentVariant.special && selectedItem.server ? ` (${escapeHtml(selectedItem.server)})` : ''} — ${formatRupiah(res.data.price)}</p>
     <p style="font-size:13px;color:var(--text-muted)">TrxID: <code>${escapeHtml(res.data.trxid || '-')}</code></p>
     <p style="font-size:13px;color:var(--text-muted)">Status: <b>${escapeHtml(res.data.status || 'waiting')}</b></p>
     <p style="margin-top:10px;font-size:13px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> Cek status terbaru kapan saja di menu Riwayat.</p>
