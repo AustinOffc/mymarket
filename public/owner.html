@@ -2486,7 +2486,7 @@ function openUserModal(id, username, status) {
       </select>
       <input type="number" class="form-control" id="bal-amount" placeholder="Nominal (Rp)">
       <input type="text" class="form-control" id="bal-note" placeholder="Keterangan">
-      <input type="password" class="form-control" id="bal-admin-password" placeholder="Password Admin (konfirmasi)" autocomplete="current-password">
+      <input type="password" class="form-control" id="bal-admin-password" placeholder="Password Admin (untuk Terapkan Saldo &amp; Reset Password)" autocomplete="current-password">
       <button class="btn btn-primary btn-full" data-action="adjust-balance" data-id="${id}"><i class="fas fa-wallet"></i> Terapkan Saldo</button>
       <div class="divider"></div>
       <button class="btn btn-outline btn-full" data-action="reset-password" data-id="${id}" data-username="${username}"><i class="fas fa-key"></i> Reset Password</button>
@@ -2524,10 +2524,16 @@ async function adjustBalance(id) {
 }
 
 async function resetPassword(id, username) {
+  // Backend (requireAdminPassword) wajib menerima admin_password di body.
+  const pwEl = document.getElementById('bal-admin-password');
+  const admin_password = pwEl ? pwEl.value : '';
+  if (!admin_password) return Toast.error('Isi Password Admin dulu untuk konfirmasi reset password');
+
   const confirmed = await showConfirm(`Reset password untuk @${username}?\n\nPassword baru akan di-generate otomatis secara random.`, { title: 'Reset Password', okText: 'Reset' });
   if (!confirmed) return;
 
-  const res = await API.post(`/api/owner/users/${id}/reset-password`, {});
+  const res = await API.post(`/api/owner/users/${id}/reset-password`, { admin_password });
+  if (pwEl) pwEl.value = '';
   if (!res.success) return Toast.error(res.message);
 
   document.getElementById('rp-modal-title').textContent = `Password Baru untuk @${username}`;
