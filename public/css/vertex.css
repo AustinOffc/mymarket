@@ -14,10 +14,9 @@
   --sidebar-w:0px; --header-h:84px;
   --vx-w:1180px;
 }
-html{overflow-x:auto}
-html,body{max-width:none}
+html,body{max-width:100%}
 body{
-  min-width:1180px; overflow-x:auto;
+  overflow-x:hidden;
   font-family:var(--font-body); font-size:14px; -webkit-font-smoothing:antialiased;
   background:linear-gradient(180deg,rgba(25,127,255,0) 38%,rgba(25,127,255,.042) 54%,rgba(25,127,255,.052) 68%,rgba(25,127,255,.03) 100%) fixed,#020204 !important;
 }
@@ -30,11 +29,11 @@ h1,h2,h3,h4,.topbar-title,.page-title{font-family:var(--font-display)}
 /* ---- shell: sidebar & topbar lama disembunyikan, diganti nav pill ---- */
 body.vx-pill .sidebar, body.vx-pill .sidebar-overlay, body.vx-pill .topbar, body.vx-pill .sidebar-toggle{display:none !important}
 body.vx-pill .main-content{margin-left:0}
-body.vx-pill .page-content{max-width:var(--vx-w);margin:0 auto;width:100%;padding:calc(var(--header-h) + 20px) 0 56px}
+body.vx-pill .page-content{max-width:var(--vx-w);margin:0 auto;width:100%;padding:calc(var(--header-h) + 16px) 24px 56px}
 
 .vx-nav{
   position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:400;
-  width:var(--vx-w);height:64px;border-radius:32px;
+  width:min(var(--vx-w),calc(100vw - 24px));height:64px;border-radius:32px;
   display:flex;align-items:center;gap:18px;padding:0 10px 0 22px;
   background:rgba(255,255,255,.012);border:1px solid rgba(255,255,255,.105);
   -webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);
@@ -62,7 +61,8 @@ body.vx-pill .page-content{max-width:var(--vx-w);margin:0 auto;width:100%;paddin
 .vx-more{position:relative;flex:0 0 auto}
 .vx-more-btn{display:flex;align-items:center;gap:6px;border:0;background:transparent;color:rgba(255,255,255,.88);font:500 12.5px 'Poppins',sans-serif;padding:8px 13px;border-radius:12px;cursor:pointer}
 .vx-more-btn:hover,.vx-more.open .vx-more-btn{background:rgba(255,255,255,.055);color:#fff}
-.vx-more-btn i{font-size:9px;transition:transform .25s}.vx-more.open .vx-more-btn i{transform:rotate(180deg)}
+.vx-more-btn i{font-size:9px;transition:transform .25s}.vx-more.open .vx-more-btn .vx-chev{transform:rotate(180deg)}
+.vx-burger{display:none}
 .vx-panel{
   position:absolute;right:-60px;top:calc(100% + 18px);width:560px;padding:12px;border-radius:22px;
   display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
@@ -86,7 +86,8 @@ body.vx-pill .page-content{max-width:var(--vx-w);margin:0 auto;width:100%;paddin
 .vx-right .sidebar-user-name{font-size:12px;font-weight:600;line-height:1.1}
 .vx-right .sidebar-user-role{font-size:10px;line-height:1.1;color:#7d8aa5}
 .vx-right .user-avatar{width:32px;height:32px;font-size:13px}
-.vx-cta{height:40px;padding:0 20px;border-radius:14px;font-size:13.5px;font-weight:500;display:inline-flex;align-items:center;white-space:nowrap}
+.vx-cta{height:40px;padding:0 18px;border-radius:14px;font-size:13.5px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
+.vx-cta i{font-size:11px;position:relative;z-index:1}.vx-cta span{position:relative;z-index:1}
 
 /* ---- GLOW BUTTON: .btn-primary & .vx-cta (foot light, dipotong radius sendiri) ---- */
 .btn-primary,.vx-cta{
@@ -141,15 +142,112 @@ body.vx-pill .page-content{max-width:var(--vx-w);margin:0 auto;width:100%;paddin
 body:not(.vx-pill) .sidebar{background:rgba(255,255,255,.012);border-right:1px solid rgba(255,255,255,.08)}
 body:not(.vx-pill) .topbar{background:rgba(255,255,255,.012)}
 
-/* ---- notice mode desktop ---- */
-.vx-note{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:100000;width:560px;padding:16px 18px;border-radius:22px;
-  background:linear-gradient(180deg,rgba(11,15,22,.985),rgba(7,10,16,.99));border:1px solid rgba(255,255,255,.12);box-shadow:0 26px 60px rgba(0,0,0,.6);
-  font:400 13px/1.55 'Poppins',sans-serif;color:#d6dbe6}
-.vx-note b{color:#fff;font-weight:600}
-.vx-note-actions{display:flex;gap:8px;margin-top:12px}
-.vx-note button{font:500 12.5px 'Poppins',sans-serif;border-radius:12px;padding:9px 16px;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff}
-.vx-note button.go{border:0;background:linear-gradient(to top,#79e0f1 2px,#14a8c6 6px,#047796 9px,#073746 16px,#0a111d 32px)}
-.vx-block{position:fixed;inset:0;z-index:100001;display:grid;place-items:center;background:rgba(2,2,4,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-.vx-block .vx-note{position:relative;left:auto;bottom:auto;transform:none;width:min(560px,92vw)}
-.vx-note ol{margin:10px 0 0 18px}.vx-note li{margin:3px 0}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+
+/* ==========================================================================
+   RESPONSIF
+   ========================================================================== */
+img,svg,video,canvas{max-width:100%}
+.main-content,.page-content{min-width:0}
+
+/* ---- layar 900–1279: bar lebih rapat supaya tidak saling timpa ---- */
+@media (max-width:1279px){
+  .vx-nav{gap:10px;padding:0 8px 0 18px}
+  .vx-nav .sidebar-nav:not(#admin-nav) .nav-item{padding:8px 9px}
+  .vx-right .sidebar-user-info{display:none}
+  .vx-right .sidebar-user{padding:3px}
+  .vx-panel{right:0;width:min(520px,calc(100vw - 32px))}
+}
+
+/* ---- tablet & HP (<900): bar ringkas + panel menu ---- */
+@media (max-width:899px){
+  :root{--header-h:72px}
+  body.vx-pill .page-content{padding:calc(var(--header-h) + 10px) 14px 48px}
+  .vx-nav{top:8px;height:56px;width:calc(100vw - 16px);border-radius:28px;gap:8px;padding:0 8px 0 14px}
+  .vx-nav .sidebar-logo{order:1}
+  .vx-nav .sidebar-logo span{font-size:15px}
+  .vx-right{order:2;margin-left:auto;gap:6px;min-width:0}
+  .vx-nav .sidebar-nav:not(#admin-nav){order:3;flex:0 0 auto;height:auto}
+  .vx-more{position:static}
+  .vx-more-btn{width:40px;height:40px;padding:0;justify-content:center;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}
+  .vx-more-label,.vx-chev{display:none}
+  .vx-burger{display:block;font-size:15px}
+  .vx-panel{
+    position:absolute;left:0;right:0;top:calc(100% + 8px);width:auto;
+    grid-template-columns:repeat(3,1fr);gap:4px;padding:10px;border-radius:22px;
+    max-height:calc(100vh - 92px);max-height:calc(100dvh - 92px);overflow-y:auto;overscroll-behavior:contain;
+  }
+  .vx-nav .vx-panel .nav-item{flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:6px;padding:12px 6px !important;font-size:11.5px !important;line-height:1.25;min-height:72px}
+  .vx-nav .vx-panel .nav-item .nav-icon{font-size:17px !important;opacity:.9;width:auto !important}
+  .vx-nav .vx-panel [data-logout]{flex-direction:row;min-height:0;gap:8px;padding:12px !important}
+  .vx-nav .vx-panel [data-logout] .nav-icon{font-size:13px !important}
+  .vx-right .btn-icon{width:36px;height:36px;font-size:13px}
+  .vx-right .badge{font-size:11px;padding:4px 9px}
+  .vx-right .user-avatar{width:30px;height:30px}
+  .vx-cta{height:36px;padding:0 14px;font-size:13px;border-radius:12px}
+}
+@media (max-width:599px){
+  .vx-panel{grid-template-columns:repeat(3,1fr)}
+  .vx-nav .sidebar-logo span{display:none}
+  .vx-right .topbar-actions{gap:4px}
+  .vx-cta{width:36px;padding:0;border-radius:50%}
+  .vx-cta span{display:none}
+  .vx-cta i{font-size:13px}
+}
+@media (max-width:359px){
+  .vx-right #topbar-chat-wrapper{display:none}
+}
+
+/* ---- komponen umum di tablet/HP ---- */
+@media (max-width:768px){
+  body{font-size:13.5px}
+  body.vx-pill .page-content{padding-bottom:92px} /* ruang bottom-nav */
+  .card,.stat-card,.modal,.auth-card,.wallet-hero,.seller-card{border-radius:18px}
+  .card-header{padding:13px 16px}
+  .card-body{padding:16px}
+  .card-title{font-size:14px}
+  .section-row{flex-wrap:wrap;gap:8px}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .stat-card{padding:14px}
+  .form-control,select.form-control,textarea.form-control,.custom-select-trigger{font-size:16px}
+  .btn-lg{padding:12px 18px}
+  .toast-container{top:74px;left:12px;right:12px;max-width:none}
+  .app-credit-footer{margin-top:28px;padding-top:16px}
+
+  /* grid katalog: rapat, tanpa ruang kosong */
+  body.vx-pill .cat-grid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+  body.vx-pill .variant-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  body.vx-pill .variant-tile{padding:14px 8px}
+  body.vx-pill .variant-tile h4{font-size:12.5px;line-height:1.3}
+  body.vx-pill .item-row{padding:12px 14px}
+  body.vx-pill .cat-tile h4{font-size:11px;padding:7px 4px}
+  body.vx-pill .order-search{margin-bottom:14px}
+  body.vx-pill .order-search input{padding:12px 14px 12px 42px;font-size:16px}
+}
+@media (max-width:480px){
+  body.vx-pill .cat-grid{grid-template-columns:repeat(3,1fr);gap:8px}
+  body.vx-pill .page-content{padding-left:12px;padding-right:12px}
+  .auth-card{padding:24px 20px}
+  .auth-page{padding:16px}
+  .stats-grid{gap:8px}
+}
+
+/* ---- tabel kecil (≤4 kolom) memenuhi lebar layar tanpa geser ---- */
+@media (max-width:640px){
+  .table:not(:has(th:nth-child(5))){min-width:0}
+  .table:not(:has(th:nth-child(5))) th,
+  .table:not(:has(th:nth-child(5))) td{white-space:normal;padding:9px 8px;font-size:11.5px;overflow-wrap:anywhere}
+  .table:not(:has(th:nth-child(5))) .badge{padding:2px 8px;font-size:10px}
+
+  /* modal jadi bottom-sheet */
+  .modal-overlay:not(.gdlg-overlay){align-items:flex-end;padding:0}
+  .modal-overlay:not(.gdlg-overlay) .modal{max-width:100%;border-radius:22px 22px 0 0;max-height:88vh;max-height:88dvh}
+  .modal-body{padding:18px}
+  .modal-footer{padding:14px 18px;flex-wrap:wrap}
+  .modal-footer .btn{flex:1 1 auto}
+}
+
+/* ---- panel owner (tanpa nav pill) di HP: grid inline 3 kolom jadi 2 ---- */
+@media (max-width:640px){
+  body:not(.vx-pill) .page-content [style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:repeat(2,1fr) !important}
+}
