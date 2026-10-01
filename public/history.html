@@ -390,15 +390,15 @@ async function openDetail(source, id) {
     R('Layanan', escapeHtml(row.service_name || '-'));
     if (row.target_id) R('ID Tujuan', escapeHtml(row.target_id) + (row.zone_id ? ` (${escapeHtml(row.zone_id)})` : ''));
     if (row.skin_item) R('Nama Skin/Item', escapeHtml(row.skin_item));
-    if (row.trxid) R('ID Transaksi', `<code style="font-size:11px">${escapeHtml(row.trxid)}</code>`);
+    if (row.trxid) R('ID Transaksi', `<code style="font-size:13px">${escapeHtml(row.trxid)}</code>`);
     if (row.note) R('Catatan', escapeHtml(row.note));
   } else if (source === 'ppob') {
     R('Kategori', escapeHtml(row.category_name || '-'));
     R('Produk', escapeHtml(row.product_name || '-'));
     if (row.dest) R('Tujuan', `<code>${escapeHtml(row.dest)}</code>`);
     if (row.qty) R('Nominal', formatRupiah(row.qty));
-    if (row.ref_id) R('Ref ID', `<code style="font-size:11px">${escapeHtml(row.ref_id)}</code>`);
-    if (row.trxid) R('ID Transaksi', `<code style="font-size:11px">${escapeHtml(row.trxid)}</code>`);
+    if (row.ref_id) R('Ref ID', `<code style="font-size:13px">${escapeHtml(row.ref_id)}</code>`);
+    if (row.trxid) R('ID Transaksi', `<code style="font-size:13px">${escapeHtml(row.trxid)}</code>`);
     if (row.note) R('Catatan', escapeHtml(row.note));
     if (row.status === 'processing') {
       credentialHtml = `<div class="text-sm text-muted" style="margin-top:14px"><i class="fas fa-circle-notch fa-spin"></i> Order masih diproses OkeConnect. Status diperiksa ulang otomatis di background — atau cek sekarang lewat tombol di bawah.</div>`;
@@ -407,7 +407,7 @@ async function openDetail(source, id) {
     R('Layanan', escapeHtml(row.service_name || row.category_name || '-'));
     R('Target', escapeHtml(row.target || '-'));
     R('Jumlah', String(row.quantity || 0));
-    if (row.trxid) R('ID Transaksi', `<code style="font-size:11px">${escapeHtml(row.trxid)}</code>`);
+    if (row.trxid) R('ID Transaksi', `<code style="font-size:13px">${escapeHtml(row.trxid)}</code>`);
     if (row.note) R('Catatan', escapeHtml(row.note));
   } else if (source === 'nokos') {
     R('Layanan', escapeHtml(row.service_name || '-'));
@@ -418,7 +418,7 @@ async function openDetail(source, id) {
   } else if (source === 'appprem') {
     R('Produk', escapeHtml(row.product_name || '-'));
     R('Jumlah', String(row.qty || 1));
-    if (row.invoice) R('Invoice', `<code style="font-size:11px">${escapeHtml(row.invoice)}</code>`);
+    if (row.invoice) R('Invoice', `<code style="font-size:13px">${escapeHtml(row.invoice)}</code>`);
     if (Array.isArray(row.accounts) && row.accounts.length) {
       credentialHtml = `<div class="form-label" style="margin-top:14px">Akun Hasil Order</div>` +
         row.accounts.map((a) => `<div class="order-cred-box">${escapeHtml([a.username, a.password, a.note].filter(v => v && v !== '-').join(' | ') || '-')}</div>`).join('');
@@ -426,9 +426,9 @@ async function openDetail(source, id) {
       credentialHtml = `<div class="text-sm text-muted" style="margin-top:14px"><i class="fas fa-circle-notch fa-spin"></i> Akun sedang diproses, cek lagi beberapa saat lagi.</div>`;
     }
   } else if (source === 'subdomain') {
-    R('Subdomain', `<code style="font-size:12px">${escapeHtml(row.fqdn || '-')}</code>`);
+    R('Subdomain', `<code style="font-size:13px">${escapeHtml(row.fqdn || '-')}</code>`);
     R('Tipe Record', escapeHtml(row.record_type || '-'));
-    R('IP Tujuan', `<code style="font-size:12px">${escapeHtml(row.ip || '-')}</code>`);
+    R('IP Tujuan', `<code style="font-size:13px">${escapeHtml(row.ip || '-')}</code>`);
     R('Proxy Cloudflare', row.proxied ? 'Aktif' : 'Mati');
   }
 

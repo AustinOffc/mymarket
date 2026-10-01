@@ -91,7 +91,7 @@
               <label class="form-label">Nominal Deposit</label>
               <div class="input-group">
                 <input type="number" class="form-control" id="amount" placeholder="0" min="1" style="padding-right:60px">
-                <span class="input-addon" style="font-size:12px;font-weight:600;right:12px">IDR</span>
+                <span class="input-addon" style="font-size:13px;font-weight:600;right:12px">IDR</span>
               </div>
               <p class="form-hint" id="fee-hint">Masukkan nominal deposit</p>
             </div>
@@ -370,7 +370,7 @@ async function loadHistory() {
   }
   tbody.innerHTML = res.data.map(d => `
     <tr>
-      <td><code style="font-size:11px">${(d.transaction_id||'').substring(0,20)}...</code></td>
+      <td><code style="font-size:13px">${(d.transaction_id||'').substring(0,20)}...</code></td>
       <td><strong>${formatRupiah(d.amount)}</strong></td>
       <td>${statusBadge(d.status)}</td>
       <td class="text-muted text-xs">${formatDate(d.createdAt)}</td>

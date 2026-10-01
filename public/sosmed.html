@@ -17,7 +17,7 @@
   <style>
     .sm-readonly { background: var(--bg-soft); color: var(--text-muted); cursor: default; }
     .sm-note-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-    .sm-note-list li { font-size: 12px; color: var(--text-muted); }
+    .sm-note-list li { font-size: 13px; color: var(--text-muted); }
     .sm-total-box {
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
       background: var(--primary-light); border: 1px solid var(--primary); border-radius: var(--radius-sm);
@@ -25,8 +25,8 @@
     }
     .sm-total-box .label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
     .sm-total-box .value { font-family: var(--font-mono); font-weight: 700; color: var(--primary); font-size: 20px; }
-    .sm-hint { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
-    .sm-warn { font-size: 12px; color: var(--danger); margin-top: 5px; }
+    .sm-hint { font-size: 13px; color: var(--text-muted); margin-top: 5px; }
+    .sm-warn { font-size: 13px; color: var(--danger); margin-top: 5px; }
     select.form-control:disabled, input.form-control:disabled { opacity: .6; cursor: not-allowed; }
     .sm-server-tabs { display: flex; gap: 8px; margin-bottom: 4px; }
     .sm-server-tabs .server-tab-btn {
@@ -419,9 +419,9 @@ document.getElementById('sm-order').addEventListener('click', async (e) => {
   Toast.success('Order berhasil dikirim!');
   document.getElementById('result-modal-body').innerHTML = `
     <p style="margin-bottom:10px"><b>${escapeHtml(smSelectedService.name)}</b> x${qty} — ${formatRupiah(res.data.price)}</p>
-    <p style="font-size:12.5px;color:var(--text-muted)">TrxID: <code>${escapeHtml(res.data.trxid || '-')}</code></p>
-    <p style="font-size:12.5px;color:var(--text-muted)">Status: <b>${escapeHtml(res.data.status || 'waiting')}</b></p>
-    <p style="margin-top:10px;font-size:12px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> Proses sosial media butuh waktu, tidak secepat Topup Game.</p>
+    <p style="font-size:13px;color:var(--text-muted)">TrxID: <code>${escapeHtml(res.data.trxid || '-')}</code></p>
+    <p style="font-size:13px;color:var(--text-muted)">Status: <b>${escapeHtml(res.data.status || 'waiting')}</b></p>
+    <p style="margin-top:10px;font-size:13px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> Proses sosial media butuh waktu, tidak secepat Topup Game.</p>
   `;
   document.getElementById('result-modal-overlay').classList.add('open');
 

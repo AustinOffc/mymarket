@@ -23,7 +23,7 @@
     .bansos-tab-content.active { display: block; }
 
     .bansos-stat-card { text-align: center; padding: 18px 14px; }
-    .bansos-stat-card .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-bottom: 6px; }
+    .bansos-stat-card .stat-label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-bottom: 6px; }
     .bansos-stat-card .stat-value { font-family: var(--font-display); font-size: 30px; font-weight: 800; color: var(--primary); line-height: 1.1; }
     .bansos-stat-card .stat-quota { margin-top: 10px; font-family: var(--font-mono); }
 
@@ -36,8 +36,8 @@
     }
     .bansos-result-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .bansos-result-row:last-child { margin-bottom: 0; }
-    .bansos-result-label { flex-shrink: 0; width: 78px; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .3px; font-weight: 600; }
-    .bansos-result-value { flex: 1; min-width: 0; font-family: var(--font-mono); font-size: 12.5px; word-break: break-all; }
+    .bansos-result-label { flex-shrink: 0; width: 78px; font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .3px; font-weight: 600; }
+    .bansos-result-value { flex: 1; min-width: 0; font-family: var(--font-mono); font-size: 13px; word-break: break-all; }
     .bansos-copy-btn {
       flex-shrink: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
       border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card);
@@ -47,7 +47,7 @@
 
     .bansos-terminal {
       background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
-      padding: 14px; margin-top: 22px; font-family: var(--font-mono); font-size: 12px;
+      padding: 14px; margin-top: 22px; font-family: var(--font-mono); font-size: 13px;
     }
     .bansos-terminal-header { display: flex; align-items: center; gap: 8px; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--border-soft); color: var(--text-muted); }
     .bansos-terminal-dot { width: 9px; height: 9px; border-radius: 50%; }
@@ -65,9 +65,9 @@
     .bulk-processing-box { text-align: center; padding: 26px 14px; }
     .bulk-processing-box .loading-spinner { margin: 0 auto 14px; }
     .bulk-processing-box .bp-title { font-weight: 700; font-size: 13.5px; margin-bottom: 4px; }
-    .bulk-processing-box .bp-sub { font-size: 11.5px; color: var(--text-muted); }
+    .bulk-processing-box .bp-sub { font-size: 13px; color: var(--text-muted); }
     .bulk-account-card { margin-bottom: 10px; }
-    .bulk-account-card .bac-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: var(--success); font-weight: 700; font-size: 12px; text-transform: uppercase; }
+    .bulk-account-card .bac-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: var(--success); font-weight: 700; font-size: 13px; text-transform: uppercase; }
   </style>
 </head>
 <body>
@@ -126,7 +126,7 @@
       <div class="card-header" style="padding:0 0 14px 0;border:none">
         <div><span class="eyebrow">Bansos Austin</span><h2 style="font-size:17px">Giveaway Alight Motion & Netflix Premium</h2></div>
       </div>
-      <p style="font-size:12.5px;color:var(--text-muted);margin:-8px 0 18px">
+      <p style="font-size:13px;color:var(--text-muted);margin:-8px 0 18px">
         <i class="fas fa-circle-info"></i> Layanan gratis, dibatasi <strong>5x per hari</strong> per pengguna. Kuota reset otomatis setiap hari.
       </p>
 
@@ -156,13 +156,13 @@
           <div class="card-header" style="padding:0 0 14px 0;border:none"><span class="card-title">Verifikasi Alight Motion</span></div>
 
           <div id="am-step-1" class="bansos-step">
-            <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px">Alamat Gmail</label>
+            <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Alamat Gmail</label>
             <input type="email" id="am-email" class="form-control" placeholder="user@gmail.com" style="margin-bottom:12px">
             <button class="btn btn-primary btn-full" id="am-send-btn" onclick="sendAmLink()"><i class="fas fa-paper-plane"></i> 1. Kirim Magic Link</button>
           </div>
 
           <div id="am-step-2" class="bansos-step locked" style="margin-top:16px">
-            <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px">Tempel Magic Link dari Email</label>
+            <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Tempel Magic Link dari Email</label>
             <input type="text" id="am-link" class="form-control" placeholder="https://alight-creative.firebaseapp.com/..." style="margin-bottom:12px">
             <button class="btn btn-success btn-full" id="am-verify-btn" onclick="verifyAm()"><i class="fas fa-check"></i> 2. Proses Verifikasi</button>
           </div>
@@ -172,18 +172,18 @@
 
         <div id="tab-bulk" class="bansos-tab-content">
           <div class="card-header" style="padding:0 0 14px 0;border:none"><span class="card-title">Bulk Generate Alight Motion</span></div>
-          <p style="font-size:12.5px;color:var(--text-muted);margin:-6px 0 16px">
+          <p style="font-size:13px;color:var(--text-muted);margin:-6px 0 16px">
             Generate beberapa akun Alight Motion sekaligus (maks <span class="bulk-max-inline">5</span> akun/proses). Tidak memakai kuota harian — dibatasi cooldown 5 menit per proses.
           </p>
 
-          <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px">Jumlah Akun (1-<span class="bulk-max-inline">5</span>)</label>
+          <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Jumlah Akun (1-<span class="bulk-max-inline">5</span>)</label>
           <div class="qty-stepper" style="margin-bottom:18px">
             <button type="button" id="bulk-qty-minus">−</button>
             <input type="text" id="bulk-qty-input" value="5" readonly>
             <button type="button" id="bulk-qty-plus">+</button>
           </div>
 
-          <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px">Verifikasi Keamanan</label>
+          <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Verifikasi Keamanan</label>
           <div style="display:flex;gap:10px;margin-bottom:18px">
             <div class="bulk-captcha-box" id="bulk-captcha-question">- x -</div>
             <input type="number" id="bulk-captcha-answer" class="form-control" placeholder="Hasil perkalian">
@@ -202,7 +202,7 @@
 
         <div id="tab-netflix" class="bansos-tab-content">
           <div class="card-header" style="padding:0 0 14px 0;border:none"><span class="card-title">Generate Token Netflix</span></div>
-          <p style="font-size:12.5px;color:var(--text-muted);margin:-6px 0 16px">
+          <p style="font-size:13px;color:var(--text-muted);margin:-6px 0 16px">
             Tekan tombol di bawah untuk mendapatkan link premium Netflix otomatis. Kuota Anda terpotong setelah token berhasil dibuat.
           </p>
           <button class="btn btn-primary btn-full btn-lg" id="netflix-btn" onclick="generateNetflix()"><i class="fas fa-bolt"></i> Generate Token Sekarang</button>
@@ -213,7 +213,7 @@
           <div class="card-header" style="padding:0 0 14px 0;border:none"><span class="card-title">Buat Panel Gratis</span></div>
 
           <div id="ptero-guest-notice" style="display:none">
-            <p style="font-size:12.5px;color:var(--text-muted);margin:-6px 0 16px">
+            <p style="font-size:13px;color:var(--text-muted);margin:-6px 0 16px">
               Fitur ini khusus member terdaftar. Masuk atau daftar dulu untuk mendapat jatah 1x buat panel gratis.
             </p>
             <button class="btn btn-primary btn-full" onclick="Auth.goToLogin()"><i class="fas fa-right-to-bracket"></i> Masuk / Daftar</button>
@@ -226,7 +226,7 @@
             </div>
 
             <div id="ptero-form">
-              <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px">Username Panel</label>
+              <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Username Panel</label>
               <input type="text" id="ptero-username" class="form-control" placeholder="cth: austinganteng" style="margin-bottom:12px" maxlength="30">
               <button class="btn btn-primary btn-full" id="ptero-create-btn" onclick="createPteroPanel()"><i class="fas fa-server"></i> Buat Panel Sekarang</button>
             </div>
@@ -235,7 +235,7 @@
 
             <div class="bansos-result-box" style="margin-top:20px">
               <div class="card-header" style="padding:0 0 10px 0;border:none"><span class="card-title" style="font-size:13px">Ajak Teman, Dapat Kuota</span></div>
-              <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px">
+              <p style="font-size:13px;color:var(--text-muted);margin:0 0 10px">
                 Bagikan link di bawah. Setiap 1 orang yang <strong>mendaftar</strong> lewat link kamu akan otomatis menambah <strong>+1 jatah</strong> buat panel gratis.
               </p>
               <div class="bansos-result-row">
@@ -602,7 +602,7 @@ async function createPteroPanel() {
         <div class="bansos-result-row"><span class="bansos-result-label">Username</span><span class="bansos-result-value">${escapeHtml(d.username)}</span><button type="button" class="bansos-copy-btn" onclick="copyText('${escapeHtml(d.username).replace(/'/g, "\\'")}', 'Username')" title="Salin"><i class="fas fa-copy"></i></button></div>
         <div class="bansos-result-row"><span class="bansos-result-label">Password</span><span class="bansos-result-value">${escapeHtml(d.password)}</span><button type="button" class="bansos-copy-btn" onclick="copyText('${escapeHtml(d.password).replace(/'/g, "\\'")}', 'Password')" title="Salin"><i class="fas fa-copy"></i></button></div>
       </div>
-      <p style="font-size:11.5px;color:var(--warning);margin-top:10px"><i class="fas fa-triangle-exclamation"></i> Catat sekarang — data ini tidak disimpan dan tidak akan ditampilkan lagi.</p>`;
+      <p style="font-size:13px;color:var(--warning);margin-top:10px"><i class="fas fa-triangle-exclamation"></i> Catat sekarang — data ini tidak disimpan dan tidak akan ditampilkan lagi.</p>`;
     document.getElementById('ptero-form').style.display = 'none';
     fetchPteroStatus();
   } else {

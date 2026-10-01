@@ -80,7 +80,7 @@
                 <div style="font-size:20px;font-weight:700" id="balance-display">Rp 0</div>
               </div>
             </div>
-            <div style="font-size:12px;color:var(--text-muted);text-align:right">
+            <div style="font-size:13px;color:var(--text-muted);text-align:right">
               Fee withdraw: <strong id="fee-display" style="color:var(--success)">Gratis</strong><br>
               Min withdraw: <strong id="min-display">Rp 15.000</strong>
             </div>
@@ -103,7 +103,7 @@
               <label class="form-label">1. Nominal Withdraw</label>
               <div class="input-group">
                 <input type="number" class="form-control" id="amount" placeholder="Masukkan nominal" oninput="updateFeeInfo()">
-                <span class="input-addon" style="font-size:12px;font-weight:600;right:12px">IDR</span>
+                <span class="input-addon" style="font-size:13px;font-weight:600;right:12px">IDR</span>
               </div>
               <p class="form-hint" id="total-hint">Total dipotong: Rp 0</p>
             </div>
@@ -300,7 +300,7 @@ async function loadHistory() {
   tbody.innerHTML = rows.map(w => `
     <tr>
       <td><strong>${w.method}</strong></td>
-      <td><code style="font-size:12px">${w.account_number}</code></td>
+      <td><code style="font-size:13px">${w.account_number}</code></td>
       <td>${formatRupiah(w.amount)}</td>
       <td>${statusBadge(w.status)}</td>
       <td class="text-muted text-xs">${formatDate(w.createdAt)}</td>

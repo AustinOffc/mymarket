@@ -250,7 +250,7 @@ function renderRow(row) {
   }
   if (currentTab === 'deposit') {
     return `<tr>
-      <td><code style="font-size:11px">${(row.transaction_id||'').substring(0,24)}...</code></td>
+      <td><code style="font-size:13px">${(row.transaction_id||'').substring(0,24)}...</code></td>
       <td style="font-weight:700;color:var(--success)">+${formatRupiah(row.amount)}</td>
       <td class="text-muted">${formatRupiah(row.fee||0)}</td>
       <td>${statusBadge(row.status)}</td>
@@ -260,7 +260,7 @@ function renderRow(row) {
   if (currentTab === 'withdraw') {
     return `<tr>
       <td><strong>${row.method}</strong></td>
-      <td><code style="font-size:12px">${row.account_number}</code><br><span class="text-xs text-muted">${row.account_name}</span></td>
+      <td><code style="font-size:13px">${row.account_number}</code><br><span class="text-xs text-muted">${row.account_name}</span></td>
       <td style="font-weight:700;color:var(--danger)">−${formatRupiah(row.amount)}</td>
       <td>${statusBadge(row.status)}${row.reject_reason ? `<br><span class="text-xs text-muted">${row.reject_reason}</span>` : ''}</td>
       <td class="text-muted text-xs">${formatDate(row.createdAt)}</td>

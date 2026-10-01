@@ -19,10 +19,10 @@
     .admin-sidebar .nav-item { cursor: pointer; }
     .content-section { display: none; }
     .content-section.active { display: block; }
-    .admin-badge { background: var(--danger); color: #fff; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 2px 7px; margin-left: 6px; }
+    .admin-badge { background: var(--danger); color: #fff; border-radius: 20px; font-size: 13px; font-weight: 700; padding: 2px 7px; margin-left: 6px; }
 
     .nav-section-label {
-      font-size: 10px;
+      font-size: 13px;
       font-weight: 700;
       letter-spacing: .12em;
       text-transform: uppercase;
@@ -93,12 +93,12 @@
     .tool-menu-item i { width: 18px; text-align: center; }
     .tool-menu-item.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
     .tool-menu-item.disabled { opacity: .45; cursor: not-allowed; }
-    .tool-menu-item .soon-badge { margin-left: auto; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); background: var(--bg-soft); border-radius: 20px; padding: 2px 7px; }
+    .tool-menu-item .soon-badge { margin-left: auto; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); background: var(--bg-soft); border-radius: 20px; padding: 2px 7px; }
     .tool-panel { display: none; }
     .tool-panel.active { display: block; }
     .ptero-console {
       background: #0b0f14; border: 1px solid var(--border); border-radius: var(--radius-sm);
-      font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; color: #cbd5e1;
+      font-family: var(--font-mono); font-size: 13px; line-height: 1.6; color: #cbd5e1;
       padding: 14px; max-height: 340px; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
     }
     .ptero-console .cl-stage { color: #60a5fa; font-weight: 700; }
@@ -106,7 +106,7 @@
     .ptero-console .cl-done { color: #34d399; font-weight: 700; }
     .ptero-console .cl-error { color: #f87171; font-weight: 700; }
     .ptero-console .cl-empty { color: var(--text-muted); font-style: italic; }
-    .ptero-status-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: .03em; }
+    .ptero-status-badge { font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: .03em; }
     .ptero-status-badge.idle { background: var(--bg-soft); color: var(--text-muted); }
     .ptero-status-badge.running { background: rgba(251,191,36,.15); color: #f59e0b; }
     .ptero-status-badge.success { background: rgba(52,211,153,.15); color: #10b981; }
@@ -177,8 +177,8 @@
         </div>
       </div>
       <div style="display:flex;gap:6px;margin-top:8px;padding:0 4px">
-        <a href="/dashboard" class="btn btn-outline btn-sm" style="flex:1;font-size:11px"><i class="fas fa-user"></i> User View</a>
-        <button class="btn btn-outline btn-sm" data-logout style="flex:1;font-size:11px"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+        <a href="/dashboard" class="btn btn-outline btn-sm" style="flex:1;font-size:13px"><i class="fas fa-user"></i> User View</a>
+        <button class="btn btn-outline btn-sm" data-logout style="flex:1;font-size:13px"><i class="fas fa-sign-out-alt"></i> Keluar</button>
       </div>
     </div>
   </aside>
@@ -491,7 +491,7 @@
 
       <div class="content-section" id="section-flashsale">
         <div class="card mb-16">
-          <div class="card-body" style="font-size:12.5px;color:var(--text-muted)">
+          <div class="card-body" style="font-size:13px;color:var(--text-muted)">
             <i class="fas fa-circle-info"></i> Flash Sale = seperti voucher tapi TANPA kode, otomatis aktif selama jendela waktu. Kalau dibuat lewat sini (owner), potongan harga DITANGGUNG OWNER — seller tetap menerima saldo penuh seperti tidak ada diskon. Bisa global (semua produk/semua seller) atau menyasar 1 produk/modul tertentu.
           </div>
         </div>
@@ -684,7 +684,7 @@
           <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
             <span class="card-title"><i class="fas fa-boxes-stacked" style="color:var(--primary)"></i> Manajemen Produk PPOB</span>
             <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-              <select class="form-control" id="ppob-sync-category" style="width:auto;font-size:12px;padding:6px 10px"></select>
+              <select class="form-control" id="ppob-sync-category" style="width:auto;font-size:13px;padding:6px 10px"></select>
               <button type="button" class="btn btn-outline btn-sm" id="ppob-sync-btn" title="Import/update produk dari daftar harga OkeConnect untuk kategori terpilih"><i class="fas fa-rotate"></i> Sync dari OkeConnect</button>
               <button type="button" class="btn btn-primary btn-sm" id="ppob-add-product-btn"><i class="fas fa-plus"></i> Tambah Produk</button>
             </div>
@@ -1047,7 +1047,7 @@
             </div>
             <div class="form-group" style="margin:0">
               <label class="form-label">Environment Variables (JSON object)</label>
-              <textarea class="form-control" id="bp-environment" rows="3" placeholder='{"KEY":"value"}' style="font-family:monospace;font-size:12px"></textarea>
+              <textarea class="form-control" id="bp-environment" rows="3" placeholder='{"KEY":"value"}' style="font-family:monospace;font-size:13px"></textarea>
             </div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
               <div class="form-group" style="margin:0">
@@ -2450,7 +2450,7 @@ async function loadUsers(page = 1) {
   }
   tbody.innerHTML = res.data.map(u => `
     <tr>
-      <td><div style="font-weight:600">${u.full_name||u.username}</div><div style="font-size:11px;color:var(--text-muted)">@${u.username}</div></td>
+      <td><div style="font-weight:600">${u.full_name||u.username}</div><div style="font-size:13px;color:var(--text-muted)">@${u.username}</div></td>
       <td class="text-sm">${u.email}</td>
       <td style="font-weight:600">${formatRupiah(u.balance)}</td>
       <td>${statusBadge(u.status)}</td>
@@ -2548,7 +2548,7 @@ async function loadDeposits(page = 1) {
   tbody.innerHTML = res.data.map(d => `
     <tr>
       <td class="text-sm"><strong>${d.username}</strong></td>
-      <td><code style="font-size:10px">${(d.transaction_id||'').substring(0,20)}...</code></td>
+      <td><code style="font-size:13px">${(d.transaction_id||'').substring(0,20)}...</code></td>
       <td style="font-weight:600">${formatRupiah(d.amount)}</td>
       <td>${d.method||'QRIS'}</td>
       <td>${statusBadge(d.status)}</td>
@@ -2567,7 +2567,7 @@ async function loadWithdraws(page = 1) {
     <tr>
       <td><strong>${w.username}</strong><br><span class="text-xs text-muted">${w.full_name||''}</span></td>
       <td>${w.method}</td>
-      <td><code style="font-size:11px">${w.account_number}</code><br><span class="text-xs">${w.account_name}</span></td>
+      <td><code style="font-size:13px">${w.account_number}</code><br><span class="text-xs">${w.account_name}</span></td>
       <td style="font-weight:700">${formatRupiah(w.amount)}</td>
       <td>${statusBadge(w.status)}</td>
       <td class="text-xs text-muted">${formatDate(w.createdAt)}</td>
@@ -2644,7 +2644,7 @@ async function loadLogs(type = 'activity') {
     const detail = l.detail || l.endpoint || l.message || l.error || '-';
     return `<tr>
       <td class="text-xs text-muted">${formatDate(l.createdAt)}</td>
-      <td><code style="font-size:11px">${info}</code></td>
+      <td><code style="font-size:13px">${info}</code></td>
       <td class="text-xs text-muted" style="max-width:300px;overflow:hidden;text-overflow:ellipsis">${String(detail).substring(0,100)}</td>
     </tr>`;
   }).join('') || `<tr><td colspan="3" class="table-empty">Tidak ada log</td></tr>`;
@@ -3062,10 +3062,10 @@ async function loadCategories() {
           <div data-action="set-cat-image" data-id="${c.id}" style="cursor:pointer;width:40px;height:40px;border-radius:10px;overflow:hidden;background:var(--bg-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Klik untuk atur foto dari URL">
             ${c.image ? `<img src="${c.image}" alt="" style="width:100%;height:100%;object-fit:cover">` : `<i class="fas fa-${c.icon || 'box'}" style="color:var(--text-muted)"></i>`}
           </div>
-          ${c.image ? `<button class="btn btn-outline btn-sm" data-action="remove-cat-image" data-id="${c.id}" style="padding:2px 6px;font-size:10px" title="Kembali ke ikon"><i class="fas fa-xmark"></i></button>` : ''}
+          ${c.image ? `<button class="btn btn-outline btn-sm" data-action="remove-cat-image" data-id="${c.id}" style="padding:2px 6px;font-size:13px" title="Kembali ke ikon"><i class="fas fa-xmark"></i></button>` : ''}
         </div>
       </td>
-      <td class="text-sm"><span style="padding-left:${c.depth * 18}px">${c.depth > 0 ? '<i class="fas fa-turn-up fa-rotate-90" style="color:var(--text-muted);margin-right:6px;font-size:11px"></i>' : ''}<strong>${c.name}</strong></span></td>
+      <td class="text-sm"><span style="padding-left:${c.depth * 18}px">${c.depth > 0 ? '<i class="fas fa-turn-up fa-rotate-90" style="color:var(--text-muted);margin-right:6px;font-size:13px"></i>' : ''}<strong>${c.name}</strong></span></td>
       <td class="text-xs text-muted">${c.parent_id ? nameOf(c.parent_id) : '—'}</td>
       <td class="text-xs text-muted">${c.slug}</td>
       <td>${c.active ? statusBadge('active') : statusBadge('suspended')}</td>
@@ -3131,8 +3131,8 @@ async function loadTopupSection() {
       </div>
       <div class="text-sm" style="font-weight:600;margin-bottom:6px">${c.name}</div>
       <div style="display:flex;gap:6px;justify-content:center">
-        ${c.image ? `<button class="btn btn-outline btn-sm" data-action="remove-topup-image" data-key="${c.key}" style="padding:2px 6px;font-size:10px" title="Kembali ke ikon"><i class="fas fa-xmark"></i></button>` : ''}
-        <button class="btn btn-outline btn-sm" data-action="toggle-topup-cat" data-key="${c.key}" data-active="${c.active}" style="padding:2px 6px;font-size:10px" title="${c.active ? 'Nonaktifkan' : 'Aktifkan'}"><i class="fas fa-power-off" style="color:${c.active ? 'var(--success)' : 'var(--text-muted)'}"></i></button>
+        ${c.image ? `<button class="btn btn-outline btn-sm" data-action="remove-topup-image" data-key="${c.key}" style="padding:2px 6px;font-size:13px" title="Kembali ke ikon"><i class="fas fa-xmark"></i></button>` : ''}
+        <button class="btn btn-outline btn-sm" data-action="toggle-topup-cat" data-key="${c.key}" data-active="${c.active}" style="padding:2px 6px;font-size:13px" title="${c.active ? 'Nonaktifkan' : 'Aktifkan'}"><i class="fas fa-power-off" style="color:${c.active ? 'var(--success)' : 'var(--text-muted)'}"></i></button>
       </div>
     </div>
   `).join('');
@@ -3208,7 +3208,7 @@ async function loadPpobSection() {
   list.innerHTML = ppobCategoriesCache.map((c) => `
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm)">
       <span class="text-sm" style="font-weight:600">${escapeHtml(c.name)}</span>
-      <button class="btn btn-outline btn-sm" data-action="toggle-ppob-cat" data-key="${c.key}" data-active="${c.active}" style="padding:3px 10px;font-size:11px">
+      <button class="btn btn-outline btn-sm" data-action="toggle-ppob-cat" data-key="${c.key}" data-active="${c.active}" style="padding:3px 10px;font-size:13px">
         <i class="fas fa-power-off" style="color:${c.active ? 'var(--success)' : 'var(--text-muted)'}"></i> ${c.active ? 'Aktif' : 'Nonaktif'}
       </button>
     </div>
@@ -3699,7 +3699,7 @@ function renderAppPremLogosList() {
       </div>
       <div style="flex:1;min-width:0">
         <div class="text-sm" style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(p.name)}${p.isGroup ? ` <span class="text-xs text-muted" style="font-weight:400">(${p.count} produk)</span>` : ''}</div>
-        <input type="text" class="form-control" placeholder="URL gambar logo (png/jpg/webp/gif)" data-logo-url-input="${escapeAttr(p.id)}" data-image-upload style="margin-top:4px;font-size:12px;padding:5px 8px">
+        <input type="text" class="form-control" placeholder="URL gambar logo (png/jpg/webp/gif)" data-logo-url-input="${escapeAttr(p.id)}" data-image-upload style="margin-top:4px;font-size:13px;padding:5px 8px">
       </div>
       <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
         <button class="btn btn-primary btn-sm" data-action="save-logo" data-item-id="${escapeAttr(p.id)}" style="padding:4px 10px"><i class="fas fa-save"></i></button>
@@ -4836,7 +4836,7 @@ function formatHistoryValue(v) {
   if (v === null || v === undefined || v === '') return '<span class="text-muted">-</span>';
   if (typeof v === 'boolean') return v ? 'Ya' : 'Tidak';
   if (Array.isArray(v) || typeof v === 'object') {
-    return `<pre style="white-space:pre-wrap;word-break:break-all;margin:0;font-size:11px">${escapeHtml(JSON.stringify(v, null, 2))}</pre>`;
+    return `<pre style="white-space:pre-wrap;word-break:break-all;margin:0;font-size:13px">${escapeHtml(JSON.stringify(v, null, 2))}</pre>`;
   }
   return escapeHtml(String(v));
 }
@@ -4858,7 +4858,7 @@ function openHistoryDetail(row) {
     <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">
       <span class="text-xs text-muted">Buyer</span><br><strong>@${escapeHtml(row.username)}</strong>
     </div>
-    <table class="table" style="font-size:12px"><tbody>${rowsHtml}</tbody></table>
+    <table class="table" style="font-size:13px"><tbody>${rowsHtml}</tbody></table>
   `;
   Modal.open('history-detail-modal');
 }
@@ -5150,7 +5150,7 @@ async function loadCsRooms(page = 1) {
   } else {
     tbody.innerHTML = res.data.map(r => `
       <tr>
-        <td><div style="font-weight:600">${r.full_name}</div><div style="font-size:11px;color:var(--text-muted)">@${r.username}</div></td>
+        <td><div style="font-weight:600">${r.full_name}</div><div style="font-size:13px;color:var(--text-muted)">@${r.username}</div></td>
         <td class="text-sm" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.last_message || '-'}</td>
         <td>${r.status === 'open' ? '<span class="badge badge-success">Terbuka</span>' : '<span class="badge badge-danger">Ditutup</span>'}</td>
         <td class="text-xs text-muted">${r.assigned_admin ? 'Admin' : 'AI Assistant'}</td>
@@ -5610,7 +5610,7 @@ async function loadH2hSection() {
     document.getElementById('h2h-discount').value = res.data.discount_percent || 0;
     const grid = document.getElementById('h2h-modules-grid');
     grid.innerHTML = Object.keys(H2H_MODULE_LABELS).map((key) => `
-      <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:500;background:var(--bg-soft);border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:pointer">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;background:var(--bg-soft);border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:pointer">
         <input type="checkbox" class="h2h-module-cb" data-key="${key}" ${res.data.modules[key] ? 'checked' : ''} style="width:16px;height:16px">
         ${H2H_MODULE_LABELS[key]}
       </label>

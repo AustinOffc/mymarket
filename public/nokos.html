@@ -29,11 +29,11 @@
       color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
     }
     .nokos-offer .offer-name { font-weight: 700; font-size: 14px; }
-    .nokos-offer .offer-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+    .nokos-offer .offer-meta { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
     .nokos-offer .offer-price { font-family: var(--font-mono); font-weight: 700; color: var(--primary); white-space: nowrap; text-align: right; }
-    .nokos-offer .offer-stock { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .nokos-offer .offer-stock { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
     .server-pill {
-      display: inline-block; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+      display: inline-block; font-size: 13px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
       background: var(--primary-light); color: var(--primary); margin-left: 6px; vertical-align: middle;
     }
     .best-pill { background: var(--success); color: #fff; }
@@ -47,7 +47,7 @@
     .server-tab-btn:hover { border-color: var(--primary); color: var(--text); }
     .server-tab-btn.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
     .server-tab-btn.maint { opacity: .55; }
-    .server-tab-btn .maint-note { display: block; font-size: 10px; font-weight: 500; margin-top: 2px; }
+    .server-tab-btn .maint-note { display: block; font-size: 13px; font-weight: 500; margin-top: 2px; }
     .nokos-selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
     @media (max-width: 560px) { .nokos-selector-grid { grid-template-columns: 1fr; } }
     .nokos-selector-grid .form-group { margin-bottom: 0; }
@@ -65,13 +65,13 @@
     .otp-timer { font-family: var(--font-mono); font-size: 13px; color: var(--text-muted); }
     .otp-timer.danger { color: var(--danger); font-weight: 700; }
     .otp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 14px; }
-    .otp-field-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 3px; }
+    .otp-field-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 3px; }
     .otp-field-value { font-weight: 700; font-size: 14px; font-family: var(--font-mono); word-break: break-all; }
     .otp-field-copyable { display: flex; align-items: center; gap: 8px; }
     .otp-copy-btn {
       flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border);
       background: var(--bg-card); color: var(--text-muted); cursor: pointer; display: inline-flex;
-      align-items: center; justify-content: center; font-size: 12px; transition: var(--transition);
+      align-items: center; justify-content: center; font-size: 13px; transition: var(--transition);
     }
     .otp-copy-btn:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
     .hist-num-cell { display: flex; align-items: center; gap: 6px; }
@@ -88,11 +88,11 @@
     .otp-code-inline { font-family: var(--font-mono); font-weight: 700; }
 
     .api-error-detail { margin-top: 12px; }
-    .api-error-detail .btn { font-size: 12px; }
+    .api-error-detail .btn { font-size: 13px; }
     .api-error-json {
       display: none; text-align: left; margin-top: 10px; padding: 12px;
       background: var(--bg-body); border: 1px solid var(--border); border-radius: var(--radius-sm);
-      font-family: var(--font-mono); font-size: 11.5px; line-height: 1.5; color: var(--text-muted);
+      font-family: var(--font-mono); font-size: 13px; line-height: 1.5; color: var(--text-muted);
       max-height: 320px; overflow: auto; white-space: pre-wrap; word-break: break-all;
     }
     .api-error-json.open { display: block; }
@@ -101,7 +101,7 @@
       display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px;
     }
     .offer-pager .btn { min-width: 96px; }
-    .offer-pager .offer-pager-label { font-size: 12.5px; color: var(--text-muted); font-family: var(--font-mono); }
+    .offer-pager .offer-pager-label { font-size: 13px; color: var(--text-muted); font-family: var(--font-mono); }
   </style>
 </head>
 <body>
@@ -163,7 +163,7 @@
         <div><span class="eyebrow">Nomor OTP</span><h2 style="font-size:17px" id="selector-title">Pilih Server, Negara &amp; Layanan</h2></div>
         <button class="btn btn-outline btn-sm" id="refresh-offers-btn"><i class="fas fa-rotate"></i> Refresh</button>
       </div>
-      <p style="font-size:12.5px;color:var(--text-muted);margin:-8px 0 14px">
+      <p style="font-size:13px;color:var(--text-muted);margin:-8px 0 14px">
         <i class="fas fa-circle-info"></i> Pilih server, negara, lalu layanan — daftar nomor yang bisa dibeli akan muncul otomatis, Auto-refund jika OTP tidak masuk dalam 5 menit.
       </p>
 
@@ -456,14 +456,14 @@ function openOrderModal(offer) {
   document.getElementById('order-modal-body').innerHTML = `
     <div class="card" style="padding:14px;border-color:var(--primary);margin-bottom:14px">
       <div style="font-weight:700"><i class="fab fa-whatsapp" style="color:var(--primary)"></i> ${escapeHtml(selectedOffer.service_name)} <span class="server-pill">${escapeHtml(serverLabel)}</span></div>
-      <div style="font-size:12.5px;color:var(--text-muted);margin-top:4px">${escapeHtml(selectedOffer.country_name)}</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:4px">${escapeHtml(selectedOffer.country_name)}</div>
       <div style="margin-top:8px;font-family:var(--font-mono);font-weight:700;color:var(--primary);font-size:18px">${formatRupiah(selectedOffer.price)}</div>
     </div>
     <div class="form-group">
       <label class="form-label">Kode Voucher (opsional)</label>
       <input type="text" class="form-control" id="nokos-voucher-code" placeholder="Masukkan kode voucher" style="text-transform:uppercase">
     </div>
-    <p style="font-size:12px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> Saldo akan langsung terpotong. Nomor & kode OTP akan muncul otomatis di panel atas begitu SMS masuk. Kalau OTP tidak masuk dalam <b>5 menit</b>, saldo otomatis dikembalikan.</p>
+    <p style="font-size:13px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> Saldo akan langsung terpotong. Nomor & kode OTP akan muncul otomatis di panel atas begitu SMS masuk. Kalau OTP tidak masuk dalam <b>5 menit</b>, saldo otomatis dikembalikan.</p>
   `;
   document.getElementById('order-modal-overlay').classList.add('open');
 }
@@ -636,7 +636,7 @@ async function loadHistory(page) {
     <tr class="nokos-hist-row">
       <td>${formatDate(o.createdAt)}</td>
       <td><span class="server-pill">${escapeHtml(o.server_label)}</span></td>
-      <td class="cell-wrap">${escapeHtml(o.service_name)}<div style="font-size:11px;color:var(--text-muted)">${escapeHtml(o.country_name || '')}</div></td>
+      <td class="cell-wrap">${escapeHtml(o.service_name)}<div style="font-size:13px;color:var(--text-muted)">${escapeHtml(o.country_name || '')}</div></td>
       <td>${o.phone_number ? `<div class="hist-num-cell"><span>${escapeHtml(o.phone_number)}</span><button type="button" class="otp-copy-btn" onclick="copyText('${escapeHtml(o.phone_number)}', 'Nomor')" title="Salin nomor"><i class="fas fa-copy"></i></button></div>` : '-'}</td>
       <td class="otp-code-inline">${escapeHtml(o.otp_code || '-')}</td>
       <td>${formatRupiah(o.price_sell)}</td>

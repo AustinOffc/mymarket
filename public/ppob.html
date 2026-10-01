@@ -31,7 +31,7 @@
     .ppob-cat-tab.active { border-color: var(--primary); background: var(--primary-light); }
     .ppob-cat-tab .icon-wrap { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 17px; }
     .ppob-cat-tab.active .icon-wrap { background: var(--primary); color: #fff; }
-    .ppob-cat-tab span { font-size: 11.5px; font-weight: 700; text-align: center; line-height: 1.25; white-space: nowrap; }
+    .ppob-cat-tab span { font-size: 13px; font-weight: 700; text-align: center; line-height: 1.25; white-space: nowrap; }
 
     /* Sub-kategori (operator/provider) di dalam kategori yang dipilih, mis.
        Pulsa -> Telkomsel/XL/Axis. Sama-sama kena isu clipping, jadi dikasih
@@ -40,7 +40,7 @@
     .ppob-op-tabs::-webkit-scrollbar { display: none; }
     .ppob-op-tab {
       flex: 0 0 auto; padding: 7px 15px; border-radius: 999px; cursor: pointer;
-      font-size: 12px; font-weight: 700; color: var(--text-muted); white-space: nowrap;
+      font-size: 13px; font-weight: 700; color: var(--text-muted); white-space: nowrap;
       background: var(--bg-card); border: var(--border-w) solid var(--border-soft);
       transition: border-color .15s, color .15s, background .15s;
     }
@@ -63,7 +63,7 @@
     }
     .ppob-product-card:hover { border-color: var(--primary); transform: translateY(-2px); }
     .ppob-product-card .p-name { font-weight: 700; font-size: 13.5px; margin-bottom: 3px; }
-    .ppob-product-card .p-desc { font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px; min-height: 15px; }
+    .ppob-product-card .p-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; min-height: 15px; }
     .ppob-product-card .p-price { font-family: var(--font-mono); font-weight: 700; color: var(--primary); font-size: 14px; }
 
     .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
@@ -322,7 +322,7 @@ function openOrderModal(code) {
       <p style="font-family:var(--font-mono);font-weight:700;color:var(--primary);font-size:16px">${formatRupiah(selectedProduct.price)}</p>
     </div>
     `}
-    <p style="margin-top:6px;font-size:12px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> Saldo akan langsung terpotong dan order diteruskan otomatis ke sistem PPOB. Pastikan data tujuan sudah benar.</p>
+    <p style="margin-top:6px;font-size:13px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> Saldo akan langsung terpotong dan order diteruskan otomatis ke sistem PPOB. Pastikan data tujuan sudah benar.</p>
   `;
   document.getElementById('order-modal-overlay').classList.add('open');
 }
@@ -371,10 +371,10 @@ function renderResultModal(status, data) {
   const statusLabel = { processing: 'Diproses', success: 'Berhasil', completed: 'Berhasil', failed: 'Gagal' }[status] || status;
   document.getElementById('result-modal-body').innerHTML = `
     <p style="margin-bottom:10px"><b>${escapeHtml(selectedProduct.name)}</b> — ${formatRupiah(data.price)}</p>
-    <p style="font-size:12.5px;color:var(--text-muted)">Ref ID: <code>${escapeHtml(data.ref_id || '-')}</code></p>
-    <p style="font-size:12.5px;color:var(--text-muted)">TrxID: <code>${escapeHtml(data.trxid || '-')}</code></p>
-    <p style="font-size:12.5px;color:var(--text-muted)">Status: <b id="result-status-val">${escapeHtml(statusLabel)}</b>${status === 'processing' ? ' <i class="fas fa-spinner fa-spin" style="margin-left:2px"></i>' : ''}</p>
-    <p style="margin-top:10px;font-size:12px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> ${status === 'processing' ? 'Halaman ini otomatis memperbarui status setiap beberapa detik. Kamu juga bisa cek ulang kapan saja di menu Riwayat.' : 'Cek riwayat lengkap kapan saja di menu Riwayat.'}</p>
+    <p style="font-size:13px;color:var(--text-muted)">Ref ID: <code>${escapeHtml(data.ref_id || '-')}</code></p>
+    <p style="font-size:13px;color:var(--text-muted)">TrxID: <code>${escapeHtml(data.trxid || '-')}</code></p>
+    <p style="font-size:13px;color:var(--text-muted)">Status: <b id="result-status-val">${escapeHtml(statusLabel)}</b>${status === 'processing' ? ' <i class="fas fa-spinner fa-spin" style="margin-left:2px"></i>' : ''}</p>
+    <p style="margin-top:10px;font-size:13px;color:var(--text-muted)"><i class="fas fa-circle-info"></i> ${status === 'processing' ? 'Halaman ini otomatis memperbarui status setiap beberapa detik. Kamu juga bisa cek ulang kapan saja di menu Riwayat.' : 'Cek riwayat lengkap kapan saja di menu Riwayat.'}</p>
   `;
 }
 
