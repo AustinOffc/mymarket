@@ -119,7 +119,7 @@
           </div>
 
           <div class="pl-label">Kategori</div>
-          <div class="pl-scroll" id="pl-sections"></div>
+          <div class="pl-wrap" id="pl-sections"></div>
 
           <div id="pl-servers-wrap" style="display:none">
             <div class="pl-label">Server</div>
@@ -367,7 +367,7 @@ function renderRows() {
     let gold = '';
     if (hasGold) {
       if (it.gold_price === null || it.gold_price === undefined) gold = '<td class="pl-price"><span class="text-muted">-</span></td>';
-      else gold = `<td class="pl-price">${priceBadge(it.gold_price, 'badge-warning')}<div class="text-muted" style="font-size:11px">Hemat ${formatRupiah(Math.max(0, it.price - it.gold_price))}</div></td>`;
+      else gold = `<td class="pl-price">${priceBadge(it.gold_price, 'badge-warning')}</td>`;
     }
     const h2h = hasH2h ? `<td class="pl-price">${it.open_denom ? '<span class="text-muted">-</span>' : priceBadge(it.h2h_price, 'badge-info')}</td>` : '';
     return `<tr>
@@ -460,7 +460,7 @@ async function pruneEmpty() {
       return;
     }
     const x = await loadSubs(c);
-    if (x.empty) empty.add(c.id);   // gagal muat (error) tidak dianggap kosong
+    if (x.empty && c.id !== 'game') empty.add(c.id);   // gagal muat (error) tidak dianggap kosong; Topup Game selalu tampil
   }));
   ACTIVE = SECTIONS.filter((c) => !empty.has(c.id));
   const servers = $('pl-servers');
