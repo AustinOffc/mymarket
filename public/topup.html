@@ -219,7 +219,7 @@ let currentVariants = [];
 let currentVariant = null; 
 let currentItems = [];
 let selectedItem = null; 
-let flashMap = {}; // kode item topup -> { price_before, price_after, label } dari carousel flash sale
+let flashMap = {}; // kode item topup -> { price_before, price_strike, price_after, label } dari carousel flash sale
 
 async function loadFlashMap() {
   try {
@@ -382,7 +382,7 @@ async function openVariant(variant, push = true) {
   const renderRow = (it) => {
     const fl = flashMap[it.code];
     const priceHtml = fl
-      ? `<span style="color:#FF7A1A"><i class="fas fa-bolt"></i> ${formatRupiah(fl.price_after)}</span> <s style="font-size:12px;opacity:.6;font-weight:400">${formatRupiah(fl.price_before)}</s>`
+      ? `<span style="color:#FF7A1A"><i class="fas fa-bolt"></i> ${formatRupiah(fl.price_after)}</span> <s style="font-size:12px;opacity:.6;font-weight:400">${formatRupiah(fl.price_strike != null ? fl.price_strike : fl.price_before)}</s>`
       : formatRupiah(it.price);
     return `
     <div class="item-row" data-code="${escapeAttr(it.code)}"${fl ? ' style="box-shadow:0 0 0 2px #FF7A1A inset"' : ''}>
@@ -534,7 +534,7 @@ function openOrderModal(item) {
       <div style="font-weight:700">${escapeHtml(item.name)}</div>
       ${currentVariant && currentVariant.special && item.server_label ? `<div style="font-size:13px;color:var(--text-muted);margin-top:2px">Server: ${escapeHtml(item.server_label)}</div>` : ''}
       ${flashMap[item.code]
-        ? `<div style="margin-top:6px;font-family:var(--font-mono);font-weight:700;color:#FF7A1A;font-size:18px">${formatRupiah(flashMap[item.code].price_after)} <s style="font-size:13px;opacity:.6;font-weight:400;color:var(--text-muted)">${formatRupiah(flashMap[item.code].price_before)}</s></div>
+        ? `<div style="margin-top:6px;font-family:var(--font-mono);font-weight:700;color:#FF7A1A;font-size:18px">${formatRupiah(flashMap[item.code].price_after)} <s style="font-size:13px;opacity:.6;font-weight:400;color:var(--text-muted)">${formatRupiah(flashMap[item.code].price_strike != null ? flashMap[item.code].price_strike : flashMap[item.code].price_before)}</s></div>
            <div style="margin-top:6px"><span class="discount-tag"><i class="fas fa-bolt"></i> ${escapeHtml(flashMap[item.code].label || 'Flash Sale')} — otomatis diterapkan</span></div>`
         : `<div style="margin-top:6px;font-family:var(--font-mono);font-weight:700;color:var(--primary);font-size:18px">${formatRupiah(item.price)}</div>`}
     </div>

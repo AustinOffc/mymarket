@@ -543,6 +543,10 @@
                 <input type="number" class="form-control" id="fsp-quota" min="1" placeholder="99">
               </div>
               <div class="form-group" style="margin:0">
+                <label class="form-label">Markup Harga Coret (%)</label>
+                <input type="number" class="form-control" id="fsp-strike" min="0" max="500" step="0.01" placeholder="0 (default semua produk)">
+              </div>
+              <div class="form-group" style="margin:0">
                 <label class="form-label">Label (opsional)</label>
                 <input type="text" class="form-control" id="fsp-label" maxlength="60" placeholder="Flash Sale">
               </div>
@@ -2052,6 +2056,10 @@
       <div class="form-group" style="margin:0">
         <label class="form-label">Kuota (kosongkan = tanpa batas)</label>
         <input type="number" class="form-control" id="fse-quota" min="1" placeholder="99">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Markup Harga Coret (%)</label>
+        <input type="number" class="form-control" id="fse-strike" min="0" max="500" step="0.01" placeholder="0 = harga coret sama dengan harga normal">
       </div>
       <div class="form-group" style="margin:0">
         <label class="form-label">Label</label>
@@ -5326,6 +5334,7 @@ function fspRenderSelected() {
   box.innerHTML = [...fspSelected.entries()].map(([k, v]) => `
     <span class="badge badge-primary" style="display:inline-flex;align-items:center;gap:6px;padding:5px 10px">
       ${escapeHtml(v.name)}
+      <input type="number" class="form-control" data-fsp-strike="${escapeAttr(k)}" value="${v.strike != null ? escapeAttr(v.strike) : ''}" min="0" max="500" step="0.01" placeholder="coret +%" title="Markup harga coret produk ini (%). Kosong = ikut default" style="width:84px;height:26px;padding:0 6px;font-size:12px">
       <i class="fas fa-xmark" style="cursor:pointer" data-fsp-remove="${escapeAttr(k)}"></i>
     </span>`).join('');
 }
@@ -5506,6 +5515,12 @@ document.getElementById('fsp-results').addEventListener('click', (e) => {
   }
   fspRenderSelected(); fspRenderList();
 });
+document.getElementById('fsp-selected').addEventListener('input', (e) => {
+  const inp = e.target.closest('[data-fsp-strike]');
+  if (!inp) return;
+  const item = fspSelected.get(inp.dataset.fspStrike);
+  if (item) item.strike = inp.value === '' ? null : inp.value;
+});
 document.getElementById('fsp-selected').addEventListener('click', (e) => {
   const x = e.target.closest('[data-fsp-remove]');
   if (!x) return;
@@ -5523,8 +5538,9 @@ document.getElementById('fsp-submit').addEventListener('click', async (e) => {
   const btn = e.currentTarget;
   btnLoading(btn, true);
   const res = await API.post('/api/owner/flashsale/products', {
-    items: [...fspSelected.values()].map(v => ({ module: v.module, id: v.id, cat: v.cat })),
+    items: [...fspSelected.values()].map(v => ({ module: v.module, id: v.id, cat: v.cat, strike_markup_pct: v.strike != null ? v.strike : '' })),
     percent,
+    strike_markup_pct: document.getElementById('fsp-strike').value,
     duration_minutes: dur * unit,
     max_uses: document.getElementById('fsp-quota').value,
     label: document.getElementById('fsp-label').value.trim(),
@@ -5533,7 +5549,7 @@ document.getElementById('fsp-submit').addEventListener('click', async (e) => {
   if (!res.success) return Toast.error(res.message);
   Toast.success(res.message);
   fspSelected.clear(); fspRenderSelected();
-  ['fsp-percent', 'fsp-duration', 'fsp-quota', 'fsp-label'].forEach(id => { document.getElementById(id).value = ''; });
+  ['fsp-percent', 'fsp-duration', 'fsp-quota', 'fsp-strike', 'fsp-label'].forEach(id => { document.getElementById(id).value = ''; });
   fspRenderList();
   loadFlashSaleSection(1);
 });
@@ -5546,6 +5562,7 @@ function openFlashSaleEdit(id) {
   document.getElementById('fse-value').value = f.value != null ? f.value : '';
   document.getElementById('fse-quota').value = f.max_uses != null ? f.max_uses : '';
   document.getElementById('fse-label').value = f.label || '';
+  document.getElementById('fse-strike').value = f.strike_markup_pct ? f.strike_markup_pct : '';
   document.getElementById('fse-duration').value = '';
   document.getElementById('fse-unit').value = '60';
   document.getElementById('fse-ends-info').textContent = f.ends_at ? 'Berakhir: ' + formatDate(f.ends_at, true) : 'Tanpa batas waktu';
@@ -5561,6 +5578,7 @@ async function saveFlashSaleEdit(btn) {
     value,
     max_uses: document.getElementById('fse-quota').value,
     label: document.getElementById('fse-label').value.trim(),
+    strike_markup_pct: document.getElementById('fse-strike').value,
   };
   if (dur > 0) body.duration_minutes = dur * unit;
   btnLoading(btn, true);
@@ -5603,7 +5621,7 @@ async function loadFlashSaleSection(page = 1) {
     <tr>
       <td class="text-sm">${escapeHtml(f.label || 'Flash Sale')}</td>
       <td class="text-sm">${f.seller_id ? 'Toko: ' + escapeHtml(f.seller_id) : '<span class="badge badge-primary">Owner (Diskon Ditanggung Owner)</span>'} · ${APPLIES_TO_LABEL[f.applies_to || 'marketplace'] || f.applies_to}${f.target_variant_id ? ' (1 produk' + (f.target_name ? ': ' + escapeHtml(f.target_name) : '') + ')' : ''}</td>
-      <td class="text-sm">${f.type === 'percent' ? f.value + '%' : formatRupiah(f.value)}</td>
+      <td class="text-sm">${f.type === 'percent' ? f.value + '%' : formatRupiah(f.value)}${Number(f.strike_markup_pct) > 0 ? `<div class="text-xs text-muted">coret +${f.strike_markup_pct}%</div>` : ''}</td>
       <td class="text-sm">${f.used_count || 0}${f.max_uses ? ' / ' + f.max_uses : ''}</td>
       <td class="text-xs text-muted">${f.starts_at ? formatDate(f.starts_at, true) + ' – ' : ''}${f.ends_at ? formatDate(f.ends_at, true) : 'Tanpa batas'}</td>
       <td>${ended ? statusBadge('suspended') : (f.active ? statusBadge('active') : statusBadge('suspended'))}</td>

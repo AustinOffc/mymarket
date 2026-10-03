@@ -6,9 +6,29 @@
   <title>Dashboard — Austin Store Marketplace</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/notebook.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&display=swap">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
   <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
     <style>
+    .topbar-title.austin-logo { position: relative; display: inline-flex !important; align-items: center; justify-content: center; flex: 0 1 auto; min-width: 96px; padding: 2px 10px !important; overflow: visible; white-space: nowrap; font-family: 'Bangers', 'Caveat', cursive !important; font-size: 26px !important; letter-spacing: .06em; line-height: 1; }
+    .austin-logo::after { content: ''; position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; animation: austinFlash 5s 1.6s infinite; }
+    .austin-letters { display: inline-flex; }
+    .austin-letters span { display: inline-block; color: #1D1B18; text-shadow: 2px 2px 0 #E5322D; opacity: 0; transform: translateY(-46px) rotate(-14deg); animation: austinDrop .7s cubic-bezier(.34,1.56,.64,1) forwards, austinShock 5s 1.6s infinite; }
+    .austin-letters span:nth-child(1) { animation-delay: 0s, 1.6s; }
+    .austin-letters span:nth-child(2) { animation-delay: .12s, 1.62s; }
+    .austin-letters span:nth-child(3) { animation-delay: .24s, 1.64s; }
+    .austin-letters span:nth-child(4) { animation-delay: .36s, 1.66s; }
+    .austin-letters span:nth-child(5) { animation-delay: .48s, 1.68s; }
+    .austin-letters span:nth-child(6) { animation-delay: .6s, 1.7s; }
+    .austin-bolt { position: absolute; font-size: 15px; color: #FF7A1A; filter: drop-shadow(1px 1px 0 #1D1B18); opacity: 0; pointer-events: none; animation: austinZap 5s 1.6s infinite; }
+    .austin-bolt.b1 { top: -9px; right: -7px; transform: rotate(14deg); }
+    .austin-bolt.b2 { bottom: -9px; left: -7px; font-size: 13px; transform: rotate(-18deg); animation-delay: 1.72s; }
+    @keyframes austinDrop { 0% { opacity: 0; transform: translateY(-46px) rotate(-14deg); } 60% { opacity: 1; } 100% { opacity: 1; transform: translateY(0) rotate(0); } }
+    @keyframes austinFlash { 0%, 100% { opacity: 0; } 4% { opacity: .85; } 7% { opacity: .1; } 10% { opacity: .7; } 14% { opacity: 0; } }
+    @keyframes austinShock { 0%, 100% { transform: none; color: #1D1B18; } 4% { transform: translateY(-3px) skewX(-8deg); color: #E5322D; } 8% { transform: translateY(1px) skewX(6deg); } 12% { transform: none; color: #1D1B18; } }
+    @keyframes austinZap { 0%, 100% { opacity: 0; } 3% { opacity: 1; } 6% { opacity: 0; } 9% { opacity: 1; } 16% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .austin-letters span { opacity: 1; transform: none; animation: none; } .austin-logo::after, .austin-bolt { animation: none; } }
+    @media (max-width: 400px) { .topbar-title.austin-logo { font-size: 23px !important; min-width: 84px; padding: 2px 8px !important; } }
     #dash-topup-games, #dash-top-selling, #dash-cheapest {
       grid-template-columns: repeat(auto-fill, minmax(102px, 1fr));
       gap: 10px;
@@ -80,7 +100,7 @@
   <div class="main-content">
     <header class="topbar">
       <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
-      <div class="topbar-title" data-brand-title>Market Austin</div>
+      <div class="topbar-title austin-logo" aria-label="Austin"><span class="austin-letters" aria-hidden="true"><span>A</span><span>U</span><span>S</span><span>T</span><span>I</span><span>N</span></span><i class="fas fa-bolt austin-bolt b1" aria-hidden="true"></i><i class="fas fa-bolt austin-bolt b2" aria-hidden="true"></i></div>
       <div class="topbar-actions">
         <div class="notif-bell-wrapper">
           <button class="btn-icon" id="notif-bell"><i class="fas fa-bell"></i></button>
@@ -208,20 +228,23 @@ function fsFmt(ms) {
   const p = (n) => String(n).padStart(2, '0');
   return { d, h: p(h), m: p(m), s: p(s), text: (d > 0 ? d + 'h ' : '') + p(h) + ':' + p(m) + ':' + p(s) };
 }
+// Harga coret: nilai dari server (harga normal + markup per produk yang diatur owner). Tampilan saja, harga bayar tidak berubah.
+function fsStrikePrice(it) { return it.price_strike != null ? it.price_strike : it.price_before; }
 function fsCardHtml(it) {
-  const pct = it.max_uses ? Math.min(100, Math.round((it.used_count / it.max_uses) * 100)) : null;
+  // Bar stok: mulai penuh (100%) lalu berkurang sesuai jumlah terjual
+  const pct = it.max_uses ? Math.max(0, Math.min(100, Math.round(((it.max_uses - it.used_count) / it.max_uses) * 100))) : null;
   return `
     <div class="fs-card" data-fs-id="${escapeAttr(it.id)}" data-fs-link="${escapeAttr(it.link || '')}" data-fs-end="${escapeAttr(it.ends_at)}">
       <div class="fs-card-top">
         ${it.image_url ? `<img class="fs-thumb" src="${escapeHtml(it.image_url)}" alt="" loading="lazy">` : `<div class="fs-thumb"><i class="fas fa-box"></i></div>`}
         <div class="fs-name">${escapeHtml(it.name)}</div>
       </div>
-      <div><span class="fs-price">${formatRupiah(it.price_after)}</span><span class="fs-old">${formatRupiah(it.price_before)}</span></div>
-      ${pct !== null ? `<div class="fs-bar"><i style="width:${pct}%"></i></div>` : ''}
+      <div><span class="fs-price">${formatRupiah(it.price_after)}</span><span class="fs-old">${formatRupiah(fsStrikePrice(it))}</span></div>
+      ${pct !== null ? `<div class="fs-bar${pct <= 20 ? ' low' : ''}"><i style="width:${pct}%"></i></div>` : ''}
       <div class="fs-meta">
         <span>${it.max_uses ? `${it.used_count} / ${it.max_uses} terjual` : escapeHtml(it.label || 'Flash Sale')}</span>
       </div>
-      <div class="fs-meta"><span class="fs-left" style="margin-left:auto"><i class="fas fa-clock"></i><b data-fs-left>--:--:--</b></span></div>
+      <div class="fs-meta"><span class="fs-instan"><i class="fas fa-bolt"></i>INSTAN</span><span class="fs-left"><i class="fas fa-clock"></i><b data-fs-left>--:--:--</b></span></div>
     </div>`;
 }
 function fsTick() {
