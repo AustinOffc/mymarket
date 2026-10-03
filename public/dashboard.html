@@ -110,6 +110,15 @@
 
             <div class="banner-strip mb-24" id="dash-banner-strip" style="display:none"></div>
 
+            <div class="fs-wrap mb-24" id="dash-flashsale" style="display:none">
+        <div class="fs-head">
+          <span class="fs-title"><i class="fas fa-bolt"></i> FLASH SALE</span>
+          <span class="fs-timer" id="fs-timer"><span>00</span>:<span>00</span>:<span>00</span></span>
+        </div>
+        <div class="fs-sub">Pesan sekarang! Persediaan terbatas.</div>
+        <div class="fs-viewport" id="fs-viewport"></div>
+      </div>
+
             <div id="dash-announcements"></div>
 
             <div class="section-row" style="margin:0 0 14px">
@@ -189,6 +198,117 @@ function startBannerAutoplay(strip) {
     strip.scrollTo({ left: items[next].offsetLeft - strip.offsetLeft, behavior: 'smooth' });
   }, 4000);
 }
+
+
+// ===== Flash Sale: carousel berjalan pelan ke kiri, berhenti saat disentuh / di-hover =====
+let fsItems = [], fsOffset = 0, fsRaf = null, fsSig = '';
+function fsFmt(ms) {
+  const t = Math.max(0, Math.floor(ms / 1000));
+  const d = Math.floor(t / 86400), h = Math.floor((t % 86400) / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+  const p = (n) => String(n).padStart(2, '0');
+  return { d, h: p(h), m: p(m), s: p(s), text: (d > 0 ? d + 'h ' : '') + p(h) + ':' + p(m) + ':' + p(s) };
+}
+function fsCardHtml(it) {
+  const pct = it.max_uses ? Math.min(100, Math.round((it.used_count / it.max_uses) * 100)) : null;
+  return `
+    <div class="fs-card" data-fs-id="${escapeAttr(it.id)}" data-fs-end="${escapeAttr(it.ends_at)}">
+      <div class="fs-card-top">
+        ${it.image_url ? `<img class="fs-thumb" src="${escapeHtml(it.image_url)}" alt="" loading="lazy">` : `<div class="fs-thumb"><i class="fas fa-box"></i></div>`}
+        <div class="fs-name">${escapeHtml(it.name)}</div>
+      </div>
+      <div><span class="fs-price">${formatRupiah(it.price_after)}</span><span class="fs-old">${formatRupiah(it.price_before)}</span></div>
+      ${pct !== null ? `<div class="fs-bar"><i style="width:${pct}%"></i></div>` : ''}
+      <div class="fs-meta">
+        <span>${it.max_uses ? `${it.used_count} / ${it.max_uses} terjual` : escapeHtml(it.label || 'Flash Sale')}</span>
+      </div>
+      <div class="fs-meta"><span class="fs-pill">-${it.percent}%</span><span class="fs-left"><i class="fas fa-clock"></i><b data-fs-left>--:--:--</b></span></div>
+    </div>`;
+}
+function fsTick() {
+  const now = Date.now() + fsOffset;
+  let soonest = Infinity, ended = false;
+  document.querySelectorAll('#fs-viewport .fs-card').forEach((el) => {
+    const left = new Date(el.dataset.fsEnd).getTime() - now;
+    if (left <= 0) ended = true; else if (left < soonest) soonest = left;
+    const b = el.querySelector('[data-fs-left]');
+    if (b) b.textContent = fsFmt(left).text;
+  });
+  if (soonest !== Infinity) {
+    const f = fsFmt(soonest);
+    const spans = document.querySelectorAll('#fs-timer span');
+    if (spans.length === 3) { spans[0].textContent = f.d > 0 ? f.d + 'h ' + f.h : String(f.h); spans[1].textContent = f.m; spans[2].textContent = f.s; }
+  }
+  if (ended) loadFlashSale();
+}
+let fsPaused = false, fsResumeAt = 0, fsLoading = 0;
+function fsBindInteraction(vp) {
+  if (vp._fsBound) return;
+  vp._fsBound = true;
+  const hold = (ms) => { fsPaused = true; fsResumeAt = Date.now() + ms; };
+  ['touchstart', 'pointerdown', 'wheel'].forEach((ev) => vp.addEventListener(ev, () => hold(4000), { passive: true }));
+  vp.addEventListener('mouseenter', () => { fsPaused = true; fsResumeAt = Infinity; });
+  vp.addEventListener('mouseleave', () => { fsResumeAt = Date.now() + 800; });
+}
+function fsStartScroll(vp) {
+  cancelAnimationFrame(fsRaf); fsRaf = null;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const half = vp.dataset.fsHalf ? Number(vp.dataset.fsHalf) : 0;
+  if (!half) return;
+  fsBindInteraction(vp);
+  let pos = vp.scrollLeft, last = performance.now();
+  const SPEED = 28; // px per detik — pelan
+  const step = (t) => {
+    const dt = Math.min(0.1, (t - last) / 1000); last = t;
+    if (fsPaused && Date.now() >= fsResumeAt) { fsPaused = false; pos = vp.scrollLeft; }
+    if (!fsPaused && !document.hidden) {
+      pos += SPEED * dt;
+      if (pos >= half) pos -= half;
+      vp.scrollLeft = pos;
+    } else { pos = vp.scrollLeft; }
+    fsRaf = requestAnimationFrame(step);
+  };
+  fsRaf = requestAnimationFrame(step);
+}
+async function loadFlashSale() {
+  if (Date.now() - fsLoading < 4000) return;
+  fsLoading = Date.now();
+  const wrap = document.getElementById('dash-flashsale');
+  const vp = document.getElementById('fs-viewport');
+  if (!wrap || !vp) return;
+  let res;
+  try { res = await API.get('/api/flashsale/public'); } catch (e) { return; }
+  if (!res || !res.success || !res.data || !res.data.length) {
+    wrap.style.display = 'none'; fsItems = []; fsSig = '';
+    cancelAnimationFrame(fsRaf); fsRaf = null; return;
+  }
+  fsOffset = res.server_now ? new Date(res.server_now).getTime() - Date.now() : 0;
+  const sig = res.data.map((i) => `${i.id}:${i.price_after}:${i.used_count}:${i.ends_at}`).join('|');
+  fsItems = res.data;
+  wrap.style.display = '';
+  if (sig === fsSig) { fsTick(); return; }
+  fsSig = sig;
+  const once = fsItems.map(fsCardHtml).join('');
+  vp.innerHTML = once;
+  vp.scrollLeft = 0; vp.dataset.fsHalf = '';
+  // Gandakan isi supaya putarannya mulus tanpa jeda, hanya kalau memang melebihi lebar layar.
+  if (vp.scrollWidth > vp.clientWidth + 8) {
+    const gap = 12;
+    const half = vp.scrollWidth + gap - 14; // lebar 1 set + jarak antar kartu (padding kanan tidak dihitung)
+    vp.insertAdjacentHTML('beforeend', once);
+    vp.dataset.fsHalf = String(half);
+  }
+  if (!vp._bound) {
+    vp.addEventListener('click', (e) => {
+      const c = e.target.closest('[data-fs-id]');
+      if (c) location.href = `/product/${encodeURIComponent(c.dataset.fsId)}`;
+    });
+    vp._bound = true;
+  }
+  fsTick();
+  fsStartScroll(vp);
+}
+setInterval(fsTick, 1000);
+setInterval(loadFlashSale, 60000);
 
 const INFO_SEEN_KEY = 'dash_info_banners_seen';
 let currentInfoBannerIds = '';
@@ -285,6 +405,8 @@ async function loadDashboard() {
     bannerStrip.style.display = 'none';
     startBannerAutoplay(null);
   }
+
+  loadFlashSale();
 
   const catIcons = document.getElementById('dash-cat-icons');
   if (categories && categories.length) {

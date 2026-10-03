@@ -497,6 +497,44 @@
           </div>
         </div>
         <div class="card mb-16">
+          <div class="card-header"><span class="card-title"><i class="fas fa-fire" style="color:#FF7A1A"></i> Flash Sale Produk (Tampil di Beranda)</span></div>
+          <div style="padding:0 20px 20px;display:grid;gap:14px">
+            <div class="text-xs text-muted">Pilih produk, atur % potongan dan durasinya. Produk otomatis tampil di carousel Flash Sale di bawah banner beranda sampai durasi habis.</div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Cari &amp; Pilih Produk</label>
+              <input type="text" class="form-control" id="fsp-search" placeholder="Ketik nama produk...">
+              <div id="fsp-results" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:220px;overflow-y:auto"></div>
+            </div>
+            <div>
+              <label class="form-label">Produk Terpilih (<span id="fsp-count">0</span>)</label>
+              <div id="fsp-selected" style="display:flex;flex-wrap:wrap;gap:6px"><span class="text-xs text-muted">Belum ada produk dipilih</span></div>
+            </div>
+            <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-items:end">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Potongan (%)</label>
+                <input type="number" class="form-control" id="fsp-percent" min="1" max="90" placeholder="10">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Durasi</label>
+                <input type="number" class="form-control" id="fsp-duration" min="1" placeholder="3">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Satuan Durasi</label>
+                <select class="form-control" id="fsp-unit"><option value="1">Menit</option><option value="60" selected>Jam</option><option value="1440">Hari</option></select>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Kuota (opsional)</label>
+                <input type="number" class="form-control" id="fsp-quota" min="1" placeholder="99">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Label (opsional)</label>
+                <input type="text" class="form-control" id="fsp-label" maxlength="60" placeholder="Flash Sale">
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="fsp-submit" style="height:42px;justify-self:start"><i class="fas fa-bolt"></i> Aktifkan Flash Sale</button>
+          </div>
+        </div>
+        <div class="card mb-16">
           <div class="card-header"><span class="card-title"><i class="fas fa-bolt" style="color:var(--primary)"></i> Buat Flash Sale Global</span></div>
           <form id="flashsale-form" style="padding:0 20px 20px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));align-items:end">
             <div class="form-group" style="margin:0">
@@ -550,8 +588,8 @@
           <div class="card-header"><span class="card-title"><i class="fas fa-list" style="color:var(--primary)"></i> Semua Flash Sale (Global &amp; Milik Seller)</span></div>
           <div class="table-wrapper">
             <table class="table">
-              <thead><tr><th>Label</th><th>Cakupan</th><th>Diskon</th><th>Terpakai</th><th>Jendela Waktu</th><th>Status</th></tr></thead>
-              <tbody id="flashsale-tbody"><tr><td colspan="6" class="table-empty">Memuat...</td></tr></tbody>
+              <thead><tr><th>Label</th><th>Cakupan</th><th>Diskon</th><th>Terpakai</th><th>Jendela Waktu</th><th>Status</th><th>Aksi</th></tr></thead>
+              <tbody id="flashsale-tbody"><tr><td colspan="7" class="table-empty">Memuat...</td></tr></tbody>
             </table>
           </div>
           <div class="pagination"><span class="pagination-info" id="flashsale-page-info"></span><div class="pagination-nav" id="flashsale-pagination"></div></div>
@@ -5211,11 +5249,92 @@ document.getElementById('flashsale-form').addEventListener('submit', async (e) =
   loadFlashSaleSection(1);
 });
 
+
+// ===== Flash Sale Produk (owner) =====
+const fspSelected = new Map();
+let fspTimer = null;
+function fspRenderSelected() {
+  const box = document.getElementById('fsp-selected');
+  document.getElementById('fsp-count').textContent = fspSelected.size;
+  if (!fspSelected.size) { box.innerHTML = '<span class="text-xs text-muted">Belum ada produk dipilih</span>'; return; }
+  box.innerHTML = [...fspSelected.values()].map(v => `
+    <span class="badge badge-primary" style="display:inline-flex;align-items:center;gap:6px;padding:5px 10px">
+      ${escapeHtml(v.name)}
+      <i class="fas fa-xmark" style="cursor:pointer" data-fsp-remove="${escapeAttr(v.id)}"></i>
+    </span>`).join('');
+}
+async function fspSearch() {
+  const q = document.getElementById('fsp-search').value.trim();
+  const box = document.getElementById('fsp-results');
+  const res = await API.get(`/api/owner/flashsale/product-search?q=${encodeURIComponent(q)}`);
+  if (!res.success || !res.data.length) { box.innerHTML = '<div class="text-xs text-muted">Produk tidak ditemukan</div>'; return; }
+  box.innerHTML = res.data.map(v => `
+    <div data-fsp-add="${escapeAttr(v.id)}" data-fsp-name="${escapeAttr(v.name)}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;cursor:pointer;${fspSelected.has(v.id) ? 'opacity:.5' : ''}">
+      ${v.image_url ? `<img src="${escapeHtml(v.image_url)}" style="width:34px;height:34px;border-radius:8px;object-fit:cover">` : '<i class="fas fa-box" style="width:34px;text-align:center"></i>'}
+      <div style="flex:1;min-width:0"><div class="text-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(v.name)}</div><div class="text-xs text-muted">${formatRupiah(v.price)} · ${escapeHtml(v.seller_name)}</div></div>
+      <i class="fas fa-plus"></i>
+    </div>`).join('');
+}
+document.getElementById('fsp-search').addEventListener('input', () => { clearTimeout(fspTimer); fspTimer = setTimeout(fspSearch, 300); });
+document.getElementById('fsp-search').addEventListener('focus', () => { if (!document.getElementById('fsp-results').children.length) fspSearch(); });
+document.getElementById('fsp-results').addEventListener('click', (e) => {
+  const row = e.target.closest('[data-fsp-add]');
+  if (!row) return;
+  fspSelected.set(row.dataset.fspAdd, { id: row.dataset.fspAdd, name: row.dataset.fspName });
+  row.style.opacity = '.5';
+  fspRenderSelected();
+});
+document.getElementById('fsp-selected').addEventListener('click', (e) => {
+  const x = e.target.closest('[data-fsp-remove]');
+  if (!x) return;
+  fspSelected.delete(x.dataset.fspRemove);
+  fspRenderSelected();
+  fspSearch();
+});
+document.getElementById('fsp-submit').addEventListener('click', async (e) => {
+  const percent = parseInt(document.getElementById('fsp-percent').value);
+  const dur = parseInt(document.getElementById('fsp-duration').value);
+  const unit = parseInt(document.getElementById('fsp-unit').value);
+  if (!fspSelected.size) return Toast.warning('Pilih minimal 1 produk');
+  if (!percent || percent < 1 || percent > 90) return Toast.warning('Potongan harus 1% – 90%');
+  if (!dur || dur < 1) return Toast.warning('Durasi wajib diisi');
+  const btn = e.currentTarget;
+  btnLoading(btn, true);
+  const res = await API.post('/api/owner/flashsale/products', {
+    variant_ids: [...fspSelected.keys()],
+    percent,
+    duration_minutes: dur * unit,
+    max_uses: document.getElementById('fsp-quota').value,
+    label: document.getElementById('fsp-label').value.trim(),
+  });
+  btnLoading(btn, false);
+  if (!res.success) return Toast.error(res.message);
+  Toast.success(res.message);
+  fspSelected.clear(); fspRenderSelected();
+  ['fsp-percent', 'fsp-duration', 'fsp-quota', 'fsp-label', 'fsp-search'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('fsp-results').innerHTML = '';
+  loadFlashSaleSection(1);
+});
+async function stopFlashSale(id) {
+  if (!confirm('Hentikan flash sale ini sekarang?')) return;
+  const res = await API.request('PUT', `/api/seller/flashsale/${id}`, { active: false });
+  if (!res.success) return Toast.error(res.message);
+  Toast.success('Flash sale dihentikan');
+  loadFlashSaleSection(1);
+}
+async function deleteFlashSale(id) {
+  if (!confirm('Hapus flash sale ini?')) return;
+  const res = await API.request('DELETE', `/api/seller/flashsale/${id}`);
+  if (!res.success) return Toast.error(res.message);
+  Toast.success(res.message);
+  loadFlashSaleSection(1);
+}
+
 async function loadFlashSaleSection(page = 1) {
   const res = await API.get(`/api/owner/flashsale?page=${page}&limit=15`);
   const tbody = document.getElementById('flashsale-tbody');
   if (!res.success || !res.data.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">Belum ada flash sale</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Belum ada flash sale</td></tr>`;
     document.getElementById('flashsale-pagination').innerHTML = '';
     return;
   }
@@ -5231,6 +5350,10 @@ async function loadFlashSaleSection(page = 1) {
       <td class="text-sm">${f.used_count || 0}${f.max_uses ? ' / ' + f.max_uses : ''}</td>
       <td class="text-xs text-muted">${f.starts_at ? formatDate(f.starts_at, true) + ' – ' : ''}${f.ends_at ? formatDate(f.ends_at, true) : 'Tanpa batas'}</td>
       <td>${ended ? statusBadge('suspended') : (f.active ? statusBadge('active') : statusBadge('suspended'))}</td>
+      <td style="white-space:nowrap">
+        ${(!ended && f.active) ? `<button class="btn btn-outline btn-sm" onclick="stopFlashSale('${f.id}')" title="Hentikan sekarang"><i class="fas fa-stop"></i></button>` : ''}
+        <button class="btn btn-danger btn-sm" onclick="deleteFlashSale('${f.id}')" title="Hapus"><i class="fas fa-trash"></i></button>
+      </td>
     </tr>
   `; }).join('');
   renderPagination('flashsale-pagination', res.page, res.pages, loadFlashSaleSection);
