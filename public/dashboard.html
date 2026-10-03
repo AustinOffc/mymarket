@@ -211,7 +211,7 @@ function fsFmt(ms) {
 function fsCardHtml(it) {
   const pct = it.max_uses ? Math.min(100, Math.round((it.used_count / it.max_uses) * 100)) : null;
   return `
-    <div class="fs-card" data-fs-id="${escapeAttr(it.id)}" data-fs-end="${escapeAttr(it.ends_at)}">
+    <div class="fs-card" data-fs-id="${escapeAttr(it.id)}" data-fs-link="${escapeAttr(it.link || '')}" data-fs-end="${escapeAttr(it.ends_at)}">
       <div class="fs-card-top">
         ${it.image_url ? `<img class="fs-thumb" src="${escapeHtml(it.image_url)}" alt="" loading="lazy">` : `<div class="fs-thumb"><i class="fas fa-box"></i></div>`}
         <div class="fs-name">${escapeHtml(it.name)}</div>
@@ -300,7 +300,7 @@ async function loadFlashSale() {
   if (!vp._bound) {
     vp.addEventListener('click', (e) => {
       const c = e.target.closest('[data-fs-id]');
-      if (c) location.href = `/product/${encodeURIComponent(c.dataset.fsId)}`;
+      if (c) location.href = c.dataset.fsLink || `/product/${encodeURIComponent(c.dataset.fsId)}`;
     });
     vp._bound = true;
   }

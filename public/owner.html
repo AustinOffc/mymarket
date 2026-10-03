@@ -501,11 +501,15 @@
           <div style="padding:0 20px 20px;display:grid;gap:14px">
             <div class="text-xs text-muted">Pilih produk, atur % potongan dan durasinya. Produk otomatis tampil di carousel Flash Sale di bawah banner beranda sampai durasi habis.</div>
             <div>
-              <label class="form-label">1. Pilih Kategori</label>
+              <label class="form-label">Jenis Produk</label>
+              <div id="fsp-mods" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+            </div>
+            <div>
+              <label class="form-label" id="fsp-cat-label">1. Pilih Kategori</label>
               <div id="fsp-cats" style="display:flex;flex-wrap:wrap;gap:8px"><span class="text-xs text-muted">Memuat kategori...</span></div>
             </div>
             <div id="fsp-subwrap" style="display:none">
-              <label class="form-label">2. Pilih Sub Kategori</label>
+              <label class="form-label" id="fsp-sub-label">2. Pilih Sub Kategori</label>
               <div id="fsp-subs" style="display:flex;flex-wrap:wrap;gap:8px"></div>
             </div>
             <div class="form-group" style="margin:0">
@@ -5263,19 +5267,35 @@ document.getElementById('flashsale-form').addEventListener('submit', async (e) =
 
 
 // ===== Flash Sale Produk (owner) =====
-const fspSelected = new Map();
+// Jenis produk -> kategori/game -> sub kategori -> daftar produk (pilih satu/lebih).
+const FSP_MODS = [
+  { key: 'marketplace', name: 'Marketplace' },
+  { key: 'topup', name: 'Topup Game' },
+  { key: 'appprem', name: 'App Premium' },
+];
+const FSP_LABELS = {
+  marketplace: ['1. Pilih Kategori', '2. Pilih Sub Kategori'],
+  topup: ['1. Pilih Game', '2. Pilih Sub Kategori / Server'],
+  appprem: ['1. Pilih Aplikasi', '2. Pilih Sub Kategori'],
+};
+const fspSelected = new Map();   // key `${module}|${id}` -> { module, id, cat, name }
 let fspTimer = null;
+let fspMod = 'marketplace';
+let fspCats = [];                // kategori marketplace (/api/categories)
+let fspL1 = [], fspL2 = [];      // level 1 & 2 untuk topup / appprem
+let fspCat = null, fspSub = null, fspLast = [];
+const fspKey = (v) => `${v.module}|${v.id}`;
+
 function fspRenderSelected() {
   const box = document.getElementById('fsp-selected');
   document.getElementById('fsp-count').textContent = fspSelected.size;
   if (!fspSelected.size) { box.innerHTML = '<span class="text-xs text-muted">Belum ada produk dipilih</span>'; return; }
-  box.innerHTML = [...fspSelected.values()].map(v => `
+  box.innerHTML = [...fspSelected.entries()].map(([k, v]) => `
     <span class="badge badge-primary" style="display:inline-flex;align-items:center;gap:6px;padding:5px 10px">
       ${escapeHtml(v.name)}
-      <i class="fas fa-xmark" style="cursor:pointer" data-fsp-remove="${escapeAttr(v.id)}"></i>
+      <i class="fas fa-xmark" style="cursor:pointer" data-fsp-remove="${escapeAttr(k)}"></i>
     </span>`).join('');
 }
-let fspCats = [], fspCat = null, fspSub = null, fspLast = [];
 function fspChip(label, attr, val, active) {
   return `<button type="button" class="btn btn-sm ${active ? 'btn-primary' : 'btn-outline'}" ${attr}="${escapeAttr(val)}">${escapeHtml(label)}</button>`;
 }
@@ -5284,21 +5304,64 @@ function fspDescendants(id) {
   fspCats.filter(c => c.parent_id === id).forEach(c => out.push(...fspDescendants(c.id)));
   return out;
 }
+function fspHint() {
+  if (fspMod === 'topup') return !fspCat ? 'Pilih game dulu.' : 'Pilih sub kategori / server dulu.';
+  if (fspMod === 'appprem') return 'Pilih aplikasi dulu.';
+  return 'Pilih kategori dulu, atau ketik nama produk.';
+}
+function fspRenderMods() {
+  document.getElementById('fsp-mods').innerHTML = FSP_MODS.map(m => fspChip(m.name, 'data-fsp-mod', m.key, fspMod === m.key)).join('');
+}
 function fspRenderCats() {
-  const roots = fspCats.filter(c => !c.parent_id);
-  document.getElementById('fsp-cats').innerHTML = roots.length
-    ? roots.map(c => fspChip(c.name, 'data-fsp-cat', c.id, fspCat === c.id)).join('')
-    : '<span class="text-xs text-muted">Belum ada kategori</span>';
-  const subs = fspCat ? fspCats.filter(c => c.parent_id === fspCat) : [];
-  document.getElementById('fsp-subwrap').style.display = subs.length ? '' : 'none';
-  document.getElementById('fsp-subs').innerHTML = subs.length
-    ? fspChip('Semua', 'data-fsp-sub', '', !fspSub) + subs.map(c => fspChip(c.name, 'data-fsp-sub', c.id, fspSub === c.id)).join('')
+  const [l1, l2] = FSP_LABELS[fspMod];
+  document.getElementById('fsp-cat-label').textContent = l1;
+  document.getElementById('fsp-sub-label').textContent = l2;
+  const catsBox = document.getElementById('fsp-cats');
+  const subWrap = document.getElementById('fsp-subwrap');
+  const subsBox = document.getElementById('fsp-subs');
+  if (fspMod === 'marketplace') {
+    const roots = fspCats.filter(c => !c.parent_id);
+    catsBox.innerHTML = roots.length
+      ? roots.map(c => fspChip(c.name, 'data-fsp-cat', c.id, fspCat === c.id)).join('')
+      : '<span class="text-xs text-muted">Belum ada kategori</span>';
+    const subs = fspCat ? fspCats.filter(c => c.parent_id === fspCat) : [];
+    subWrap.style.display = subs.length ? '' : 'none';
+    subsBox.innerHTML = subs.length
+      ? fspChip('Semua', 'data-fsp-sub', '', !fspSub) + subs.map(c => fspChip(c.name, 'data-fsp-sub', c.id, fspSub === c.id)).join('')
+      : '';
+    return;
+  }
+  catsBox.innerHTML = fspL1.length
+    ? fspL1.map(c => fspChip(c.name + (c.count ? ` (${c.count})` : ''), 'data-fsp-cat', c.id, fspCat === c.id)).join('')
+    : '<span class="text-xs text-muted">Memuat / belum ada data...</span>';
+  const hasSub = fspMod === 'topup' && fspCat && fspL2.length;
+  subWrap.style.display = hasSub ? '' : 'none';
+  subsBox.innerHTML = hasSub
+    ? fspL2.map(c => fspChip(c.name + (c.count ? ` (${c.count})` : ''), 'data-fsp-sub', c.id, fspSub === c.id)).join('')
     : '';
 }
+function fspResetList() {
+  fspLast = [];
+  document.getElementById('fsp-results').innerHTML = `<div class="text-xs text-muted">${fspHint()}</div>`;
+  document.getElementById('fsp-list-info').textContent = '';
+  document.getElementById('fsp-pick-all').style.display = 'none';
+}
 async function fspInit() {
-  if (fspCats.length) return;
+  fspRenderMods();
+  if (fspCats.length) { fspRenderCats(); return; }
   const res = await API.get('/api/categories');
   fspCats = (res.success && res.data) ? res.data : [];
+  fspRenderCats();
+}
+async function fspSetMod(mod) {
+  fspMod = mod; fspCat = null; fspSub = null; fspL1 = []; fspL2 = [];
+  document.getElementById('fsp-search').value = '';
+  fspRenderMods(); fspRenderCats(); fspResetList();
+  if (mod === 'marketplace') return;
+  const res = await API.get(`/api/owner/flashsale/browse?module=${mod}`);
+  if (fspMod !== mod) return;
+  fspL1 = (res.success && res.data) ? res.data : [];
+  if (!res.success) Toast.error(res.message || 'Gagal memuat daftar');
   fspRenderCats();
 }
 function fspRenderList() {
@@ -5307,61 +5370,107 @@ function fspRenderList() {
   if (!fspLast.length) { pick.style.display = 'none'; return; }
   pick.style.display = '';
   box.innerHTML = fspLast.map(v => {
-    const on = fspSelected.has(v.id);
+    const k = fspKey(v);
+    const on = fspSelected.has(k);
+    const sub = v.module === 'marketplace' ? (v.seller_name || '') : (v.sub || '');
     return `
-    <div data-fsp-add="${escapeAttr(v.id)}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid ${on ? 'var(--primary)' : 'var(--border)'};border-radius:10px;cursor:pointer">
+    <div data-fsp-add="${escapeAttr(k)}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid ${on ? 'var(--primary)' : 'var(--border)'};border-radius:10px;cursor:pointer">
       ${v.image_url ? `<img src="${escapeHtml(v.image_url)}" style="width:38px;height:38px;border-radius:8px;object-fit:cover">` : '<i class="fas fa-box" style="width:38px;text-align:center"></i>'}
-      <div style="flex:1;min-width:0"><div class="text-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(v.name)}</div><div class="text-xs text-muted">${formatRupiah(v.price)} · ${escapeHtml(v.seller_name)}</div></div>
+      <div style="flex:1;min-width:0"><div class="text-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(v.name)}</div><div class="text-xs text-muted">${formatRupiah(v.price)}${sub ? ' · ' + escapeHtml(sub) : ''}</div></div>
       <i class="fas ${on ? 'fa-circle-check' : 'fa-plus'}" style="${on ? 'color:var(--primary)' : ''}"></i>
     </div>`;
   }).join('');
+}
+function fspItemName(v) {
+  if (v.module === 'topup') {
+    const g = fspL1.find(c => c.id === v.cat);
+    return (g ? g.name + ' — ' : '') + v.name;
+  }
+  return v.name;
 }
 async function fspSearch() {
   const q = document.getElementById('fsp-search').value.trim();
   const box = document.getElementById('fsp-results');
   const info = document.getElementById('fsp-list-info');
-  const catId = fspSub || fspCat;
-  if (!catId && !q) {
-    fspLast = [];
-    box.innerHTML = '<div class="text-xs text-muted">Pilih kategori dulu, atau ketik nama produk.</div>';
-    info.textContent = ''; document.getElementById('fsp-pick-all').style.display = 'none';
-    return;
+  const pickBtn = document.getElementById('fsp-pick-all');
+  const mod = fspMod;
+  const fail = (msg) => { fspLast = []; box.innerHTML = `<div class="text-xs" style="color:var(--danger)">${escapeHtml(msg)}</div>`; info.textContent = ''; pickBtn.style.display = 'none'; };
+
+  let rows, total;
+  if (mod === 'marketplace') {
+    const catId = fspSub || fspCat;
+    if (!catId && !q) { fspResetList(); return; }
+    box.innerHTML = '<div class="text-xs text-muted">Memuat produk...</div>';
+    const qs = new URLSearchParams();
+    if (q) qs.set('q', q);
+    if (catId) qs.set('category_ids', fspDescendants(catId).join(','));
+    const res = await API.get(`/api/owner/flashsale/product-search?${qs.toString()}`);
+    if (fspMod !== mod) return;
+    if (!res.success) return fail(res.message || 'Gagal memuat produk');
+    rows = res.data; total = res.total;
+  } else {
+    const ready = mod === 'topup' ? (fspCat && fspSub) : !!fspCat;
+    if (!ready) { fspResetList(); return; }
+    box.innerHTML = '<div class="text-xs text-muted">Memuat produk...</div>';
+    const qs = new URLSearchParams({ module: mod, cat: fspCat });
+    if (mod === 'topup') qs.set('group', fspSub);
+    const res = await API.get(`/api/owner/flashsale/browse?${qs.toString()}`);
+    if (fspMod !== mod) return;
+    if (!res.success) return fail(res.message || 'Gagal memuat produk');
+    rows = q ? res.data.filter(v => String(v.name).toLowerCase().includes(q.toLowerCase())) : res.data;
+    total = rows.length;
   }
-  box.innerHTML = '<div class="text-xs text-muted">Memuat produk...</div>';
-  const qs = new URLSearchParams();
-  if (q) qs.set('q', q);
-  if (catId) qs.set('category_ids', fspDescendants(catId).join(','));
-  const res = await API.get(`/api/owner/flashsale/product-search?${qs.toString()}`);
-  if (!res.success) { fspLast = []; box.innerHTML = `<div class="text-xs" style="color:var(--danger)">${escapeHtml(res.message || 'Gagal memuat produk')}</div>`; info.textContent = ''; document.getElementById('fsp-pick-all').style.display = 'none'; return; }
-  fspLast = res.data;
-  info.textContent = res.total > res.data.length ? `Menampilkan ${res.data.length} dari ${res.total} produk` : `${res.data.length} produk`;
-  if (!fspLast.length) { box.innerHTML = '<div class="text-xs text-muted">Tidak ada produk di kategori ini</div>'; document.getElementById('fsp-pick-all').style.display = 'none'; return; }
+  fspLast = rows.map(v => ({ ...v, module: mod }));
+  info.textContent = total > fspLast.length ? `Menampilkan ${fspLast.length} dari ${total} produk` : `${fspLast.length} produk`;
+  if (!fspLast.length) { box.innerHTML = '<div class="text-xs text-muted">Tidak ada produk di kategori ini</div>'; pickBtn.style.display = 'none'; return; }
   fspRenderList();
 }
-document.getElementById('fsp-cats').addEventListener('click', (e) => {
+document.getElementById('fsp-mods').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-fsp-mod]');
+  if (!b || b.dataset.fspMod === fspMod) return;
+  fspSetMod(b.dataset.fspMod);
+});
+document.getElementById('fsp-cats').addEventListener('click', async (e) => {
   const b = e.target.closest('[data-fsp-cat]');
   if (!b) return;
+  const mod = fspMod;
   fspCat = (fspCat === b.dataset.fspCat) ? null : b.dataset.fspCat;
-  fspSub = null;
-  fspRenderCats(); fspSearch();
+  fspSub = null; fspL2 = [];
+  fspRenderCats(); fspResetList();
+  if (mod === 'marketplace') { fspSearch(); return; }
+  if (mod === 'topup' && fspCat) {
+    const cat = fspCat;
+    const res = await API.get(`/api/owner/flashsale/browse?module=topup&cat=${encodeURIComponent(cat)}`);
+    if (fspMod !== mod || fspCat !== cat) return;
+    if (!res.success) { Toast.error(res.message || 'Gagal memuat sub kategori'); return; }
+    fspL2 = res.data || [];
+    // Kalau cuma ada 1 sub kategori, langsung dipilih supaya daftar produk muncul.
+    if (fspL2.length === 1) fspSub = fspL2[0].id;
+    fspRenderCats(); fspSearch();
+    return;
+  }
+  fspSearch();
 });
 document.getElementById('fsp-subs').addEventListener('click', (e) => {
   const b = e.target.closest('[data-fsp-sub]');
   if (!b) return;
-  fspSub = b.dataset.fspSub || null;
+  fspSub = (fspMod === 'marketplace') ? (b.dataset.fspSub || null) : b.dataset.fspSub;
   fspRenderCats(); fspSearch();
 });
 document.getElementById('fsp-search').addEventListener('input', () => { clearTimeout(fspTimer); fspTimer = setTimeout(fspSearch, 300); });
 document.getElementById('fsp-pick-all').addEventListener('click', () => {
-  fspLast.forEach(v => fspSelected.set(v.id, { id: v.id, name: v.name }));
+  fspLast.forEach(v => fspSelected.set(fspKey(v), { module: v.module, id: v.id, cat: v.cat || null, name: fspItemName(v) }));
   fspRenderSelected(); fspRenderList();
 });
 document.getElementById('fsp-results').addEventListener('click', (e) => {
   const row = e.target.closest('[data-fsp-add]');
   if (!row) return;
-  const id = row.dataset.fspAdd;
-  if (fspSelected.has(id)) fspSelected.delete(id);
-  else { const v = fspLast.find(x => x.id === id); fspSelected.set(id, { id, name: v ? v.name : id }); }
+  const k = row.dataset.fspAdd;
+  if (fspSelected.has(k)) fspSelected.delete(k);
+  else {
+    const v = fspLast.find(x => fspKey(x) === k);
+    if (v) fspSelected.set(k, { module: v.module, id: v.id, cat: v.cat || null, name: fspItemName(v) });
+  }
   fspRenderSelected(); fspRenderList();
 });
 document.getElementById('fsp-selected').addEventListener('click', (e) => {
@@ -5381,7 +5490,7 @@ document.getElementById('fsp-submit').addEventListener('click', async (e) => {
   const btn = e.currentTarget;
   btnLoading(btn, true);
   const res = await API.post('/api/owner/flashsale/products', {
-    variant_ids: [...fspSelected.keys()],
+    items: [...fspSelected.values()].map(v => ({ module: v.module, id: v.id, cat: v.cat })),
     percent,
     duration_minutes: dur * unit,
     max_uses: document.getElementById('fsp-quota').value,
@@ -5425,7 +5534,7 @@ async function loadFlashSaleSection(page = 1) {
     return `
     <tr>
       <td class="text-sm">${escapeHtml(f.label || 'Flash Sale')}</td>
-      <td class="text-sm">${f.seller_id ? 'Toko: ' + escapeHtml(f.seller_id) : '<span class="badge badge-primary">Owner (Diskon Ditanggung Owner)</span>'} · ${APPLIES_TO_LABEL[f.applies_to || 'marketplace'] || f.applies_to}${f.target_variant_id ? ' (1 produk)' : ''}</td>
+      <td class="text-sm">${f.seller_id ? 'Toko: ' + escapeHtml(f.seller_id) : '<span class="badge badge-primary">Owner (Diskon Ditanggung Owner)</span>'} · ${APPLIES_TO_LABEL[f.applies_to || 'marketplace'] || f.applies_to}${f.target_variant_id ? ' (1 produk' + (f.target_name ? ': ' + escapeHtml(f.target_name) : '') + ')' : ''}</td>
       <td class="text-sm">${f.type === 'percent' ? f.value + '%' : formatRupiah(f.value)}</td>
       <td class="text-sm">${f.used_count || 0}${f.max_uses ? ' / ' + f.max_uses : ''}</td>
       <td class="text-xs text-muted">${f.starts_at ? formatDate(f.starts_at, true) + ' – ' : ''}${f.ends_at ? formatDate(f.ends_at, true) : 'Tanpa batas'}</td>
