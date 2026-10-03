@@ -166,6 +166,30 @@
 <script src="/js/cs.js"></script>
 <script>
 const OFFLINE_THRESHOLD_MS = 10 * 60 * 1000; 
+// Banner geser otomatis tiap 4 detik, berhenti sementara saat disentuh / di-hover, lanjut lagi setelahnya.
+let bannerTimer = null;
+function startBannerAutoplay(strip) {
+  clearInterval(bannerTimer);
+  bannerTimer = null;
+  if (!strip) return;
+  const slides = strip.querySelectorAll('.banner-slide');
+  if (slides.length < 2) return;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let paused = false, resumeAt = 0;
+  const hold = (ms) => { resumeAt = Date.now() + ms; };
+  ['touchstart', 'pointerdown', 'wheel'].forEach(ev => strip.addEventListener(ev, () => hold(6000), { passive: true }));
+  strip.addEventListener('mouseenter', () => { paused = true; });
+  strip.addEventListener('mouseleave', () => { paused = false; hold(1500); });
+  bannerTimer = setInterval(() => {
+    if (paused || document.hidden || Date.now() < resumeAt) return;
+    const items = Array.from(strip.querySelectorAll('.banner-slide'));
+    const cur = items.reduce((best, el, i) => Math.abs(el.offsetLeft - strip.offsetLeft - strip.scrollLeft) < Math.abs(items[best].offsetLeft - strip.offsetLeft - strip.scrollLeft) ? i : best, 0);
+    const atEnd = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 4;
+    const next = atEnd ? 0 : Math.min(cur + 1, items.length - 1);
+    strip.scrollTo({ left: items[next].offsetLeft - strip.offsetLeft, behavior: 'smooth' });
+  }, 4000);
+}
+
 const INFO_SEEN_KEY = 'dash_info_banners_seen';
 let currentInfoBannerIds = '';
 
@@ -256,8 +280,10 @@ async function loadDashboard() {
         ${b.title ? `<h3>${escapeHtml(b.title)}</h3>` : ''}
       </div>
     `).join('');
+    startBannerAutoplay(bannerStrip);
   } else {
     bannerStrip.style.display = 'none';
+    startBannerAutoplay(null);
   }
 
   const catIcons = document.getElementById('dash-cat-icons');
