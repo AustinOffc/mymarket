@@ -37,6 +37,7 @@
     { "source": "/tools/downloader/instagram", "destination": "/tools.html" },
     { "source": "/tools/downloader/facebook", "destination": "/tools.html" },
     { "source": "/tools/downloader/capcut", "destination": "/tools.html" },
+    { "source": "/member", "destination": "/member.html" },
     { "source": "/h2h", "destination": "/h2h.html" },
     { "source": "/h2h/docs", "destination": "/h2h-api-docs.html" },
 

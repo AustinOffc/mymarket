@@ -69,6 +69,7 @@
       <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
       <div class="nav-item" data-href="/tools"><span class="nav-icon"><i class="fas fa-toolbox"></i></span> Tools</div>
       <div class="nav-item active" data-href="/pricelist"><span class="nav-icon"><i class="fas fa-tags"></i></span> Daftar Harga</div>
+      <div class="nav-item" data-href="/member"><span class="nav-icon"><i class="fas fa-gem"></i></span> Member</div>
       <div class="nav-item" data-href="/h2h"><span class="nav-icon"><i class="fas fa-plug-circle-bolt"></i></span> H2H API</div>
       <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
     </nav>
@@ -152,6 +153,10 @@
           </div>
 
           <div class="table-wrapper">
+            <div id="pl-gold-note" class="text-xs text-muted" style="display:none;padding:8px 14px;line-height:1.6">
+              <i class="fas fa-gem" style="color:#d4a017"></i> Harga <b>Gold</b> berlaku untuk Member Gold (upgrade sekali bayar, permanen).
+              <a href="/member">Lihat benefit &amp; upgrade</a>
+            </div>
             <table class="table pl-table">
               <thead id="pl-head"></thead>
               <tbody id="pl-body">
@@ -341,10 +346,14 @@ function renderRows() {
   const c = cfg();
   const rows = visibleRows();
   const hasH2h = S.items.some((it) => it.h2h_price !== null && it.h2h_price !== undefined);
-  const priceLabel = c.kind === 'sosmed' ? 'Harga / 1000' : 'Member';
+  // Kolom Gold hanya muncul kalau owner sudah mengisi potongan Gold untuk bagian ini.
+  const hasGold = S.items.some((it) => it.gold_price !== null && it.gold_price !== undefined);
+  const priceLabel = c.kind === 'sosmed' ? (hasGold ? 'Bronze / 1000' : 'Harga / 1000') : (hasGold ? 'Bronze' : 'Member');
   const infoLabel = c.kind === 'sosmed' ? 'Min / Max' : 'Status';
-  $('pl-head').innerHTML = `<tr><th>${c.kind === 'sosmed' ? 'Layanan' : 'Produk'}</th><th class="pl-price">${priceLabel}</th>${hasH2h ? '<th class="pl-price">H2H</th>' : ''}<th class="pl-info">${infoLabel}</th></tr>`;
-  const cols = hasH2h ? 4 : 3;
+  $('pl-head').innerHTML = `<tr><th>${c.kind === 'sosmed' ? 'Layanan' : 'Produk'}</th><th class="pl-price">${priceLabel}</th>${hasGold ? '<th class="pl-price" style="color:#d4a017"><i class="fas fa-gem"></i> Gold</th>' : ''}${hasH2h ? '<th class="pl-price">H2H</th>' : ''}<th class="pl-info">${infoLabel}</th></tr>`;
+  const cols = 3 + (hasH2h ? 1 : 0) + (hasGold ? 1 : 0);
+  const note = $('pl-gold-note');
+  if (note) note.style.display = hasGold ? '' : 'none';
 
   $('pl-count').textContent = `${rows.length} item`;
   if (!rows.length) {
@@ -355,10 +364,16 @@ function renderRows() {
   const shown = rows.slice(0, S.limit);
   $('pl-body').innerHTML = shown.map((it) => {
     const price = it.open_denom ? '<span class="text-muted">Bebas nominal</span>' : priceBadge(it.price, 'badge-primary');
+    let gold = '';
+    if (hasGold) {
+      if (it.gold_price === null || it.gold_price === undefined) gold = '<td class="pl-price"><span class="text-muted">-</span></td>';
+      else gold = `<td class="pl-price">${priceBadge(it.gold_price, 'badge-warning')}<div class="text-muted" style="font-size:11px">Hemat ${formatRupiah(Math.max(0, it.price - it.gold_price))}</div></td>`;
+    }
     const h2h = hasH2h ? `<td class="pl-price">${it.open_denom ? '<span class="text-muted">-</span>' : priceBadge(it.h2h_price, 'badge-info')}</td>` : '';
     return `<tr>
       <td class="pl-name">${esc(it.name)}${it.code ? `<small>${esc(it.code)}</small>` : ''}</td>
       <td class="pl-price">${price}</td>
+      ${gold}
       ${h2h}
       <td class="pl-info">${infoCell(it)}</td>
     </tr>`;

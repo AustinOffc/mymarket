@@ -1292,6 +1292,7 @@ done</code></pre></div></div></div>
       <section class="docs-section" id="pricing">
         <h2>Harga Khusus H2H</h2>
         <p class="lead">Semua harga yang dikembalikan lewat H2H API (katalog, item topup, hasil order) sudah dihitung dengan diskon khusus H2H yang diatur owner toko — kamu tidak perlu menghitung ulang. Diskon ini otomatis dikreditkan kembali ke saldomu setelah order berhasil, jadi harga yang kamu lihat di respons API adalah harga akhir yang kamu bayar.</p>
+        <p class="txt"><strong>Member Gold:</strong> kalau akun pemilik API Key adalah Member Gold, semua harga di katalog dan order otomatis memakai harga khusus Gold (potongan Gold dihitung lebih dulu, lalu diskon H2H di atas). Field <code>member_tier</code> pada respons katalog menunjukkan tier akun kamu (<code>bronze</code> / <code>gold</code>). Katalog Gold dan Bronze berbeda, jadi selalu ambil katalog dengan API Key yang sama dengan yang dipakai untuk order.</p>
         <p class="txt">Persentase diskon aktif bisa dilihat di <code>data.discount_percent</code> pada respons <a href="#catalog">Katalog Produk</a>. Nilainya dapat berubah sewaktu-waktu, jadi ambil katalog secara berkala bila kamu menampilkan harga di etalasemu sendiri.</p>
       </section>
 

@@ -388,7 +388,7 @@ const Auth = {
   },
   renderUserInfo(user, wallet) {
     document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user.full_name || user.username);
-    document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = user.role === 'owner' ? 'Owner' : (user.role === 'seller' ? 'Seller' : 'Buyer'));
+    document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = (user.role === 'owner' ? 'Owner' : (user.role === 'seller' ? 'Seller' : 'Buyer')) + (user.member_tier === 'gold' ? ' · Gold' : ''));
     document.querySelectorAll('[data-user-avatar]').forEach(el => {
       if (user.avatar) {
         el.innerHTML = `<img src="${user.avatar}" alt="">`;

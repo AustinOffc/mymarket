@@ -152,6 +152,7 @@
       <div class="nav-item" data-section="pterountracked"><span class="nav-icon"><i class="fas fa-triangle-exclamation"></i></span> Server Tidak Terlacak</div>
       <div class="nav-item" data-section="resellers"><span class="nav-icon"><i class="fas fa-crown"></i></span> Reseller &amp; Partner</div>
       <div class="nav-item" data-section="h2h"><span class="nav-icon"><i class="fas fa-plug-circle-bolt"></i></span> H2H API</div>
+      <div class="nav-item" data-section="member"><span class="nav-icon"><i class="fas fa-gem"></i></span> Member Gold</div>
 
       <div class="nav-section-label" data-section="keamanan">Keamanan</div>
       <div class="nav-item" data-section="dashinfo"><span class="nav-icon"><i class="fas fa-rectangle-ad"></i></span> Info Dashboard</div>
@@ -1484,6 +1485,64 @@
         </div>
       </div>
 
+      <div class="content-section" id="section-member">
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-user-plus" style="color:#d4a017"></i> Beri Member Gold Manual</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Jadikan user manapun Member Gold secara gratis (tanpa potong saldo).</p>
+          <form id="member-grant-form" style="padding:0 20px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div class="form-group" style="margin:0;flex:1;min-width:180px">
+              <label class="form-label">Username User</label>
+              <input type="text" class="form-control" id="member-grant-username" placeholder="username" autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-gem"></i> Jadikan Gold</button>
+          </form>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-tags" style="color:#d4a017"></i> Pengaturan Member Gold</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Bronze = default semua user (harga normal, tanpa benefit). Potongan Gold berlaku di web, checkout, dan H2H API. Potongan tidak pernah membuat harga di bawah harga modal (kecuali Marketplace &amp; Subdomain yang tidak punya harga modal). Di Marketplace, potongan ditanggung owner &mdash; seller tetap menerima harga penuh. Isi 0 untuk tanpa potongan.</p>
+          <form id="member-settings-form" style="padding:0 20px 20px;display:grid;gap:14px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Biaya Upgrade Gold (Rp, permanen)</label>
+                <input type="number" class="form-control" id="member-upgrade-price" min="1">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Akses Awal Flash Sale Gold (menit)</label>
+                <input type="number" class="form-control" id="member-early-minutes" min="0" max="1440">
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <input type="checkbox" id="member-upgrade-enabled" style="width:18px;height:18px">
+              <label for="member-upgrade-enabled" style="font-weight:600;font-size:13px">Buka penjualan upgrade Gold</label>
+            </div>
+            <div>
+              <div class="form-label" style="margin-bottom:8px">Potongan Harga Gold per Layanan</div>
+              <div id="member-discount-rows" style="display:grid;gap:8px"></div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:fit-content"><i class="fas fa-save"></i> Simpan Pengaturan</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-users" style="color:#d4a017"></i> Daftar Member Gold</span>
+            <button class="btn btn-outline btn-sm" id="member-refresh-btn"><i class="fas fa-rotate"></i> Refresh</button>
+          </div>
+          <div class="text-xs text-muted" id="member-summary" style="padding:0 20px 12px"></div>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead><tr><th>User</th><th>Asal</th><th>Dibayar</th><th>Saldo</th><th>Sejak</th><th>Status</th><th>Aksi</th></tr></thead>
+              <tbody id="member-tbody"><tr><td colspan="7" class="table-empty">Memuat...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <div class="content-section" id="section-h2h">
         <div class="card mb-16">
           <div class="card-header">
@@ -2304,6 +2363,7 @@ const sectionLoaders = {
   resellers: loadResellersSection,
   bansos: loadBansosSection,
   h2h: loadH2hSection,
+  member: loadMemberSection,
 };
 
 function showSection(name, el) {
@@ -2325,6 +2385,7 @@ function showSection(name, el) {
     resellers:'Reseller & Partner',
     bansos:'Bansos (Alight Motion & Netflix)',
     h2h:'H2H API',
+    member:'Member Gold',
     tools:'Tools',
   };
   document.getElementById('page-title').textContent = titles[name] || name;
@@ -4605,6 +4666,109 @@ document.getElementById('reseller-settings-form')?.addEventListener('submit', as
   };
   const r = await API.post('/api/owner/reseller-settings', body);
   r.success ? (Toast.success(r.message), loadResellerSettings()) : Toast.error(r.message);
+});
+
+
+// ---------------------------------------------------------------- Member Gold
+let memberModules = [];
+
+function loadMemberSection() {
+  loadMemberSettings();
+  loadMemberList();
+}
+
+async function loadMemberSettings() {
+  const res = await API.get('/api/owner/member/settings');
+  if (!res.success) return Toast.error(res.message || 'Gagal memuat pengaturan member');
+  const d = res.data;
+  memberModules = d.modules;
+  document.getElementById('member-upgrade-price').value = d.upgrade_price;
+  document.getElementById('member-early-minutes').value = d.early_access_minutes;
+  document.getElementById('member-upgrade-enabled').checked = !!d.upgrade_enabled;
+  const box = document.getElementById('member-discount-rows');
+  box.innerHTML = '';
+  d.modules.forEach(m => {
+    const cur = d.discounts[m.key] || { type: 'percent', value: 0 };
+    const row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:minmax(130px,1.2fr) minmax(110px,1fr) minmax(90px,1fr);gap:8px;align-items:center';
+    row.innerHTML = '<span class="text-sm" style="font-weight:600"></span>'
+      + '<select class="form-control" data-mod-type="' + m.key + '"><option value="percent">Persen (%)</option><option value="flat">Nominal (Rp)</option></select>'
+      + '<input type="number" class="form-control" min="0" step="any" data-mod-value="' + m.key + '">';
+    row.querySelector('span').textContent = m.label;
+    row.querySelector('select').value = cur.type;
+    row.querySelector('input').value = cur.value;
+    box.appendChild(row);
+  });
+}
+
+document.getElementById('member-settings-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const discounts = {};
+  memberModules.forEach(m => {
+    discounts[m.key] = {
+      type: document.querySelector('[data-mod-type="' + m.key + '"]').value,
+      value: document.querySelector('[data-mod-value="' + m.key + '"]').value || 0,
+    };
+  });
+  const body = {
+    upgrade_price: document.getElementById('member-upgrade-price').value,
+    early_access_minutes: document.getElementById('member-early-minutes').value,
+    upgrade_enabled: document.getElementById('member-upgrade-enabled').checked,
+    discounts,
+  };
+  const btn = e.target.querySelector('button[type="submit"]');
+  btnLoading(btn, true);
+  const r = await API.post('/api/owner/member/settings', body);
+  btnLoading(btn, false);
+  r.success ? (Toast.success(r.message), loadMemberSettings()) : Toast.error(r.message);
+});
+
+document.getElementById('member-grant-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('member-grant-username').value.trim();
+  if (!username) return Toast.error('Username wajib diisi');
+  const btn = e.target.querySelector('button[type="submit"]');
+  btnLoading(btn, true);
+  const r = await API.post('/api/owner/member/grant-by-username', { username });
+  btnLoading(btn, false);
+  if (!r.success) return Toast.error(r.message);
+  Toast.success(r.message);
+  document.getElementById('member-grant-username').value = '';
+  loadMemberList();
+});
+
+document.getElementById('member-refresh-btn')?.addEventListener('click', loadMemberList);
+
+async function loadMemberList() {
+  const tbody = document.getElementById('member-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Memuat...</td></tr>';
+  const res = await API.get('/api/owner/member/list');
+  if (!res.success) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Gagal memuat</td></tr>'; return; }
+  const s = res.summary;
+  document.getElementById('member-summary').textContent =
+    s.total_gold + ' Gold (' + s.purchased + ' beli, ' + s.granted_by_owner + ' diberi owner) · pendapatan upgrade ' + formatRupiah(s.revenue);
+  if (!res.data.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Belum ada Member Gold</td></tr>'; return; }
+  tbody.innerHTML = res.data.map(u => `
+    <tr>
+      <td class="text-sm"><strong>@${escapeHtml(u.username)}</strong><div class="text-xs text-muted">${escapeHtml(u.full_name || '-')}</div></td>
+      <td><span class="badge ${u.granted_by === 'owner' ? 'badge-info' : 'badge-success'}">${u.granted_by === 'owner' ? 'Diberi owner' : 'Beli'}</span></td>
+      <td class="text-sm">${formatRupiah(u.paid_amount)}</td>
+      <td class="text-sm">${formatRupiah(u.balance)}</td>
+      <td class="text-xs">${u.since ? formatDate(u.since) : '-'}</td>
+      <td>${statusBadge(u.status)}</td>
+      <td><button class="btn btn-danger btn-sm" data-member-revoke="${u.id}" title="Cabut Gold"><i class="fas fa-trash"></i></button></td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('member-tbody')?.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-member-revoke]');
+  if (!btn) return;
+  if (!await showConfirm('Cabut status Gold user ini? Biaya upgrade yang sudah dibayar TIDAK otomatis dikembalikan.', { title: 'Cabut Member Gold', okText: 'Cabut', danger: true })) return;
+  btnLoading(btn, true);
+  const r = await API.post('/api/owner/member/' + btn.dataset.memberRevoke + '/revoke');
+  btnLoading(btn, false);
+  r.success ? (Toast.success(r.message), loadMemberList()) : Toast.error(r.message);
 });
 
 document.getElementById('reseller-refresh-btn')?.addEventListener('click', loadResellersList);
