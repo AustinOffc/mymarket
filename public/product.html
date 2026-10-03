@@ -375,7 +375,12 @@ document.getElementById('btn-chat-seller').addEventListener('click', async (e) =
   location.href = `/seller-chat/${res.data.id}`;
 });
 
-init();
+init().then(() => {
+  if (new URLSearchParams(location.search).get('buy') === '1') {
+    const b = document.getElementById('btn-buy');
+    if (b && !b.disabled) b.click();
+  }
+});
 </script>
 <script src="/js/notebook.js" defer></script>
 </body>

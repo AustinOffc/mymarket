@@ -219,6 +219,19 @@ let currentVariants = [];
 let currentVariant = null; 
 let currentItems = [];
 let selectedItem = null; 
+let flashMap = {}; // kode item topup -> { price_before, price_after, label } dari carousel flash sale
+
+async function loadFlashMap() {
+  try {
+    const r = await API.get('/api/flashsale/public');
+    flashMap = {};
+    if (r && r.success) {
+      (r.data || []).forEach((f) => {
+        if (String(f.id).startsWith('topup:')) flashMap[String(f.id).slice(6)] = f;
+      });
+    }
+  } catch (e) { flashMap = {}; }
+}
 
 async function init() {
   const res = await Auth.checkOptional();
@@ -235,11 +248,30 @@ async function init() {
 
   history.replaceState({ level: 'cat' }, '', location.href);
 
+  await loadFlashMap();
+
   const params = new URLSearchParams(location.search);
   const openKey = params.get('open');
   if (openKey) {
     const cat = topupCategories.find(c => c.key === openKey);
-    if (cat) openCategory(cat);
+    if (cat) {
+      await openCategory(cat);
+      // Datang dari carousel Flash Sale beranda: langsung buka item + form order-nya.
+      const vSlug = params.get('variant');
+      const itemCode = params.get('item');
+      if (vSlug && itemCode) {
+        const v = currentVariants.find(x => x.slug === vSlug);
+        if (v) {
+          await openVariant(v);
+          const it = currentItems.find(x => x.code === itemCode);
+          if (it) {
+            const row = document.querySelector(`#item-list .item-row[data-code="${(window.CSS && CSS.escape) ? CSS.escape(itemCode) : itemCode}"]`);
+            if (row) row.scrollIntoView({ block: 'center' });
+            openOrderModal(it);
+          }
+        }
+      }
+    }
   }
 }
 
@@ -347,15 +379,21 @@ async function openVariant(variant, push = true) {
   }
   currentItems = res.data.items;
   const isSpecial = !!variant.special;
-  const renderRow = (it) => `
-    <div class="item-row" data-code="${escapeAttr(it.code)}">
+  const renderRow = (it) => {
+    const fl = flashMap[it.code];
+    const priceHtml = fl
+      ? `<span style="color:#FF7A1A"><i class="fas fa-bolt"></i> ${formatRupiah(fl.price_after)}</span> <s style="font-size:12px;opacity:.6;font-weight:400">${formatRupiah(fl.price_before)}</s>`
+      : formatRupiah(it.price);
+    return `
+    <div class="item-row" data-code="${escapeAttr(it.code)}"${fl ? ' style="box-shadow:0 0 0 2px #FF7A1A inset"' : ''}>
       <div>
         ${isSpecial && it.server_label ? `<span class="server-badge">Server ${escapeHtml(it.server_label)}</span>` : ''}
         <div class="item-name">${escapeHtml(it.name)}</div>
         ${it.description ? `<div class="item-desc">${escapeHtml((() => { const d = it.description.replace(/\n+/g, ' • '); return d.length > 200 ? d.slice(0, 200) + '...' : d; })())}</div>` : ''}
       </div>
-      <div class="item-price">${formatRupiah(it.price)}</div>
+      <div class="item-price">${priceHtml}</div>
     </div>`;
+  };
   if (isSpecial) {
     // Sub kategori lintas server: pisahkan per server/region dengan judul + catatan.
     let lastServer = null;
@@ -495,7 +533,10 @@ function openOrderModal(item) {
     <div class="card" style="padding:14px;border-color:var(--primary);margin-bottom:14px">
       <div style="font-weight:700">${escapeHtml(item.name)}</div>
       ${currentVariant && currentVariant.special && item.server_label ? `<div style="font-size:13px;color:var(--text-muted);margin-top:2px">Server: ${escapeHtml(item.server_label)}</div>` : ''}
-      <div style="margin-top:6px;font-family:var(--font-mono);font-weight:700;color:var(--primary);font-size:18px">${formatRupiah(item.price)}</div>
+      ${flashMap[item.code]
+        ? `<div style="margin-top:6px;font-family:var(--font-mono);font-weight:700;color:#FF7A1A;font-size:18px">${formatRupiah(flashMap[item.code].price_after)} <s style="font-size:13px;opacity:.6;font-weight:400;color:var(--text-muted)">${formatRupiah(flashMap[item.code].price_before)}</s></div>
+           <div style="margin-top:6px"><span class="discount-tag"><i class="fas fa-bolt"></i> ${escapeHtml(flashMap[item.code].label || 'Flash Sale')} — otomatis diterapkan</span></div>`
+        : `<div style="margin-top:6px;font-family:var(--font-mono);font-weight:700;color:var(--primary);font-size:18px">${formatRupiah(item.price)}</div>`}
     </div>
     ${noticeHtml}
     ${fieldsHtml}

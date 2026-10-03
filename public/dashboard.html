@@ -221,7 +221,7 @@ function fsCardHtml(it) {
       <div class="fs-meta">
         <span>${it.max_uses ? `${it.used_count} / ${it.max_uses} terjual` : escapeHtml(it.label || 'Flash Sale')}</span>
       </div>
-      <div class="fs-meta"><span class="fs-pill">-${it.percent}%</span><span class="fs-left"><i class="fas fa-clock"></i><b data-fs-left>--:--:--</b></span></div>
+      <div class="fs-meta"><span class="fs-left" style="margin-left:auto"><i class="fas fa-clock"></i><b data-fs-left>--:--:--</b></span></div>
     </div>`;
 }
 function fsTick() {

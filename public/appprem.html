@@ -443,6 +443,18 @@ async function init() {
   const res = await Auth.checkOptional();
   if (res) { Auth.renderUserInfo(res.user, res.wallet); } else { Auth.renderGuestUI(); }
   await loadProducts();
+  const wantItem = new URLSearchParams(location.search).get('item');
+  if (wantItem) {
+    const it = products.find(p => p.item_id === wantItem);
+    if (it) {
+      selectedItem = it;
+      qty = 1;
+      renderProductList();
+      renderSummary();
+      const sw = document.getElementById('summary-wrap');
+      if (sw) sw.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
   await loadHistory(1);
 }
 init();

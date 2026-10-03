@@ -528,7 +528,7 @@
             <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-items:end">
               <div class="form-group" style="margin:0">
                 <label class="form-label">Potongan (%)</label>
-                <input type="number" class="form-control" id="fsp-percent" min="1" max="90" placeholder="10">
+                <input type="number" class="form-control" id="fsp-percent" min="0.01" max="90" step="0.01" placeholder="10 atau 1.5">
               </div>
               <div class="form-group" style="margin:0">
                 <label class="form-label">Durasi</label>
@@ -563,7 +563,7 @@
             </div>
             <div class="form-group" style="margin:0">
               <label class="form-label">Nilai</label>
-              <input type="number" class="form-control" id="flashsale-value" placeholder="10">
+              <input type="number" class="form-control" id="flashsale-value" step="0.01" min="0" placeholder="10 atau 1.5">
             </div>
             <div class="form-group" style="margin:0">
               <label class="form-label">Min. Belanja (Rp)</label>
@@ -2033,6 +2033,39 @@
         </div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="flashsale-edit-modal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <span class="modal-title" id="fse-title">Edit Flash Sale</span>
+      <button class="modal-close" onclick="Modal.close('flashsale-edit-modal')">&times;</button>
+    </div>
+    <div class="modal-body" style="display:grid;gap:12px">
+      <input type="hidden" id="fse-id">
+      <div class="form-group" style="margin:0">
+        <label class="form-label" id="fse-value-label">Potongan (%)</label>
+        <input type="number" class="form-control" id="fse-value" min="0" step="0.01" placeholder="10 atau 1.5">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Kuota (kosongkan = tanpa batas)</label>
+        <input type="number" class="form-control" id="fse-quota" min="1" placeholder="99">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Label</label>
+        <input type="text" class="form-control" id="fse-label" maxlength="60" placeholder="Flash Sale">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Atur ulang durasi dari sekarang (opsional)</label>
+        <div style="display:flex;gap:8px">
+          <input type="number" class="form-control" id="fse-duration" min="1" placeholder="Kosongkan = tidak diubah">
+          <select class="form-control" id="fse-unit" style="max-width:120px"><option value="1">Menit</option><option value="60" selected>Jam</option><option value="1440">Hari</option></select>
+        </div>
+        <div class="text-xs text-muted" id="fse-ends-info" style="margin-top:4px"></div>
+      </div>
+      <button type="button" class="btn btn-primary" onclick="saveFlashSaleEdit(this)"><i class="fas fa-save"></i> Simpan Perubahan</button>
     </div>
   </div>
 </div>
@@ -5481,11 +5514,11 @@ document.getElementById('fsp-selected').addEventListener('click', (e) => {
   fspRenderList();
 });
 document.getElementById('fsp-submit').addEventListener('click', async (e) => {
-  const percent = parseInt(document.getElementById('fsp-percent').value);
+  const percent = parseFloat(String(document.getElementById('fsp-percent').value).replace(',', '.'));
   const dur = parseInt(document.getElementById('fsp-duration').value);
   const unit = parseInt(document.getElementById('fsp-unit').value);
   if (!fspSelected.size) return Toast.warning('Pilih minimal 1 produk');
-  if (!percent || percent < 1 || percent > 90) return Toast.warning('Potongan harus 1% – 90%');
+  if (!percent || percent < 0.01 || percent > 90) return Toast.warning('Potongan harus 0.01% – 90%');
   if (!dur || dur < 1) return Toast.warning('Durasi wajib diisi');
   const btn = e.currentTarget;
   btnLoading(btn, true);
@@ -5504,6 +5537,40 @@ document.getElementById('fsp-submit').addEventListener('click', async (e) => {
   fspRenderList();
   loadFlashSaleSection(1);
 });
+function openFlashSaleEdit(id) {
+  const f = (window._fsRows || {})[id];
+  if (!f) return Toast.error('Data flash sale tidak ditemukan, muat ulang halaman');
+  document.getElementById('fse-id').value = id;
+  document.getElementById('fse-title').textContent = 'Edit Flash Sale' + (f.target_name ? ' — ' + f.target_name : '');
+  document.getElementById('fse-value-label').textContent = f.type === 'percent' ? 'Potongan (%)' : 'Potongan (Rp)';
+  document.getElementById('fse-value').value = f.value != null ? f.value : '';
+  document.getElementById('fse-quota').value = f.max_uses != null ? f.max_uses : '';
+  document.getElementById('fse-label').value = f.label || '';
+  document.getElementById('fse-duration').value = '';
+  document.getElementById('fse-unit').value = '60';
+  document.getElementById('fse-ends-info').textContent = f.ends_at ? 'Berakhir: ' + formatDate(f.ends_at, true) : 'Tanpa batas waktu';
+  Modal.open('flashsale-edit-modal');
+}
+async function saveFlashSaleEdit(btn) {
+  const id = document.getElementById('fse-id').value;
+  const value = String(document.getElementById('fse-value').value).replace(',', '.').trim();
+  const dur = parseInt(document.getElementById('fse-duration').value);
+  const unit = parseInt(document.getElementById('fse-unit').value);
+  if (!value || !(parseFloat(value) > 0)) return Toast.warning('Nilai potongan wajib diisi');
+  const body = {
+    value,
+    max_uses: document.getElementById('fse-quota').value,
+    label: document.getElementById('fse-label').value.trim(),
+  };
+  if (dur > 0) body.duration_minutes = dur * unit;
+  btnLoading(btn, true);
+  const res = await API.request('PUT', `/api/seller/flashsale/${id}`, body);
+  btnLoading(btn, false);
+  if (!res.success) return Toast.error(res.message);
+  Toast.success('Flash sale diperbarui');
+  Modal.close('flashsale-edit-modal');
+  loadFlashSaleSection(1);
+}
 async function stopFlashSale(id) {
   if (!confirm('Hentikan flash sale ini sekarang?')) return;
   const res = await API.request('PUT', `/api/seller/flashsale/${id}`, { active: false });
@@ -5528,6 +5595,7 @@ async function loadFlashSaleSection(page = 1) {
     return;
   }
   document.getElementById('flashsale-page-info').textContent = `${res.total} flash sale`;
+  window._fsRows = {}; res.data.forEach(f => { window._fsRows[f.id] = f; });
   const now = Date.now();
   tbody.innerHTML = res.data.map(f => {
     const ended = f.ends_at && new Date(f.ends_at).getTime() <= now;
@@ -5540,6 +5608,7 @@ async function loadFlashSaleSection(page = 1) {
       <td class="text-xs text-muted">${f.starts_at ? formatDate(f.starts_at, true) + ' – ' : ''}${f.ends_at ? formatDate(f.ends_at, true) : 'Tanpa batas'}</td>
       <td>${ended ? statusBadge('suspended') : (f.active ? statusBadge('active') : statusBadge('suspended'))}</td>
       <td style="white-space:nowrap">
+        <button class="btn btn-outline btn-sm" onclick="openFlashSaleEdit('${f.id}')" title="Edit / perbarui"><i class="fas fa-pen"></i></button>
         ${(!ended && f.active) ? `<button class="btn btn-outline btn-sm" onclick="stopFlashSale('${f.id}')" title="Hentikan sekarang"><i class="fas fa-stop"></i></button>` : ''}
         <button class="btn btn-danger btn-sm" onclick="deleteFlashSale('${f.id}')" title="Hapus"><i class="fas fa-trash"></i></button>
       </td>
