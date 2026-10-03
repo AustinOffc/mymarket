@@ -16,21 +16,36 @@
   </script>
 
   <style>
-    .pl-tabs { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
-    .pl-toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
-    .pl-toolbar .pl-select { flex:1 1 260px; min-width:0; }
-    .pl-toolbar .pl-search { flex:1 1 200px; min-width:0; }
-    .pl-servers { display:flex; gap:8px; margin-bottom:12px; }
-    .pl-servers button { flex:0 0 auto; }
-    .pl-table th, .pl-table td { white-space:nowrap; vertical-align:middle; }
-    .pl-table td.pl-name { white-space:normal; min-width:180px; }
-    .pl-table td.pl-code { font-family:var(--font-mono); font-size:13px; color:var(--text-muted); }
-    .pl-num { text-align:center; }
-    .pl-status { display:inline-flex; align-items:center; gap:6px; font-weight:600; font-size:13px; }
+    .pl-search-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:6px; }
+    .pl-search-row .pl-search { flex:2 1 220px; min-width:0; }
+    .pl-search-row .pl-sort { flex:1 1 140px; min-width:0; }
+    .pl-label { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin:14px 0 6px; font-weight:700; }
+    .pl-scroll { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; -webkit-overflow-scrolling:touch; scrollbar-width:thin; }
+    .pl-scroll .btn { flex:0 0 auto; white-space:nowrap; }
+    .pl-wrap { display:flex; gap:8px; flex-wrap:wrap; }
+    .pl-wrap .btn { white-space:nowrap; }
+    .pl-chip-count { opacity:.65; font-size:11px; margin-left:4px; font-weight:600; }
+    .pl-pickrow { display:flex; gap:10px; flex-wrap:wrap; }
+    .pl-pickrow > * { flex:1 1 220px; min-width:0; }
+    .pl-crumb { font-size:13px; color:var(--text-muted); margin:12px 0 8px; }
+    .pl-crumb b { color:var(--text); }
+    .pl-opts { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:8px 0 10px; font-size:13px; color:var(--text-muted); }
+    .pl-opts label { display:inline-flex; align-items:center; gap:6px; cursor:pointer; }
+    .pl-table th, .pl-table td { vertical-align:middle; }
+    .pl-table td.pl-name { white-space:normal; min-width:150px; word-break:break-word; }
+    .pl-table td.pl-name small { display:block; font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-top:2px; }
+    .pl-table td.pl-price, .pl-table th.pl-price { white-space:nowrap; text-align:right; }
+    .pl-table td.pl-info, .pl-table th.pl-info { text-align:center; white-space:nowrap; font-size:12px; }
+    .pl-status { display:inline-flex; align-items:center; gap:5px; font-weight:600; font-size:12px; }
     .pl-status.ok { color:var(--success); }
     .pl-status.off { color:var(--danger); }
     .pl-note { font-size:12.5px; color:var(--text-muted); margin-top:10px; line-height:1.5; }
     .pl-count { font-size:13px; color:var(--text-muted); }
+    .pl-more { text-align:center; margin-top:12px; }
+    @media (max-width:520px) {
+      .pl-table th, .pl-table td { padding:8px 6px; font-size:13px; }
+      .pl-table td.pl-name { min-width:120px; }
+    }
   </style>
 </head>
 <body>
@@ -93,31 +108,58 @@
           <span class="pl-count" id="pl-count"></span>
         </div>
         <div class="card-body">
-          <div class="pl-tabs" id="pl-tabs">
-            <button class="btn btn-primary btn-sm" data-tab="ppob"><i class="fas fa-receipt"></i> Pulsa &amp; PPOB</button>
-            <button class="btn btn-outline btn-sm" data-tab="game"><i class="fas fa-gamepad"></i> Game &amp; Streaming</button>
-            <button class="btn btn-outline btn-sm" data-tab="sosmed"><i class="fas fa-share-nodes"></i> Sosmed</button>
-          </div>
-
-          <div class="pl-servers" id="pl-servers" style="display:none">
-            <button class="btn btn-primary btn-sm" data-server="1">Server 1</button>
-            <button class="btn btn-outline btn-sm" data-server="2">Server 2</button>
-            <button class="btn btn-outline btn-sm" data-server="3">Server 3</button>
-          </div>
-
-          <div class="pl-toolbar">
-            <select class="form-select pl-select" id="pl-select" aria-label="Pilih kategori"></select>
+          <div class="pl-search-row">
             <input type="search" class="form-control pl-search" id="pl-search" placeholder="Cari kode / produk..." autocomplete="off">
+            <select class="form-select pl-sort" id="pl-sort" aria-label="Urutkan">
+              <option value="default">Termurah</option>
+              <option value="price_desc">Termahal</option>
+              <option value="name">Nama A-Z</option>
+            </select>
+          </div>
+
+          <div class="pl-label">Kategori</div>
+          <div class="pl-scroll" id="pl-sections"></div>
+
+          <div id="pl-servers-wrap" style="display:none">
+            <div class="pl-label">Server</div>
+            <div class="pl-wrap" id="pl-servers">
+              <button class="btn btn-primary btn-sm" data-server="1">Server 1</button>
+              <button class="btn btn-outline btn-sm" data-server="2">Server 2</button>
+              <button class="btn btn-outline btn-sm" data-server="3">Server 3</button>
+            </div>
+          </div>
+
+          <div id="pl-subs-wrap" style="display:none">
+            <div class="pl-label" id="pl-subs-label">Sub kategori</div>
+            <div id="pl-subs-find" style="display:none; margin-bottom:8px"><input type="search" class="form-control" id="pl-subs-search" placeholder="Cari sub kategori..." autocomplete="off"></div>
+            <div class="pl-wrap" id="pl-subs"></div>
+            <select class="form-select" id="pl-subs-select" style="display:none" aria-label="Pilih sub kategori"></select>
+          </div>
+
+          <div id="pl-pick-wrap" style="display:none">
+            <div class="pl-label" id="pl-pick-label">Jenis layanan</div>
+            <select class="form-select" id="pl-pick" aria-label="Pilih jenis layanan"></select>
+          </div>
+
+          <div id="pl-filter-wrap" style="display:none">
+            <div class="pl-label" id="pl-filter-label">Filter</div>
+            <div class="pl-scroll" id="pl-filter"></div>
+          </div>
+
+          <div class="pl-crumb" id="pl-crumb"></div>
+          <div class="pl-opts">
+            <label><input type="checkbox" id="pl-avail"> Hanya yang tersedia</label>
           </div>
 
           <div class="table-wrapper">
             <table class="table pl-table">
               <thead id="pl-head"></thead>
               <tbody id="pl-body">
-                <tr><td colspan="5"><div class="loading-spinner"></div></td></tr>
+                <tr><td colspan="4"><div class="loading-spinner"></div></td></tr>
               </tbody>
             </table>
           </div>
+          <div class="pl-more" id="pl-more" style="display:none"><button class="btn btn-outline btn-sm" id="pl-more-btn">Tampilkan lebih banyak</button></div>
           <div class="pl-note" id="pl-note"></div>
         </div>
       </div>
@@ -129,21 +171,72 @@
 <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
 <script src="/js/cs.js"></script>
 <script>
-let currentTab = 'ppob';
-let currentServer = '1';
-let currentItems = [];
-let loadSeq = 0; // cegah respons lama menimpa respons terbaru saat user ganti tab/kategori cepat
+// ---------------------------------------------------------------------------
+// Daftar Harga — alur: Kategori (bagian) -> Sub kategori -> (Jenis layanan) -> Filter cepat -> daftar
+// ---------------------------------------------------------------------------
+const SECTIONS = [
+  { id: 'pulsa',   label: 'Pulsa & Data',       icon: 'mobile-screen-button', kind: 'ppob', keys: ['pulsa', 'paket_data', 'kuota', 'bulk_telkomsel'], filterLabel: 'Operator',
+    note: 'Harga Member adalah harga yang kamu bayar di menu PPOB. Kolom H2H hanya terisi jika H2H API aktif untuk modul PPOB.' },
+  { id: 'listrik', label: 'Listrik & Tagihan',  icon: 'bolt',                 kind: 'ppob', keys: ['token_listrik', 'tagihan', 'pdam'], filterLabel: 'Penyedia',
+    note: 'Untuk tagihan, harga sudah termasuk biaya admin. Nominal tagihan dicek saat transaksi.' },
+  { id: 'ewallet', label: 'E-Wallet & E-Money', icon: 'wallet',               kind: 'ppob', keys: ['ewallet', 'emoney_etoll'], filterLabel: 'Dompet digital',
+    note: 'Harga Member adalah harga yang kamu bayar di menu PPOB.' },
+  { id: 'digital', label: 'Voucher & Digital',  icon: 'ticket',               kind: 'ppob', keys: ['voucher', 'digital'], filterLabel: 'Brand',
+    note: 'Harga Member adalah harga yang kamu bayar di menu PPOB.' },
+  { id: 'game',    label: 'Topup Game',         icon: 'gamepad',              kind: 'game', gameKind: 'game', filterLabel: 'Server / Jenis',
+    note: 'Kolom H2H adalah harga lewat H2H API (sudah termasuk diskon H2H). Tanda \"-\" berarti belum tersedia lewat H2H API.' },
+  { id: 'vgame',   label: 'Voucher Game',       icon: 'gift',                 kind: 'game', gameKind: 'voucher', filterLabel: 'Jenis',
+    note: 'Voucher dikirim berupa kode, bukan top up langsung ke akun.' },
+  { id: 'appprem', label: 'Aplikasi Premium',   icon: 'crown',                kind: 'appprem', allLabel: 'Semua aplikasi',
+    note: 'Harga sama dengan menu App Premium. Stok \"Otomatis\" berarti dikirim lewat sistem tanpa batas stok manual.' },
+  { id: 'sosmed',  label: 'Sosial Media',       icon: 'share-nodes',          kind: 'sosmed', filterLabel: 'Filter',
+    note: 'Harga Sosmed dihitung per 1000. Total bayar menyesuaikan jumlah yang kamu pesan di menu Sosial Media.' },
+  { id: 'nokos',   label: 'Nomor OTP',          icon: 'sim-card',             kind: 'nokos', filterLabel: 'Server',
+    note: 'Daftar nomor OTP WhatsApp Indonesia yang sedang tersedia. Harga & stok berubah mengikuti penyedia.' },
+  { id: 'hosting', label: 'Panel & Domain',     icon: 'server',               kind: 'hosting', filterLabel: 'Jenis',
+    note: 'Harga panel dihitung per unit (RAM, CPU, Disk), paket contoh hanya gambaran. Atur sendiri di menu Panel Pterodactyl.' },
+  { id: 'market',  label: 'Marketplace',        icon: 'cart-shopping',        kind: 'market', allLabel: 'Semua produk', filterLabel: 'Filter',
+    note: 'Harga produk dari seller di Marketplace. Stok berubah sewaktu-waktu.' },
+];
 
-const TAB_CFG = {
-  ppob:   { label: 'Produk',  note: 'Harga Member adalah harga yang kamu bayar di menu PPOB. Kolom H2H hanya terisi jika H2H API aktif untuk modul PPOB.' },
-  game:   { label: 'Produk',  note: 'Kolom H2H adalah harga lewat H2H API (sudah termasuk diskon H2H). Produk bertanda "-" belum tersedia lewat H2H API.' },
-  sosmed: { label: 'Layanan', note: 'Harga Sosmed dihitung per 1000. Total bayar menyesuaikan jumlah yang kamu pesan di menu Sosial Media.' },
-};
+const PLATFORMS = [
+  ['Instagram', /instagram|\big\b/i], ['TikTok', /tik\s?tok/i], ['YouTube', /youtube|\byt\b/i],
+  ['Facebook', /facebook|\bfb\b/i], ['Twitter / X', /twitter|\bx\s*(followers|likes|views|retweet|repost|poll)/i],
+  ['Telegram', /telegram/i], ['WhatsApp', /whatsapp/i], ['Spotify', /spotify/i], ['Shopee', /shopee/i],
+  ['Threads', /threads/i], ['Twitch', /twitch/i], ['LinkedIn', /linkedin/i], ['Snapchat', /snapchat/i],
+  ['Pinterest', /pinterest/i], ['Discord', /discord/i], ['Website & Traffic', /website|traffic|\bseo\b/i],
+];
+function platformOf(name) {
+  for (const [label, re] of PLATFORMS) if (re.test(name)) return label;
+  return 'Lainnya';
+}
+
+const PAGE = 100;
+const MANY = 14;           // lebih dari ini -> sub kategori pakai dropdown + pencarian
+const S = { section: null, sub: null, pick: null, filter: 'all', server: '1', items: [], limit: PAGE };
+const memo = {};           // cache per sesi halaman (katalog besar)
+let subsList = [];         // [{value,label,count}]
+let pickList = [];
+let seq = 0;
+let ACTIVE = SECTIONS;       // bagian yang tidak kosong
+let sosmedServers = [];
+
+const $ = (id) => document.getElementById(id);
+const cfg = () => SECTIONS.find((x) => x.id === S.section);
 
 function esc(str) {
   const div = document.createElement('div');
   div.textContent = str ?? '';
   return div.innerHTML;
+}
+async function api(url) {
+  try { return await API.get(url); } catch (e) { return { success: false, message: 'Koneksi bermasalah, coba lagi' }; }
+}
+async function once(key, url) {
+  if (memo[key] && memo[key].success) return memo[key];
+  const r = await api(url);
+  memo[key] = r;
+  return r;
 }
 
 function priceBadge(value, cls) {
@@ -151,138 +244,300 @@ function priceBadge(value, cls) {
   return `<span class="badge ${cls}" style="font-family:var(--font-mono)">${formatRupiah(value)}</span>`;
 }
 
-function statusCell(status) {
-  return status === 'available'
-    ? '<span class="pl-status ok"><i class="fas fa-circle-check"></i> Tersedia</span>'
-    : '<span class="pl-status off"><i class="fas fa-circle-xmark"></i> Kosong</span>';
+// ------------------------------------------------------------- render: bar
+function renderSections() {
+  $('pl-sections').innerHTML = ACTIVE.map((x) =>
+    `<button class="btn ${x.id === S.section ? 'btn-primary' : 'btn-outline'} btn-sm" data-section="${x.id}"><i class="fas fa-${x.icon}"></i> ${esc(x.label)}</button>`
+  ).join('');
 }
 
-function renderHead() {
-  const head = document.getElementById('pl-head');
-  if (currentTab === 'sosmed') {
-    head.innerHTML = `<tr><th>Kode</th><th>${TAB_CFG.sosmed.label}</th><th class="pl-num">Harga / 1000</th><th class="pl-num">Min</th><th class="pl-num">Max</th><th class="pl-num">Status</th></tr>`;
+function renderSubs() {
+  const wrap = $('pl-subs-wrap');
+  if (subsList.length <= 1 && !(cfg().kind === 'appprem' || cfg().kind === 'market')) { wrap.style.display = 'none'; return; }
+  if (!subsList.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  const label = { ppob: 'Sub kategori', game: cfg().gameKind === 'voucher' ? 'Pilih voucher' : 'Pilih game', appprem: 'Pilih aplikasi', sosmed: 'Platform', hosting: 'Jenis', market: 'Kategori produk' }[cfg().kind] || 'Sub kategori';
+  $('pl-subs-label').textContent = label;
+
+  const many = subsList.length > MANY;
+  $('pl-subs-find').style.display = many ? '' : 'none';
+  $('pl-subs').style.display = many ? 'none' : '';
+  $('pl-subs-select').style.display = many ? '' : 'none';
+  if (many) {
+    const q = $('pl-subs-search').value.trim().toLowerCase();
+    const list = subsList.filter((o) => !q || o.label.toLowerCase().includes(q) || o.value === S.sub);
+    $('pl-subs-select').innerHTML = list.map((o) =>
+      `<option value="${esc(o.value)}" ${o.value === S.sub ? 'selected' : ''}>${esc(o.label)}${o.count ? ` (${o.count})` : ''}</option>`).join('');
   } else {
-    head.innerHTML = `<tr><th>Kode</th><th>${TAB_CFG[currentTab].label}</th><th class="pl-num">Member</th><th class="pl-num">H2H</th><th class="pl-num">Status</th></tr>`;
+    $('pl-subs').innerHTML = subsList.map((o) =>
+      `<button class="btn ${o.value === S.sub ? 'btn-primary' : 'btn-outline'} btn-sm" data-sub="${esc(o.value)}">${esc(o.label)}${o.count ? `<span class="pl-chip-count">${o.count}</span>` : ''}</button>`).join('');
   }
 }
 
-function colCount() { return currentTab === 'sosmed' ? 6 : 5; }
+function renderPick() {
+  const show = pickList.length > 1;
+  $('pl-pick-wrap').style.display = show ? '' : 'none';
+  if (!show) return;
+  $('pl-pick').innerHTML = pickList.map((o) => `<option value="${esc(o.value)}" ${o.value === S.pick ? 'selected' : ''}>${esc(o.label)}</option>`).join('');
+}
 
-function setMessage(html) {
-  document.getElementById('pl-body').innerHTML = `<tr><td colspan="${colCount()}"><div class="table-empty">${html}</div></td></tr>`;
-  document.getElementById('pl-count').textContent = '';
+function renderFilter() {
+  const counts = new Map();
+  S.items.forEach((it) => { if (it.sub) counts.set(it.sub, (counts.get(it.sub) || 0) + 1); });
+  const wrap = $('pl-filter-wrap');
+  if (counts.size <= 1) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  $('pl-filter-label').textContent = cfg().filterLabel || 'Filter';
+  const chips = [['all', 'Semua', S.items.length]].concat(Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([k, n]) => [k, k, n]));
+  $('pl-filter').innerHTML = chips.map(([k, label, n]) =>
+    `<button class="btn ${S.filter === k ? 'btn-primary' : 'btn-outline'} btn-sm" data-filter="${esc(k)}">${esc(label)}<span class="pl-chip-count">${n}</span></button>`).join('');
+}
+
+function renderCrumb() {
+  const c = cfg();
+  const parts = [c.label];
+  const s = subsList.find((o) => o.value === S.sub);
+  if (s && !(c.kind === 'appprem' && S.sub === '*') && !(c.kind === 'market' && S.sub === '*')) parts.push(s.label);
+  const p = pickList.find((o) => o.value === S.pick);
+  if (p && pickList.length > 1) parts.push(p.label);
+  if (S.filter !== 'all') parts.push(S.filter);
+  $('pl-crumb').innerHTML = parts.map((x, i) => (i === parts.length - 1 ? `<b>${esc(x)}</b>` : esc(x))).join(' › ');
+}
+
+// ----------------------------------------------------------- render: tabel
+function visibleRows() {
+  const q = $('pl-search').value.trim().toLowerCase();
+  let rows = S.items;
+  if (S.filter !== 'all') rows = rows.filter((it) => it.sub === S.filter);
+  if ($('pl-avail').checked) rows = rows.filter((it) => it.status === 'available');
+  if (q) rows = rows.filter((it) => String(it.code || '').toLowerCase().includes(q) || String(it.name).toLowerCase().includes(q));
+  const sort = $('pl-sort').value;
+  if (sort === 'price_desc') rows = [...rows].sort((a, b) => (b.price || 0) - (a.price || 0));
+  else if (sort === 'name') rows = [...rows].sort((a, b) => String(a.name).localeCompare(String(b.name), 'id', { numeric: true }));
+  else rows = [...rows].sort((a, b) => (a.price || 0) - (b.price || 0) || String(a.name).localeCompare(String(b.name), 'id', { numeric: true }));
+  return rows;
+}
+
+function setMessage(html, cols) {
+  $('pl-body').innerHTML = `<tr><td colspan="${cols || 4}"><div class="table-empty">${html}</div></td></tr>`;
+  $('pl-count').textContent = '';
+  $('pl-more').style.display = 'none';
+}
+
+function infoCell(it) {
+  if (cfg().kind === 'sosmed') {
+    const mm = `Min ${Number(it.min || 1).toLocaleString('id-ID')}${it.max ? ` · Max ${Number(it.max).toLocaleString('id-ID')}` : ''}`;
+    return `<div>${mm}</div>`;
+  }
+  const dot = it.status === 'available'
+    ? '<span class="pl-status ok"><i class="fas fa-circle-check"></i> Tersedia</span>'
+    : '<span class="pl-status off"><i class="fas fa-circle-xmark"></i> Kosong</span>';
+  if (typeof it.stock === 'number') return `${dot}<div class="text-muted" style="font-size:11px">Stok ${it.stock.toLocaleString('id-ID')}</div>`;
+  if (it.stock === null && cfg().kind === 'appprem') return `${dot}<div class="text-muted" style="font-size:11px">Otomatis</div>`;
+  return dot;
 }
 
 function renderRows() {
-  const q = document.getElementById('pl-search').value.trim().toLowerCase();
-  const rows = q
-    ? currentItems.filter((it) => String(it.code).toLowerCase().includes(q) || String(it.name).toLowerCase().includes(q))
-    : currentItems;
+  const c = cfg();
+  const rows = visibleRows();
+  const hasH2h = S.items.some((it) => it.h2h_price !== null && it.h2h_price !== undefined);
+  const priceLabel = c.kind === 'sosmed' ? 'Harga / 1000' : 'Member';
+  const infoLabel = c.kind === 'sosmed' ? 'Min / Max' : 'Status';
+  $('pl-head').innerHTML = `<tr><th>${c.kind === 'sosmed' ? 'Layanan' : 'Produk'}</th><th class="pl-price">${priceLabel}</th>${hasH2h ? '<th class="pl-price">H2H</th>' : ''}<th class="pl-info">${infoLabel}</th></tr>`;
+  const cols = hasH2h ? 4 : 3;
 
-  document.getElementById('pl-count').textContent = `${rows.length} item`;
+  $('pl-count').textContent = `${rows.length} item`;
   if (!rows.length) {
-    setMessage(currentItems.length ? 'Tidak ada hasil untuk pencarianmu' : 'Belum ada produk');
-    document.getElementById('pl-count').textContent = `0 item`;
+    setMessage(S.items.length ? 'Tidak ada hasil untuk pencarian / filter ini' : 'Belum ada produk', cols);
+    $('pl-count').textContent = '0 item';
     return;
   }
-
-  document.getElementById('pl-body').innerHTML = rows.map((it) => {
-    if (currentTab === 'sosmed') {
-      return `<tr>
-        <td class="pl-code">${esc(it.code)}</td>
-        <td class="pl-name">${esc(it.name)}</td>
-        <td class="pl-num">${priceBadge(it.price, 'badge-primary')}</td>
-        <td class="pl-num">${Number(it.min).toLocaleString('id-ID')}</td>
-        <td class="pl-num">${it.max ? Number(it.max).toLocaleString('id-ID') : '-'}</td>
-        <td class="pl-num">${statusCell(it.status)}</td>
-      </tr>`;
-    }
+  const shown = rows.slice(0, S.limit);
+  $('pl-body').innerHTML = shown.map((it) => {
     const price = it.open_denom ? '<span class="text-muted">Bebas nominal</span>' : priceBadge(it.price, 'badge-primary');
+    const h2h = hasH2h ? `<td class="pl-price">${it.open_denom ? '<span class="text-muted">-</span>' : priceBadge(it.h2h_price, 'badge-info')}</td>` : '';
     return `<tr>
-      <td class="pl-code">${esc(it.code)}</td>
-      <td class="pl-name">${esc(it.name)}</td>
-      <td class="pl-num">${price}</td>
-      <td class="pl-num">${it.open_denom ? '<span class="text-muted">-</span>' : priceBadge(it.h2h_price, 'badge-info')}</td>
-      <td class="pl-num">${statusCell(it.status)}</td>
+      <td class="pl-name">${esc(it.name)}${it.code ? `<small>${esc(it.code)}</small>` : ''}</td>
+      <td class="pl-price">${price}</td>
+      ${h2h}
+      <td class="pl-info">${infoCell(it)}</td>
     </tr>`;
   }).join('');
+  const more = rows.length - shown.length;
+  $('pl-more').style.display = more > 0 ? '' : 'none';
+  $('pl-more-btn').textContent = `Tampilkan lebih banyak (${more} lagi)`;
 }
 
-function setSelectOptions(options) {
-  const sel = document.getElementById('pl-select');
-  sel.innerHTML = options.map((o) => `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join('');
-}
-
-async function loadGroups() {
-  const seq = ++loadSeq;
-  renderHead();
-  document.getElementById('pl-note').textContent = TAB_CFG[currentTab].note;
-  document.getElementById('pl-search').value = '';
-  document.getElementById('pl-body').innerHTML = `<tr><td colspan="${colCount()}"><div class="loading-spinner"></div></td></tr>`;
-  document.getElementById('pl-count').textContent = '';
-  currentItems = [];
-
-  let res;
-  if (currentTab === 'ppob') res = await API.get('/api/pricelist/ppob/categories');
-  else if (currentTab === 'game') res = await API.get('/api/pricelist/game/groups');
-  else res = await API.get(`/api/pricelist/sosmed/categories?server=${currentServer}`);
-  if (seq !== loadSeq) return;
-
-  if (!res.success || !(res.data || []).length) {
-    setSelectOptions([]);
-    setMessage(esc(res.message || 'Belum ada kategori'));
-    return;
-  }
-
-  const opts = res.data.map((d) => (currentTab === 'game'
-    ? { value: d.game, label: d.game }
-    : { value: d.key, label: d.name }));
-  setSelectOptions(opts);
-  loadItems();
-}
-
-async function loadItems() {
-  const value = document.getElementById('pl-select').value;
-  if (!value) return;
-  const seq = ++loadSeq;
-  document.getElementById('pl-body').innerHTML = `<tr><td colspan="${colCount()}"><div class="loading-spinner"></div></td></tr>`;
-  document.getElementById('pl-count').textContent = '';
-
-  const q = encodeURIComponent(value);
-  let res;
-  if (currentTab === 'ppob') res = await API.get(`/api/pricelist/ppob/items?category=${q}`);
-  else if (currentTab === 'game') res = await API.get(`/api/pricelist/game/items?game=${q}`);
-  else res = await API.get(`/api/pricelist/sosmed/items?category=${q}&server=${currentServer}`);
-  if (seq !== loadSeq) return;
-
-  if (!res.success) {
-    currentItems = [];
-    setMessage(esc(res.message || 'Gagal memuat daftar harga'));
-    return;
-  }
-  currentItems = res.data.items || [];
+function refreshView() {
+  renderFilter();
+  renderCrumb();
   renderRows();
 }
 
-function setActive(containerSel, attr, value, activeCls, idleCls) {
-  document.querySelectorAll(`${containerSel} button`).forEach((btn) => {
-    btn.className = btn.dataset[attr] === value ? `btn ${activeCls} btn-sm` : `btn ${idleCls} btn-sm`;
+// ----------------------------------------------------------- loader per jenis
+function loading() {
+  $('pl-body').innerHTML = '<tr><td colspan="4"><div class="loading-spinner"></div></td></tr>';
+  $('pl-count').textContent = '';
+  $('pl-more').style.display = 'none';
+}
+
+function resetLevels() {
+  S.sub = null; S.pick = null; S.filter = 'all'; S.items = []; S.limit = PAGE;
+  subsList = []; pickList = [];
+  $('pl-search').value = '';
+  $('pl-subs-search').value = '';
+  $('pl-subs-wrap').style.display = 'none';
+  $('pl-pick-wrap').style.display = 'none';
+  $('pl-filter-wrap').style.display = 'none';
+  $('pl-crumb').textContent = '';
+}
+
+
+// Ambil daftar sub kategori sebuah bagian (tanpa memuat item). Sub kosong dibuang.
+async function loadSubs(c, server) {
+  const out = { ok: true, msg: '', subs: [], items: [], cats: [] };
+  let r;
+  if (c.kind === 'ppob') {
+    r = await once('ppob-cats', '/api/pricelist/ppob/categories');
+    if (r.success) out.subs = c.keys.map((k) => (r.data || []).find((d) => d.key === k)).filter(Boolean).map((d) => ({ value: d.key, label: d.name, count: d.count }));
+  } else if (c.kind === 'game') {
+    r = await once('game-cat', '/api/pricelist/game/catalog');
+    if (r.success) out.subs = (r.data || []).filter((d) => d.kind === c.gameKind && d.count > 0).map((d) => ({ value: d.key, label: d.name, count: d.count }));
+  } else if (c.kind === 'appprem' || c.kind === 'market') {
+    r = await once(c.kind, `/api/pricelist/${c.kind}`);
+    if (r.success) {
+      const groups = (r.data.groups || []).filter((g) => g.count > 0);
+      if (r.data.items.length) out.subs = [{ value: '*', label: c.allLabel, count: r.data.items.length }].concat(groups.map((g) => ({ value: g.key, label: g.name, count: g.count })));
+    }
+  } else if (c.kind === 'hosting') {
+    r = await once('hosting', '/api/pricelist/hosting');
+    if (r.success) out.subs = (r.data.groups || []).filter((g) => g.count > 0).map((g) => ({ value: g.key, label: g.name, count: g.count }));
+  } else if (c.kind === 'sosmed') {
+    const sv = server || S.server;
+    r = await once('sosmed-' + sv, `/api/pricelist/sosmed/categories?server=${sv}`);
+    if (r.success) {
+      out.cats = r.data || [];
+      const counts = new Map();
+      out.cats.forEach((d) => { const p = platformOf(d.name); counts.set(p, (counts.get(p) || 0) + 1); });
+      out.subs = Array.from(counts.entries()).sort((a, b) => (a[0] === 'Lainnya') - (b[0] === 'Lainnya') || a[0].localeCompare(b[0])).map(([p, n]) => ({ value: p, label: p, count: n }));
+    }
+  } else if (c.kind === 'nokos') {
+    r = await once('nokos', '/api/pricelist/nokos');
+    if (r.success) out.items = (r.data && r.data.items) || [];
+  }
+  out.ok = !!(r && r.success);
+  out.msg = r && r.message;
+  out.empty = out.ok && (c.kind === 'nokos' ? !out.items.length : !out.subs.length);
+  return out;
+}
+
+// Sembunyikan bagian (dan server sosmed) yang kosong, supaya tidak ada tombol yang buka halaman kosong.
+async function pruneEmpty() {
+  const empty = new Set();
+  await Promise.all(SECTIONS.map(async (c) => {
+    if (c.kind === 'sosmed') {
+      const rs = await Promise.all(['1', '2', '3'].map((sv) => loadSubs(c, sv).then((x) => [sv, x])));
+      const live = rs.filter(([, x]) => x.ok && !x.empty).map(([sv]) => sv);
+      const known = rs.every(([, x]) => x.ok);
+      sosmedServers = live;
+      if (known && !live.length) empty.add(c.id);
+      else if (live.length && !live.includes(S.server)) S.server = live[0];
+      return;
+    }
+    const x = await loadSubs(c);
+    if (x.empty) empty.add(c.id);   // gagal muat (error) tidak dianggap kosong
+  }));
+  ACTIVE = SECTIONS.filter((c) => !empty.has(c.id));
+  const servers = $('pl-servers');
+  servers.querySelectorAll('button').forEach((b) => {
+    b.style.display = (!sosmedServers.length || sosmedServers.includes(b.dataset.server)) ? '' : 'none';
+    b.className = `btn ${b.dataset.server === S.server ? 'btn-primary' : 'btn-outline'} btn-sm`;
   });
 }
 
-function switchTab(tab) {
-  if (tab === currentTab) return;
-  currentTab = tab;
-  setActive('#pl-tabs', 'tab', tab, 'btn-primary', 'btn-outline');
-  document.getElementById('pl-servers').style.display = tab === 'sosmed' ? 'flex' : 'none';
-  loadGroups();
+async function openSection(id, wantSub) {
+  const c = SECTIONS.find((x) => x.id === id);
+  if (!c) return;
+  S.section = id;
+  resetLevels();
+  renderSections();
+  $('pl-note').textContent = c.note || '';
+  $('pl-servers-wrap').style.display = c.kind === 'sosmed' ? '' : 'none';
+  const my = ++seq;
+  loading();
+
+  const r = await loadSubs(c);
+  if (my !== seq) return;
+  if (c.kind === 'nokos') {
+    if (!r.ok) { setMessage(esc(r.msg || 'Gagal memuat')); return; }
+    S.items = r.items;
+    refreshView();
+    return;
+  }
+  if (!r.ok) { setMessage(esc(r.msg || 'Gagal memuat data')); return; }
+  subsList = r.subs;
+  if (c.kind === 'sosmed') memo.sosmedCats = r.cats;
+  if (!subsList.length) { setMessage('Belum ada produk di kategori ini'); return; }
+  const target = subsList.find((o) => o.value === wantSub) || subsList[0];
+  await openSub(target.value);
+}
+
+async function openSub(value) {
+  const c = cfg();
+  S.sub = value; S.pick = null; S.filter = 'all'; S.limit = PAGE;
+  $('pl-search').value = '';
+  const my = ++seq;
+  renderSubs();
+  loading();
+
+  if (c.kind === 'ppob') {
+    const r = await api(`/api/pricelist/ppob/items?category=${encodeURIComponent(value)}`);
+    if (my !== seq) return;
+    if (!r.success) { S.items = []; renderPick(); return setMessage(esc(r.message || 'Gagal memuat')); }
+    S.items = r.data.items || [];
+  } else if (c.kind === 'game') {
+    const r = await api(`/api/pricelist/game/items?category=${encodeURIComponent(value)}`);
+    if (my !== seq) return;
+    if (!r.success) { S.items = []; return setMessage(esc(r.message || 'Gagal memuat')); }
+    S.items = r.data.items || [];
+  } else if (c.kind === 'appprem' || c.kind === 'market' || c.kind === 'hosting') {
+    const key = c.kind;
+    const all = (memo[key].data.items || []);
+    S.items = all.filter((it) => value === '*' || it.group === value);
+    if (c.kind === 'appprem' && value === '*') S.items = S.items.map((it) => ({ ...it, sub: (memo.appprem.data.groups.find((g) => g.key === it.group) || {}).name || null }));
+    if (c.kind === 'market' && value === '*') S.items = S.items.map((it) => ({ ...it, sub: (memo.market.data.groups.find((g) => g.key === it.group) || {}).name || null }));
+  } else if (c.kind === 'sosmed') {
+    // sub = platform; pilih = jenis layanan di platform tsb
+    pickList = (memo.sosmedCats || []).filter((d) => platformOf(d.name) === value).map((d) => ({ value: d.key, label: d.name }));
+    renderPick();
+    if (!pickList.length) return setMessage('Belum ada layanan');
+    return openPick(pickList[0].value);
+  }
+  renderPick();
+  refreshView();
+}
+
+async function openPick(value) {
+  S.pick = value; S.filter = 'all'; S.limit = PAGE;
+  const my = ++seq;
+  renderPick();
+  loading();
+  const r = await api(`/api/pricelist/sosmed/items?category=${encodeURIComponent(value)}&server=${S.server}`);
+  if (my !== seq) return;
+  if (!r.success) { S.items = []; return setMessage(esc(r.message || 'Gagal memuat')); }
+  S.items = r.data.items || [];
+  refreshView();
 }
 
 function switchServer(server) {
-  if (server === currentServer) return;
-  currentServer = server;
-  setActive('#pl-servers', 'server', server, 'btn-primary', 'btn-outline');
-  loadGroups();
+  if (server === S.server) return;
+  S.server = server;
+  document.querySelectorAll('#pl-servers button').forEach((b) => { b.className = `btn ${b.dataset.server === server ? 'btn-primary' : 'btn-outline'} btn-sm`; });
+  openSection('sosmed');
+}
+
+function saveHash() {
+  try { history.replaceState(null, '', `#${S.section}${S.sub && S.sub !== '*' ? '/' + encodeURIComponent(S.sub) : ''}`); } catch (e) {}
 }
 
 async function init() {
@@ -290,12 +545,23 @@ async function init() {
   if (!res) return;
   Auth.renderUserInfo(res.user, res.wallet);
 
-  document.querySelectorAll('#pl-tabs button').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+  $('pl-sections').addEventListener('click', (e) => { const b = e.target.closest('[data-section]'); if (b) { openSection(b.dataset.section).then(saveHash); } });
+  $('pl-subs').addEventListener('click', (e) => { const b = e.target.closest('[data-sub]'); if (b) { openSub(b.dataset.sub).then(saveHash); } });
+  $('pl-subs-select').addEventListener('change', (e) => { openSub(e.target.value).then(saveHash); });
+  $('pl-subs-search').addEventListener('input', renderSubs);
+  $('pl-pick').addEventListener('change', (e) => openPick(e.target.value));
+  $('pl-filter').addEventListener('click', (e) => { const b = e.target.closest('[data-filter]'); if (b) { S.filter = b.dataset.filter; S.limit = PAGE; refreshView(); } });
   document.querySelectorAll('#pl-servers button').forEach((b) => b.addEventListener('click', () => switchServer(b.dataset.server)));
-  document.getElementById('pl-select').addEventListener('change', loadItems);
-  document.getElementById('pl-search').addEventListener('input', renderRows);
+  $('pl-search').addEventListener('input', () => { S.limit = PAGE; renderRows(); });
+  $('pl-sort').addEventListener('change', renderRows);
+  $('pl-avail').addEventListener('change', () => { S.limit = PAGE; renderRows(); });
+  $('pl-more-btn').addEventListener('click', () => { S.limit += PAGE; renderRows(); });
 
-  loadGroups();
+  await pruneEmpty();
+  if (!ACTIVE.length) { renderSections(); setMessage('Belum ada produk yang tersedia'); return; }
+  const [secId, subEnc] = (location.hash || '').replace('#', '').split('/');
+  const start = ACTIVE.find((x) => x.id === secId) ? secId : ACTIVE[0].id;
+  openSection(start, subEnc ? decodeURIComponent(subEnc) : undefined);
 }
 
 init();
