@@ -25,7 +25,7 @@
     .form-textarea { resize: vertical; min-height: 110px; font-family: var(--font-mono); font-size: 13px; }
     .variant-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-soft); gap: 10px; flex-wrap: wrap; }
     .variant-row .vn { font-weight: 700; font-size: 14px; }
-    .variant-row .vc { font-size: 11.5px; color: var(--text-muted); }
+    .variant-row .vc { font-size: 13px; color: var(--text-muted); }
     .status-pending { color: var(--warning); }
   </style>
 </head>
@@ -99,10 +99,10 @@
             <div class="form-group">
               <label>Minimal Order (opsional)</label>
               <input class="form-input" id="new-min-order" type="number" min="1" placeholder="1" value="1">
-              <p style="font-size:11.5px;color:var(--text-muted);margin-top:4px">Kosongkan/isi 1 kalau tidak ada minimal. Isi mis. 5 kalau pembeli wajib order minimal 5 unit sekaligus.</p>
+              <p style="font-size:13px;color:var(--text-muted);margin-top:4px">Kosongkan/isi 1 kalau tidak ada minimal. Isi mis. 5 kalau pembeli wajib order minimal 5 unit sekaligus.</p>
             </div>
             <button class="btn btn-primary btn-full" id="btn-create-variant"><i class="fas fa-paper-plane"></i> Publikasikan Produk</button>
-            <p style="font-size:12px;color:var(--text-muted);margin-top:10px"><i class="fas fa-circle-info"></i> Kategori hanya bisa dibuat Owner. Produk yang kamu buat langsung tayang tanpa perlu approval.</p>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:10px"><i class="fas fa-circle-info"></i> Kategori hanya bisa dibuat Owner. Produk yang kamu buat langsung tayang tanpa perlu approval.</p>
           </div>
         </div>
 
@@ -119,7 +119,7 @@
                 <button type="button" class="btn btn-outline btn-sm" id="stock-mode-detail" style="flex:1">Ada Kode/Akun</button>
                 <button type="button" class="btn btn-outline btn-sm" id="stock-mode-qty" style="flex:1">Tanpa Detail (jumlah saja)</button>
               </div>
-              <p style="font-size:11.5px;color:var(--text-muted);margin-top:6px">
+              <p style="font-size:13px;color:var(--text-muted);margin-top:6px">
                 Pilih <strong>"Ada Kode/Akun"</strong> kalau tiap unit punya data unik (akun email:password, kode voucher, serial card, dll — satu baris = satu stok).
                 Pilih <strong>"Tanpa Detail"</strong> kalau produkmu tidak punya kode per-unit — cukup isi jumlahnya, stok akan bertambah tanpa perlu ketik apa-apa, dan kamu proses pengiriman ke pembeli manual lewat chat.
               </p>

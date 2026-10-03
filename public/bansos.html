@@ -141,6 +141,10 @@
           <div class="stat-value" id="stat-netflix-total">0</div>
           <div class="stat-quota"><span class="badge badge-secondary">Kuota Anda: <span id="quota-netflix">5</span>/5</span></div>
         </div>
+        <div class="card bansos-stat-card" id="stat-panel-card" style="grid-column:1/-1;display:none">
+          <div class="stat-label">Total Panel Gratis Diambil</div>
+          <div class="stat-value" id="stat-panel-total">0</div>
+        </div>
       </div>
 
       <div class="bansos-tabs">
@@ -294,6 +298,9 @@ async function fetchStats() {
   document.getElementById('stat-netflix-total').textContent = res.data.totals.netflix ?? 0;
   document.getElementById('quota-am').textContent = res.data.quota.am.remaining;
   document.getElementById('quota-netflix').textContent = res.data.quota.netflix.remaining;
+
+  document.getElementById('stat-panel-total').textContent = res.data.totals.panel ?? 0;
+  document.getElementById('stat-panel-card').style.display = res.data.ptero_enabled ? '' : 'none';
 
   const pteroBtn = document.getElementById('tab-btn-ptero');
   if (res.data.ptero_enabled) {

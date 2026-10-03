@@ -17,7 +17,7 @@
   </script>
   <style>
     .chart-wrapper { height: 240px; position: relative; }
-    .escrow-note { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--warning-light); border: 1px solid var(--warning); font-size: 12px; color: var(--text); margin-top: 10px; }
+    .escrow-note { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--warning-light); border: 1px solid var(--warning); font-size: 13px; color: var(--text); margin-top: 10px; }
     .escrow-note i { color: var(--warning); margin-top: 2px; }
   </style>
 </head>
@@ -139,7 +139,7 @@ async function init() {
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-soft)">
       <div>
         <div style="font-size:13px;font-weight:600">${escapeHtml(o.variant_name)}</div>
-        <div style="font-size:11px;color:var(--text-muted)">${formatDate(o.createdAt)}</div>
+        <div style="font-size:13px;color:var(--text-muted)">${formatDate(o.createdAt)}</div>
       </div>
       <div style="text-align:right">
         <div style="font-size:13px;font-weight:700;color:var(--success)">+${formatRupiah(o.seller_earning)}</div>

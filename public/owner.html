@@ -1002,6 +1002,7 @@
           <div class="stats-grid" style="padding:0 20px 20px">
             <div class="stat-card"><div class="stat-icon indigo"><i class="fas fa-clapperboard"></i></div><div class="stat-info"><div class="stat-label">Alight Motion Terklaim</div><div class="stat-value" id="bansos-total-am">-</div></div></div>
             <div class="stat-card"><div class="stat-icon red"><i class="fas fa-tv"></i></div><div class="stat-info"><div class="stat-label">Netflix Terklaim</div><div class="stat-value" id="bansos-total-netflix">-</div></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i class="fas fa-server"></i></div><div class="stat-info"><div class="stat-label">Panel Gratis Diambil</div><div class="stat-value" id="bansos-total-panel">-</div></div></div>
           </div>
         </div>
         <div class="card mb-16">
@@ -1077,6 +1078,10 @@
             <span class="card-title"><i class="fas fa-user-gear" style="color:var(--primary)"></i> Kelola Kuota User</span>
           </div>
           <div style="padding:0 20px 20px;display:grid;gap:12px;max-width:480px">
+            <div>
+              <button type="button" class="btn btn-danger" id="bpq-reset-all-btn" onclick="resetAllPteroQuota()"><i class="fas fa-rotate-left"></i> Reset Kuota Semua User</button>
+              <div class="text-xs text-muted" style="margin-top:6px">Mengembalikan kuota panel gratis semua user ke default. Total panel yang sudah diambil tidak ikut ter-reset.</div>
+            </div>
             <div style="display:flex;gap:8px">
               <input type="text" class="form-control" id="bpq-username" placeholder="Cari username...">
               <button type="button" class="btn btn-outline" id="bpq-search-btn" onclick="searchPteroQuota()" style="width:fit-content"><i class="fas fa-search"></i></button>
@@ -3805,6 +3810,7 @@ async function loadBansosSection() {
   const totals = d.totals || {};
   document.getElementById('bansos-total-am').textContent = totals.alightMotion ?? 0;
   document.getElementById('bansos-total-netflix').textContent = totals.netflix ?? 0;
+  document.getElementById('bansos-total-panel').textContent = totals.panel ?? 0;
 
   const pr = await API.get('/api/owner/bansos/ptero/settings');
   if (!pr.success) { Toast.error(pr.message || 'Gagal memuat konfigurasi Panel Gratis'); return; }
@@ -3877,6 +3883,15 @@ async function resetPteroQuota() {
   if (!bpqCurrentUsername) return;
   const r = await API.post('/api/owner/bansos/ptero/quota/reset', { username: bpqCurrentUsername });
   r.success ? (Toast.success(r.message), searchPteroQuota()) : Toast.error(r.message || 'Gagal reset kuota');
+}
+
+async function resetAllPteroQuota() {
+  if (!confirm('Reset kuota panel gratis SEMUA user ke default? Total panel yang sudah diambil tidak berubah.')) return;
+  const btn = document.getElementById('bpq-reset-all-btn');
+  btn.disabled = true;
+  const r = await API.post('/api/owner/bansos/ptero/quota/reset-all', {});
+  btn.disabled = false;
+  r.success ? (Toast.success(r.message), bpqCurrentUsername && searchPteroQuota()) : Toast.error(r.message || 'Gagal reset kuota semua user');
 }
 
 async function addPteroQuota() {

@@ -55,7 +55,7 @@
 
     <div class="page-content">
       <div class="card mb-16">
-        <div class="card-body" style="font-size:12.5px;color:var(--text-muted)">
+        <div class="card-body" style="font-size:13px;color:var(--text-muted)">
           <i class="fas fa-circle-info"></i> Ini komplain yang diajukan buyer atas order dari toko kamu. Keputusan (setujui/tolak) sepenuhnya ada di tangan owner — kamu di sini hanya bisa memantau statusnya. Selama komplain masih <b>menunggu</b>, dana hasil order itu masih tertahan.
         </div>
       </div>
@@ -104,13 +104,13 @@ async function loadComplaints(page = 1) {
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
         <div>
           <div style="font-weight:700;font-size:13.5px">${escapeHtml(c.variant_name)}</div>
-          <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">${formatDate(c.createdAt)}</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:2px">${formatDate(c.createdAt)}</div>
         </div>
         ${statusBadge(c.status === 'open' ? 'pending' : c.status)}
       </div>
-      <div style="font-size:12.5px;margin-top:8px;color:var(--text)">${escapeHtml(c.reason)}</div>
-      ${c.resolution_note ? `<div style="font-size:11.5px;margin-top:6px;padding:8px;background:var(--bg-soft);border-radius:8px;color:var(--text-muted)"><i class="fas fa-comment"></i> Catatan owner: ${escapeHtml(c.resolution_note)}</div>` : ''}
-      <div style="font-size:12px;margin-top:6px;color:var(--text-muted)">Nominal: <b>${formatRupiah(c.price)}</b></div>
+      <div style="font-size:13px;margin-top:8px;color:var(--text)">${escapeHtml(c.reason)}</div>
+      ${c.resolution_note ? `<div style="font-size:13px;margin-top:6px;padding:8px;background:var(--bg-soft);border-radius:8px;color:var(--text-muted)"><i class="fas fa-comment"></i> Catatan owner: ${escapeHtml(c.resolution_note)}</div>` : ''}
+      <div style="font-size:13px;margin-top:6px;color:var(--text-muted)">Nominal: <b>${formatRupiah(c.price)}</b></div>
     </div>
   `).join('');
 
