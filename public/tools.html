@@ -32,8 +32,6 @@
     }
     .tool-menu-item i { width: 18px; text-align: center; }
     .tool-menu-item.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
-    .tool-menu-item.disabled { opacity: .45; cursor: not-allowed; }
-    .tool-menu-item .soon-badge { margin-left: auto; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); background: var(--bg-soft); border-radius: 20px; padding: 2px 7px; }
     .tool-panel { display: none; }
     .tool-panel.active { display: block; }
     .tool-empty-state {
@@ -51,6 +49,104 @@
     .ptero-console .cl-done { color: #34d399; font-weight: 700; }
     .ptero-console .cl-error { color: #f87171; font-weight: 700; }
     .ptero-console .cl-empty { color: var(--text-muted); font-style: italic; }
+    .vph-report { display: none; }
+    .vph-report.active { display: block; }
+    .vph-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+    .vph-card { background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; min-width: 0; }
+    .vph-card.wide { grid-column: 1 / -1; }
+    .vph-card-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .vph-row { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; font-size: 13.5px; border-bottom: 1px dashed var(--border-soft); }
+    .vph-row:last-child { border-bottom: 0; }
+    .vph-row > span { color: var(--text-muted); flex-shrink: 0; }
+    .vph-row > b { font-weight: 600; text-align: right; word-break: break-word; min-width: 0; }
+    .vph-bar { height: 9px; border-radius: 20px; background: var(--border-soft); overflow: hidden; margin: 6px 0 4px; }
+    .vph-bar > span { display: block; height: 100%; border-radius: 20px; background: var(--success); }
+    .vph-bar > span.warn { background: var(--warning); }
+    .vph-bar > span.crit { background: var(--danger); }
+    .vph-bar-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); gap: 8px; }
+    .vph-sub { font-size: 13px; font-weight: 700; margin: 12px 0 4px; }
+    .vph-score-wrap { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+    .vph-score { width: 86px; height: 86px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 5px solid var(--success); font-weight: 800; font-size: 26px; line-height: 1; flex-shrink: 0; }
+    .vph-score small { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-top: 3px; }
+    .vph-score.warn { border-color: var(--warning); }
+    .vph-score.crit { border-color: var(--danger); }
+    .vph-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .vph-check { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-bottom: 1px dashed var(--border-soft); font-size: 13.5px; }
+    .vph-check:last-child { border-bottom: 0; }
+    .vph-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; background: var(--success); }
+    .vph-dot.warn { background: var(--warning); }
+    .vph-dot.crit { background: var(--danger); }
+    .vph-check b { display: block; font-weight: 600; }
+    .vph-check span { color: var(--text-muted); word-break: break-word; }
+    .vph-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .vph-tag { font-family: var(--font-mono); font-size: 12.5px; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--border); background: transparent; word-break: break-all; }
+    .vph-tag.ok { border-color: var(--success); color: var(--success); }
+    .vph-tag.warn { border-color: var(--warning); color: var(--warning); }
+    .vph-tag.crit { border-color: var(--danger); color: var(--danger); }
+    .vph-scroll { overflow-x: auto; }
+    .vph-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .vph-table th { text-align: left; color: var(--text-muted); font-weight: 600; padding: 4px 8px 4px 0; white-space: nowrap; }
+    .vph-table td { padding: 4px 8px 4px 0; border-top: 1px dashed var(--border-soft); font-family: var(--font-mono); white-space: nowrap; }
+    .dl-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .dl-tab {
+      display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px;
+      border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+      font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .dl-tab:hover { border-color: var(--primary); color: var(--primary); }
+    .dl-tab.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+    .dl-form { display: flex; gap: 8px; flex-wrap: wrap; }
+    .dl-form .form-control { flex: 1 1 260px; min-width: 0; }
+    .dl-hint { margin-top: 8px; }
+    .dl-state { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 36px 16px; color: var(--text-muted); font-size: 14px; text-align: center; }
+    .dl-state.error { color: var(--danger); }
+    .dl-head { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; }
+    .dl-cover { width: 96px; height: 96px; border-radius: var(--radius-sm); object-fit: cover; background: var(--bg-soft); border: 1px solid var(--border); flex-shrink: 0; }
+    .dl-meta { flex: 1 1 220px; min-width: 0; }
+    .dl-title { font-size: 15px; font-weight: 700; line-height: 1.4; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .dl-author { font-size: 13px; color: var(--text-muted); margin-top: 4px; word-break: break-word; }
+    .dl-stats { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .dl-stat { font-size: 12.5px; padding: 3px 10px; border-radius: 999px; background: var(--bg-soft); border: 1px solid var(--border); color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px; }
+    .dl-player { width: 100%; max-height: 460px; border-radius: var(--radius-sm); background: #000; display: block; margin-bottom: 14px; }
+    .dl-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .dl-actions .btn { text-decoration: none; }
+    .dl-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); margin-top: 14px; }
+    .dl-media { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-soft); display: flex; flex-direction: column; min-width: 0; }
+    .dl-media img, .dl-media video { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: #000; }
+    .dl-media-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; font-size: 12.5px; color: var(--text-muted); }
+    .dl-media-foot .btn { text-decoration: none; }
+    .dl-all-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .dl-section-label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); margin: 16px 0 8px; }
+    .gh-sub { display: none; }
+    .gh-sub.active { display: block; }
+    .gh-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); padding: 0 20px 20px; }
+    .gh-token-wrap { display: flex; gap: 6px; }
+    .gh-token-wrap .form-control { flex: 1; min-width: 0; }
+    .gh-note { font-size: 12.5px; color: var(--text-muted); line-height: 1.55; }
+    .gh-viewer { padding: 0 20px 12px; font-size: 13.5px; line-height: 1.55; word-break: break-word; }
+    .gh-viewer.ok { color: var(--success); }
+    .gh-viewer.warn { color: var(--warning); }
+    .gh-viewer.err { color: var(--danger); }
+    .gh-check { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; cursor: pointer; }
+    .gh-check input { margin-top: 3px; flex-shrink: 0; }
+    .gh-repo-list { display: flex; flex-direction: column; gap: 8px; }
+    .gh-repo { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-soft); }
+    .gh-repo.sel { border-color: var(--primary); }
+    .gh-repo-main { min-width: 0; flex: 1; }
+    .gh-repo-name { font-weight: 700; word-break: break-all; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .gh-repo-desc { font-size: 13px; color: var(--text-muted); word-break: break-word; margin-top: 2px; }
+    .gh-repo-meta { font-size: 12px; color: var(--text-muted); margin-top: 3px; word-break: break-word; }
+    .gh-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .gh-row { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--border-soft); font-size: 13.5px; }
+    .gh-row:last-child { border-bottom: 0; }
+    .gh-row-main { min-width: 0; flex: 1; word-break: break-word; }
+    .gh-row-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .gh-row-btns { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+    .gh-inline-form { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .gh-inline-form .form-control { flex: 1 1 150px; min-width: 0; }
+    .gh-crumbs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 13px; margin-bottom: 6px; }
+    .gh-link { cursor: pointer; color: var(--primary); font-weight: 600; background: none; border: 0; padding: 0; font: inherit; text-align: left; word-break: break-all; }
+    .gh-link:hover { text-decoration: underline; }
     .ptero-status-badge { font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: .03em; }
     .ptero-status-badge.idle { background: var(--bg-soft); color: var(--text-muted); }
     .ptero-status-badge.running { background: rgba(251,191,36,.15); color: #f59e0b; }
@@ -120,11 +216,14 @@
           <div class="tool-menu-item" data-tool="ptero-wings" data-path="/tools/startwings">
             <i class="fas fa-feather-pointed"></i> Start Wings
           </div>
-          <div class="tool-menu-item disabled" title="Segera hadir">
-            <i class="fas fa-rotate"></i> Restart Wings <span class="soon-badge">Segera</span>
+          <div class="tool-menu-item" data-tool="vps-health" data-path="/tools/cekvps">
+            <i class="fas fa-heart-pulse"></i> Cek Kesehatan VPS
           </div>
-          <div class="tool-menu-item disabled" title="Segera hadir">
-            <i class="fas fa-heart-pulse"></i> Cek Kesehatan VPS <span class="soon-badge">Segera</span>
+          <div class="tool-menu-item" data-tool="downloader" data-path="/tools/downloader">
+            <i class="fas fa-cloud-arrow-down"></i> Downloader
+          </div>
+          <div class="tool-menu-item" data-tool="github" data-path="/tools/github">
+            <i class="fab fa-github"></i> Manajemen GitHub
           </div>
         </div>
 
@@ -238,6 +337,260 @@
               </div>
             </div>
           </div>
+
+          <div class="tool-panel" id="tool-panel-vps-health">
+            <div class="card mb-16">
+              <div class="card-header"><span class="card-title"><i class="fas fa-heart-pulse" style="color:var(--danger)"></i> Cek Kesehatan VPS</span></div>
+              <form id="vps-health-form" style="padding:0 20px 20px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">IP VPS</label>
+                  <input type="text" class="form-control" id="vph-ip" placeholder="1.2.3.4" autocomplete="off">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Password Root</label>
+                  <input type="password" class="form-control" id="vph-password" placeholder="Password SSH root" autocomplete="new-password">
+                </div>
+                <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <button type="submit" class="btn btn-primary" id="vph-submit-btn"><i class="fas fa-play"></i> Mulai Cek</button>
+                  <span class="text-xs text-muted">Hanya membaca data (CPU, RAM, disk, jaringan, port, service, Docker, Wings, keamanan). Tidak ada yang diubah di VPS dan password tidak disimpan.</span>
+                </div>
+              </form>
+            </div>
+
+            <div class="card mb-16">
+              <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+                <span class="card-title"><i class="fas fa-terminal" style="color:var(--text-muted)"></i> Console Log</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="ptero-status-badge idle" id="vph-status-badge">Idle</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="vph-clear-console-btn"><i class="fas fa-broom"></i> Bersihkan</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="ptero-console" id="vph-console"><div class="cl-empty">Belum ada proses berjalan. Isi form di atas lalu klik "Mulai Cek".</div></div>
+              </div>
+            </div>
+
+            <div class="card vph-report" id="vph-report">
+              <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+                <span class="card-title"><i class="fas fa-clipboard-check" style="color:var(--primary)"></i> Hasil Pemeriksaan</span>
+                <button type="button" class="btn btn-outline btn-sm" id="vph-copy-btn"><i class="fas fa-copy"></i> Salin Laporan</button>
+              </div>
+              <div class="card-body" id="vph-report-body"></div>
+            </div>
+          </div>
+
+          <div class="tool-panel" id="tool-panel-downloader">
+            <div class="card mb-16">
+              <div class="card-header"><span class="card-title"><i class="fas fa-cloud-arrow-down" style="color:var(--primary)"></i> Downloader</span></div>
+              <div style="padding:0 20px 20px">
+                <div class="dl-tabs" id="dl-tabs">
+                  <button type="button" class="dl-tab active" data-platform="tiktok"><i class="fab fa-tiktok"></i> TikTok</button>
+                  <button type="button" class="dl-tab" data-platform="instagram"><i class="fab fa-instagram"></i> Instagram</button>
+                  <button type="button" class="dl-tab" data-platform="facebook"><i class="fab fa-facebook"></i> Facebook</button>
+                  <button type="button" class="dl-tab" data-platform="capcut"><i class="fas fa-scissors"></i> CapCut</button>
+                </div>
+                <form class="dl-form" id="dl-form">
+                  <input type="text" class="form-control" id="dl-url" placeholder="Tempel link di sini" autocomplete="off" inputmode="url">
+                  <button type="button" class="btn btn-outline" id="dl-paste-btn"><i class="fas fa-paste"></i> Tempel</button>
+                  <button type="submit" class="btn btn-primary" id="dl-submit-btn"><i class="fas fa-magnifying-glass"></i> Ambil Media</button>
+                </form>
+                <div class="text-xs text-muted dl-hint" id="dl-hint"></div>
+              </div>
+            </div>
+
+            <div class="card" id="dl-result-card" style="display:none">
+              <div class="card-header"><span class="card-title"><i class="fas fa-circle-check" style="color:var(--success)"></i> Hasil</span></div>
+              <div class="card-body" id="dl-result-body"></div>
+            </div>
+          </div>
+
+          <div class="tool-panel" id="tool-panel-github">
+            <div class="card mb-16" id="gh-account-card">
+              <div class="card-header">
+                <span class="card-title"><i class="fab fa-github" style="color:var(--primary)"></i> Akun GitHub</span>
+                <span class="ptero-status-badge idle" id="gh-session-badge">Belum login</span>
+              </div>
+
+              <!-- belum login -->
+              <div id="gh-login-view">
+                <form id="gh-login-form" class="gh-grid" autocomplete="off">
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Username GitHub</label>
+                    <input type="text" class="form-control" id="gh-login-username" placeholder="username-kamu" autocomplete="off" autocapitalize="off" spellcheck="false">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Token GitHub</label>
+                    <div class="gh-token-wrap">
+                      <input type="password" class="form-control" id="gh-token" placeholder="ghp_xxxxxxxxxxxx" autocomplete="new-password" autocapitalize="off" spellcheck="false">
+                      <button type="button" class="btn btn-outline" id="gh-token-eye" title="Tampilkan/sembunyikan token"><i class="fas fa-eye"></i></button>
+                    </div>
+                  </div>
+                  <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <button type="submit" class="btn btn-primary" id="gh-login-btn"><i class="fas fa-right-to-bracket"></i> Login</button>
+                    <span class="gh-note">Login sekali, tidak perlu isi token tiap aksi. Token disimpan <b>sementara di memori server</b> (bukan database, tidak ditampilkan lagi), dan otomatis <b>logout setelah 10 menit tanpa aktivitas</b>.</span>
+                  </div>
+                </form>
+                <div class="gh-viewer" id="gh-viewer" style="display:none"></div>
+              </div>
+
+              <!-- sudah login -->
+              <div id="gh-session-view" style="display:none">
+                <div class="gh-viewer ok" id="gh-session-info"></div>
+                <div class="gh-grid">
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Owner (username / organisasi)</label>
+                    <input type="text" class="form-control" id="gh-username" placeholder="username-kamu" autocomplete="off" autocapitalize="off" spellcheck="false">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Auto logout dalam</label>
+                    <div id="gh-countdown" style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;padding:6px 0">10:00</div>
+                  </div>
+                  <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <button type="button" class="btn btn-danger" id="gh-logout-btn"><i class="fas fa-right-from-bracket"></i> Logout</button>
+                    <span class="gh-note">Hitung mundur diulang tiap kamu aktif di halaman ini. Owner boleh diganti ke nama organisasi.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="gh-note" style="padding:0 20px 18px">
+                Buat token di GitHub &rarr; Settings &rarr; Developer settings &rarr; Personal access tokens. Scope yang dibutuhkan: <b>repo</b> (classic) atau izin <b>Contents</b> &amp; <b>Administration</b> = Read and write (fine-grained). Hapus repo butuh scope <b>delete_repo</b>.
+              </div>
+            </div>
+
+            <div class="dl-tabs" id="gh-tabs">
+              <button type="button" class="dl-tab active" data-ghtab="create"><i class="fas fa-plus"></i> Buat Repo Baru</button>
+              <button type="button" class="dl-tab" data-ghtab="update"><i class="fas fa-arrows-rotate"></i> Update Repo</button>
+              <button type="button" class="dl-tab" data-ghtab="manage"><i class="fas fa-folder-tree"></i> Kelola Repo</button>
+            </div>
+
+            <div class="gh-sub active" id="gh-sub-create">
+              <div class="card mb-16">
+                <div class="card-header"><span class="card-title"><i class="fas fa-file-zipper" style="color:var(--primary)"></i> Buat Repository dari ZIP</span></div>
+                <form id="gh-create-form" class="gh-grid">
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Nama Repository</label>
+                    <input type="text" class="form-control" id="gh-c-repo" placeholder="nama-project" autocomplete="off" autocapitalize="off" spellcheck="false">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Visibilitas</label>
+                    <select class="form-control" id="gh-c-vis">
+                      <option value="private">Private (hanya kamu)</option>
+                      <option value="public">Public (semua orang)</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="margin:0;grid-column:1/-1">
+                    <label class="form-label">Deskripsi <span class="text-muted">(opsional)</span></label>
+                    <input type="text" class="form-control" id="gh-c-desc" maxlength="350" placeholder="Deskripsi singkat project" autocomplete="off">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">File ZIP <span class="text-muted">(maks 50 MB)</span></label>
+                    <input type="file" class="form-control" id="gh-c-zip" accept=".zip,application/zip,application/x-zip-compressed">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Pesan Commit <span class="text-muted">(opsional)</span></label>
+                    <input type="text" class="form-control" id="gh-c-msg" maxlength="200" placeholder="Initial commit" autocomplete="off">
+                  </div>
+                  <label class="gh-check" style="grid-column:1/-1"><input type="checkbox" id="gh-c-env"> <span>Sertakan file <code>.env</code> <span class="text-muted">(tidak disarankan — isinya biasanya rahasia)</span></span></label>
+                  <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <button type="submit" class="btn btn-primary" id="gh-create-btn"><i class="fas fa-cloud-arrow-up"></i> Buat &amp; Upload</button>
+                    <span class="gh-note">ZIP diekstrak otomatis. Folder induk tunggal dibuang, <code>node_modules</code>, <code>.git</code>, dan <code>.env</code> dilewati.</span>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div class="gh-sub" id="gh-sub-update">
+              <div class="card mb-16">
+                <div class="card-header"><span class="card-title"><i class="fas fa-arrows-rotate" style="color:var(--primary)"></i> Update Repository dari ZIP</span></div>
+                <form id="gh-update-form" class="gh-grid">
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Nama Repository</label>
+                    <input type="text" class="form-control" id="gh-u-repo" list="gh-repo-datalist" placeholder="nama-project" autocomplete="off" autocapitalize="off" spellcheck="false">
+                    <datalist id="gh-repo-datalist"></datalist>
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Branch <span class="text-muted">(kosong = default)</span></label>
+                    <input type="text" class="form-control" id="gh-u-branch" placeholder="main" autocomplete="off" autocapitalize="off" spellcheck="false">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Mode Update</label>
+                    <select class="form-control" id="gh-u-mode">
+                      <option value="merge">Gabung — tambah &amp; timpa file saja</option>
+                      <option value="replace">Ganti total — file lama yang tak ada di ZIP dihapus</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Folder Tujuan <span class="text-muted">(opsional)</span></label>
+                    <input type="text" class="form-control" id="gh-u-dir" placeholder="kosong = root repo, atau mis. docs" autocomplete="off" autocapitalize="off" spellcheck="false">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">File ZIP <span class="text-muted">(maks 50 MB)</span></label>
+                    <input type="file" class="form-control" id="gh-u-zip" accept=".zip,application/zip,application/x-zip-compressed">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Pesan Commit <span class="text-muted">(opsional)</span></label>
+                    <input type="text" class="form-control" id="gh-u-msg" maxlength="200" placeholder="Update via Austin Store Tools" autocomplete="off">
+                  </div>
+                  <label class="gh-check" style="grid-column:1/-1"><input type="checkbox" id="gh-u-env"> <span>Sertakan file <code>.env</code> <span class="text-muted">(tidak disarankan)</span></span></label>
+                  <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <button type="submit" class="btn btn-primary" id="gh-update-btn"><i class="fas fa-cloud-arrow-up"></i> Update Repository</button>
+                    <span class="gh-note">Hanya file yang benar-benar berubah yang di-commit. Mode <b>Ganti total</b> menghapus file lama di repo (atau di folder tujuan) yang tidak ada di ZIP.</span>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div class="gh-sub" id="gh-sub-manage">
+              <div class="card mb-16">
+                <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+                  <span class="card-title"><i class="fas fa-book-bookmark" style="color:var(--primary)"></i> Repository Saya</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="gh-load-repos-btn"><i class="fas fa-rotate"></i> Muat Repo</button>
+                </div>
+                <div class="card-body">
+                  <div class="gh-repo-list" id="gh-repo-list"><div class="dl-state">Isi token di atas lalu klik "Muat Repo".</div></div>
+                  <div style="text-align:center;margin-top:10px"><button type="button" class="btn btn-outline btn-sm" id="gh-more-btn" style="display:none">Muat lebih banyak</button></div>
+                </div>
+              </div>
+
+              <div class="card mb-16" id="gh-detail-card" style="display:none">
+                <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+                  <span class="card-title" id="gh-detail-title"></span>
+                  <a class="btn btn-outline btn-sm" id="gh-detail-open" href="#" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i> Buka di GitHub</a>
+                </div>
+                <div class="card-body">
+                  <div class="gh-actions" id="gh-detail-actions">
+                    <button type="button" class="btn btn-outline btn-sm" data-gh-act="files"><i class="fas fa-folder-open"></i> File</button>
+                    <button type="button" class="btn btn-outline btn-sm" data-gh-act="branches"><i class="fas fa-code-branch"></i> Branch</button>
+                    <button type="button" class="btn btn-outline btn-sm" data-gh-act="commits"><i class="fas fa-clock-rotate-left"></i> Commit</button>
+                    <button type="button" class="btn btn-outline btn-sm" data-gh-act="go-update"><i class="fas fa-file-zipper"></i> Update dari ZIP</button>
+                    <button type="button" class="btn btn-outline btn-sm" data-gh-act="visibility" id="gh-vis-btn"><i class="fas fa-eye"></i> Ubah Visibilitas</button>
+                    <button type="button" class="btn btn-outline btn-sm" data-gh-act="description"><i class="fas fa-pen"></i> Deskripsi</button>
+                    <button type="button" class="btn btn-outline btn-sm" data-gh-act="rename"><i class="fas fa-i-cursor"></i> Rename</button>
+                    <button type="button" class="btn btn-danger btn-sm" data-gh-act="delete"><i class="fas fa-trash"></i> Hapus Repo</button>
+                  </div>
+                  <div id="gh-detail-body"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+                <span class="card-title"><i class="fas fa-terminal" style="color:var(--text-muted)"></i> Console Log</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="ptero-status-badge idle" id="ghc-status-badge">Idle</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="ghc-clear-console-btn"><i class="fas fa-broom"></i> Bersihkan</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="gh-up-wrap" style="display:none;margin-bottom:10px">
+                  <div class="vph-bar"><span id="gh-up-bar" style="width:0%"></span></div>
+                  <div class="vph-bar-label"><span id="gh-up-label"></span></div>
+                </div>
+                <div class="ptero-console" id="ghc-console"><div class="cl-empty">Belum ada proses berjalan. Pilih tab di atas, isi form, lalu jalankan.</div></div>
+                <a class="btn btn-primary btn-sm" id="gh-result-link" href="#" target="_blank" rel="noopener noreferrer" style="display:none;margin-top:12px;text-decoration:none"><i class="fab fa-github"></i> Buka Repository</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -257,11 +610,14 @@
 const TOOLS = {
   'ptero-install': { path: '/tools/installpterodactyl' },
   'ptero-wings':   { path: '/tools/startwings' },
+  'vps-health':    { path: '/tools/cekvps' },
+  'downloader':    { path: '/tools/downloader' },
+  'github':        { path: '/tools/github' },
 };
 
 let toolsSocket = null;
 let currentPteroJobId = null;
-let currentPteroTarget = null; // 'pti' (install) atau 'ptw' (wings) — nentuin console mana yang dipakai
+let currentPteroTarget = null; // 'pti' (install), 'ptw' (wings), atau 'vph' (cek VPS) — nentuin console mana yang dipakai
 let pteroAppliedLog = 0;   // berapa baris job.log yang sudah ditampilkan (buat sinkron, hindari duplikat)
 let pteroPollTimer = null; // fallback polling kalau event socket telat/tidak sampai sama sekali
 
@@ -280,10 +636,24 @@ function connectToolsSocket() {
     if (!payload || payload.jobId !== currentPteroJobId || !currentPteroTarget) return;
     syncPteroJob(currentPteroTarget, currentPteroJobId);
   });
+  toolsSocket.on('tools:github:event', (payload) => {
+    if (payload && payload.jobId === ghJobId) syncGhJob();
+  });
+  // Sesi GitHub diakhiri dari sisi server (idle 10 menit / logout di tab lain / token dicabut).
+  toolsSocket.on('tools:github:session', (payload) => {
+    if (!ghSession || !payload) return;
+    const msgs = {
+      expired: 'Auto logout GitHub: 10 menit tanpa aktivitas.',
+      logout: 'Sesi GitHub diakhiri (logout dari tab lain).',
+      revoked: 'Token ditolak GitHub (dicabut/kedaluwarsa). Login lagi dengan token baru.',
+    };
+    ghEndSession(msgs[payload.state] || 'Sesi GitHub berakhir.', 'warning');
+  });
   // Kalau socket sempat putus lalu nyambung lagi di tengah job yang masih jalan,
   // langsung sinkron supaya tidak ketinggalan log yang lewat selama putus.
   toolsSocket.on('connect', () => {
     if (currentPteroTarget && currentPteroJobId) syncPteroJob(currentPteroTarget, currentPteroJobId);
+    if (ghJobId && ghBusy) syncGhJob();
   });
 }
 
@@ -310,6 +680,285 @@ async function syncPteroJob(prefix, jobId) {
   if (job.status !== 'running') stopPteroPoll();
 }
 
+const HEALTH_LABEL = { ok: 'Sehat', warn: 'Perlu Perhatian', crit: 'Kritis' };
+let lastHealthReport = null;
+
+function hMB(mb) {
+  const n = Number(mb) || 0;
+  if (n >= 1048576) return `${(n / 1048576).toFixed(2)} TB`;
+  if (n >= 1024) return `${(n / 1024).toFixed(2)} GB`;
+  return `${Math.round(n)} MB`;
+}
+
+function hBytes(b) {
+  const n = Number(b) || 0;
+  if (n >= 1099511627776) return `${(n / 1099511627776).toFixed(2)} TB`;
+  if (n >= 1073741824) return `${(n / 1073741824).toFixed(2)} GB`;
+  if (n >= 1048576) return `${(n / 1048576).toFixed(1)} MB`;
+  if (n >= 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${n} B`;
+}
+
+function hUptime(sec) {
+  const s = Math.floor(Number(sec) || 0);
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return `${d} hari ${h} jam ${m} menit`;
+}
+
+function hLevel(pct, warnAt, critAt) {
+  return pct >= critAt ? 'crit' : pct >= warnAt ? 'warn' : 'ok';
+}
+
+function hRow(label, value, raw) {
+  const v = value === '' || value === null || value === undefined ? '-' : value;
+  return `<div class="vph-row"><span>${escapeHtml(label)}</span><b>${raw ? v : escapeHtml(v)}</b></div>`;
+}
+
+function hBar(pct, level, left, right) {
+  const w = Math.min(Math.max(Number(pct) || 0, 0), 100);
+  return `<div class="vph-bar"><span class="${level}" style="width:${w}%"></span></div><div class="vph-bar-label"><span>${escapeHtml(left)}</span><span>${escapeHtml(right)}</span></div>`;
+}
+
+function hCard(title, icon, body, wide) {
+  return `<div class="vph-card${wide ? ' wide' : ''}"><div class="vph-card-title"><i class="fas fa-${icon}"></i> ${escapeHtml(title)}</div>${body}</div>`;
+}
+
+function hYesNo(v) {
+  return v ? 'Ya' : 'Tidak';
+}
+
+function hProcTable(list) {
+  if (!list.length) return '<div class="text-xs text-muted">Tidak ada data.</div>';
+  const rows = list.map((p) => `<tr><td>${escapeHtml(p.pid)}</td><td>${escapeHtml(p.user)}</td><td>${p.cpu}%</td><td>${p.mem}%</td><td>${p.rssMB} MB</td><td>${escapeHtml(p.cmd)}</td></tr>`).join('');
+  return `<div class="vph-scroll"><table class="vph-table"><thead><tr><th>PID</th><th>User</th><th>CPU</th><th>RAM</th><th>RSS</th><th>Proses</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function clearHealthReport() {
+  lastHealthReport = null;
+  const box = document.getElementById('vph-report');
+  const body = document.getElementById('vph-report-body');
+  if (box) box.classList.remove('active');
+  if (body) body.innerHTML = '';
+}
+
+function renderHealthReport(r) {
+  lastHealthReport = r;
+  const sys = r.system;
+  const cpu = r.cpu;
+  const mem = r.memory;
+  const net = r.network;
+  const dk = r.docker;
+  const pt = r.pterodactyl;
+  const sc = r.security;
+  const parts = [];
+
+  const checksHtml = r.checks.map((c) => `<div class="vph-check"><span class="vph-dot ${c.status}"></span><div><b>${escapeHtml(c.label)}</b><span>${escapeHtml(c.detail)}</span></div></div>`).join('');
+  const summaryChips = `<div class="vph-chips"><span class="badge badge-success">${r.summary.ok} Sehat</span><span class="badge badge-warning">${r.summary.warn} Perhatian</span><span class="badge badge-danger">${r.summary.crit} Kritis</span></div>`;
+  parts.push(hCard('Ringkasan', 'gauge-high', `
+    <div class="vph-score-wrap">
+      <div class="vph-score ${r.overall}">${r.score}<small>/ 100</small></div>
+      <div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:6px">${escapeHtml(HEALTH_LABEL[r.overall] || r.overall)}</div>
+        ${summaryChips}
+        <div class="text-xs text-muted" style="margin-top:6px">${escapeHtml(r.ip)} · ${escapeHtml(new Date(r.collectedAt).toLocaleString('id-ID'))}</div>
+      </div>
+    </div>${checksHtml}`, true));
+
+  parts.push(hCard('Sistem', 'server', [
+    hRow('Hostname', sys.hostname),
+    hRow('OS', sys.os),
+    hRow('Kernel', sys.kernel),
+    hRow('Arsitektur', sys.arch),
+    hRow('Virtualisasi', sys.virtualization),
+    hRow('Uptime', hUptime(sys.uptimeSec)),
+    hRow('Nyala sejak', sys.bootTime),
+    hRow('Zona waktu', sys.timezone),
+    hRow('Waktu server', sys.serverTime),
+    hRow('Sinkron NTP', sys.ntpSynced === 'yes' ? 'Ya' : sys.ntpSynced === 'no' ? 'Tidak' : '-'),
+    hRow('Total proses', sys.processes),
+    hRow('Proses zombie', sys.zombies),
+    hRow('User login', sys.loggedInUsers),
+    hRow('File descriptor', sys.fileDescriptors),
+    hRow('Swappiness', sys.swappiness),
+    hRow('Ukuran /var/log', hMB(sys.logSizeMB)),
+  ].join('')));
+
+  parts.push(hCard('CPU', 'microchip', [
+    hRow('Model', cpu.model),
+    hRow('Jumlah core', cpu.cores),
+    hRow('Kecepatan', cpu.mhz ? `${cpu.mhz} MHz` : '-'),
+    hBar(cpu.usage, hLevel(cpu.usage, 70, 90), 'Pemakaian', `${cpu.usage}%`),
+    hRow('Load 1 / 5 / 15 menit', `${cpu.load1} / ${cpu.load5} / ${cpu.load15}`),
+    hRow('Load per core', cpu.loadPerCore),
+    hRow('Steal', `${cpu.steal}%`),
+    hRow('IO wait', `${cpu.iowait}%`),
+  ].join('')));
+
+  parts.push(hCard('Memori', 'memory', [
+    hBar(mem.usedPct, hLevel(mem.usedPct, 80, 90), `Terpakai ${hMB(mem.usedMB)}`, `${mem.usedPct}% dari ${hMB(mem.totalMB)}`),
+    hRow('Total', hMB(mem.totalMB)),
+    hRow('Terpakai', hMB(mem.usedMB)),
+    hRow('Kosong', hMB(mem.freeMB)),
+    hRow('Tersedia', hMB(mem.availableMB)),
+    hRow('Buffers', hMB(mem.buffersMB)),
+    hRow('Cache', hMB(mem.cachedMB)),
+    hRow('Shared', hMB(mem.sharedMB)),
+    mem.swapTotalMB > 0
+      ? hBar(mem.swapPct, hLevel(mem.swapPct, 50, 80), `Swap ${hMB(mem.swapUsedMB)}`, `${mem.swapPct}% dari ${hMB(mem.swapTotalMB)}`)
+      : hRow('Swap', 'Tidak ada'),
+  ].join('')));
+
+  const diskBody = r.disks.length
+    ? r.disks.map((d) => `<div class="vph-sub">${escapeHtml(d.mount)} <span class="text-muted" style="font-weight:500">${escapeHtml(d.device)} · ${escapeHtml(d.type)}</span></div>`
+        + hBar(d.pct, hLevel(d.pct, 80, 90), `${hMB(d.usedMB)} terpakai · ${hMB(d.availMB)} sisa`, `${d.pct}% dari ${hMB(d.sizeMB)}`)
+        + hRow('Inode', `${d.inodePct}% (${d.inodeUsed.toLocaleString('id-ID')} / ${d.inodeTotal.toLocaleString('id-ID')})`)).join('')
+    : '<div class="text-xs text-muted">Tidak ada data disk.</div>';
+  const blockBody = r.blockDevices.length
+    ? `<div class="vph-sub">Perangkat blok</div><div class="vph-tags">${r.blockDevices.map((b) => `<span class="vph-tag">${escapeHtml(b.name)} ${escapeHtml(b.size)}</span>`).join('')}</div>`
+    : '';
+  parts.push(hCard('Disk', 'hard-drive', diskBody + blockBody));
+
+  const ifaceBody = net.interfaces.filter((i) => i.addrs.length || i.rxBytes || i.txBytes).map((i) =>
+    `<div class="vph-sub">${escapeHtml(i.name)}</div>`
+    + hRow('Alamat IP', i.addrs.length ? i.addrs.join(', ') : '-')
+    + hRow('Diterima (RX)', hBytes(i.rxBytes))
+    + hRow('Dikirim (TX)', hBytes(i.txBytes))).join('');
+  parts.push(hCard('Jaringan', 'network-wired', [
+    hRow('Internet keluar', net.internetOk ? `Normal (HTTP ${net.httpCode})` : `Bermasalah${net.httpCode ? ` (HTTP ${net.httpCode})` : ''}`),
+    hRow('Ping 1.1.1.1', net.pingMs !== null ? `${net.pingMs} ms` : 'Tidak ada balasan'),
+    hRow('Resolusi DNS', net.dnsResolves ? 'Normal' : 'Gagal'),
+    hRow('Gateway', net.gateway ? `${net.gateway} (${net.gatewayIface})` : '-'),
+    hRow('DNS server', net.dns.join(', ')),
+    hRow('Koneksi aktif', net.established),
+    ifaceBody,
+  ].join('')));
+
+  const portTags = r.ports.length
+    ? `<div class="vph-tags">${r.ports.map((p) => `<span class="vph-tag ${p.bind === 'publik' ? 'warn' : ''}">${escapeHtml(p.proto)}/${p.port} · ${escapeHtml(p.process)} · ${escapeHtml(p.bind)}</span>`).join('')}</div><div class="text-xs text-muted" style="margin-top:8px">Border kuning = port terbuka ke publik.</div>`
+    : '<div class="text-xs text-muted">Tidak ada port listening yang terdeteksi.</div>';
+  parts.push(hCard(`Port Terbuka (${r.ports.length})`, 'door-open', portTags));
+
+  const svcTags = r.services.length
+    ? `<div class="vph-tags">${r.services.map((s) => `<span class="vph-tag ${s.active === 'active' ? 'ok' : s.enabled === 'enabled' ? 'crit' : ''}">${escapeHtml(s.name)} · ${escapeHtml(s.active)}</span>`).join('')}</div>`
+    : '<div class="text-xs text-muted">Tidak ada service yang dikenali.</div>';
+  const failedBody = r.failedUnits.length
+    ? `<div class="vph-sub">Unit gagal</div><div class="vph-tags">${r.failedUnits.map((u) => `<span class="vph-tag crit">${escapeHtml(u)}</span>`).join('')}</div>`
+    : hRow('Unit gagal', 'Tidak ada');
+  parts.push(hCard('Layanan', 'gears', svcTags + failedBody));
+
+  const dockerBody = dk.installed
+    ? [
+        hRow('Versi', dk.version || 'Daemon tidak merespons'),
+        hRow('Container berjalan', `${dk.running} dari ${dk.total}`),
+        hRow('Image', dk.images),
+        dk.containers.length
+          ? `<div class="vph-sub">Container aktif</div><div class="vph-scroll"><table class="vph-table"><thead><tr><th>Nama</th><th>Image</th><th>Status</th></tr></thead><tbody>${dk.containers.map((c) => `<tr><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.image)}</td><td>${escapeHtml(c.status)}</td></tr>`).join('')}</tbody></table></div>`
+          : '',
+      ].join('')
+    : hRow('Docker', 'Tidak terpasang');
+  parts.push(hCard('Docker', 'docker', dockerBody));
+
+  parts.push(hCard('Pterodactyl', 'dragon', [
+    hRow('Panel terpasang', hYesNo(pt.panel)),
+    hRow('URL panel', pt.appUrl),
+    hRow('Wings terpasang', hYesNo(pt.wings)),
+    hRow('Status Wings', pt.wings ? pt.wingsActive || '-' : '-'),
+    hRow('Versi Wings', pt.wingsVersion),
+    hRow('Config Wings', pt.wings ? hYesNo(pt.wingsConfig) : '-'),
+    hRow('API Wings :8080', pt.wingsApiCode ? `HTTP ${pt.wingsApiCode}` : pt.wings ? 'Tidak merespons' : '-'),
+    hRow('Folder server game', pt.servers),
+  ].join('')));
+
+  const lastLogins = sc.lastLogins.length
+    ? `<div class="vph-sub">Login terakhir</div>${sc.lastLogins.map((l) => `<div class="text-xs text-muted" style="font-family:var(--font-mono);word-break:break-all">${escapeHtml(l)}</div>`).join('')}`
+    : '';
+  parts.push(hCard('Keamanan & Update', 'shield-halved', [
+    hRow('Root login SSH', sc.sshRootLogin),
+    hRow('Login password SSH', sc.sshPasswordAuth),
+    hRow('Port SSH', sc.sshPort),
+    hRow('Firewall UFW', sc.ufw || 'Tidak terpasang'),
+    hRow('Fail2ban', sc.fail2ban || 'Tidak terpasang'),
+    hRow('IP diblokir Fail2ban', sc.fail2banBanned),
+    hRow('Gagal login SSH (24 jam)', sc.failedSshLogins24h),
+    hRow('Perlu reboot', hYesNo(sc.rebootRequired)),
+    hRow('Paket bisa diupdate', sc.upgradablePackages),
+    lastLogins,
+  ].join('')));
+
+  parts.push(hCard('Proses Teratas (CPU)', 'list-ol', hProcTable(r.topCpu), true));
+  parts.push(hCard('Proses Teratas (RAM)', 'list-ol', hProcTable(r.topMem), true));
+
+  document.getElementById('vph-report-body').innerHTML = `<div class="vph-grid">${parts.join('')}</div>`;
+  const box = document.getElementById('vph-report');
+  box.classList.add('active');
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function healthReportText(r) {
+  const sys = r.system;
+  const cpu = r.cpu;
+  const mem = r.memory;
+  const net = r.network;
+  const dk = r.docker;
+  const pt = r.pterodactyl;
+  const sc = r.security;
+  const mark = { ok: 'OK', warn: 'WARN', crit: 'CRIT' };
+  const lines = [];
+  lines.push(`LAPORAN KESEHATAN VPS — ${r.ip}`);
+  lines.push(`Waktu: ${new Date(r.collectedAt).toLocaleString('id-ID')}`);
+  lines.push(`Skor: ${r.score}/100 (${HEALTH_LABEL[r.overall] || r.overall})`);
+  lines.push('');
+  lines.push('[RINGKASAN]');
+  r.checks.forEach((c) => lines.push(`[${mark[c.status]}] ${c.label}: ${c.detail}`));
+  lines.push('');
+  lines.push('[SISTEM]');
+  lines.push(`Hostname: ${sys.hostname} | OS: ${sys.os} | Kernel: ${sys.kernel} (${sys.arch})`);
+  lines.push(`Virtualisasi: ${sys.virtualization} | Uptime: ${hUptime(sys.uptimeSec)} | Nyala sejak: ${sys.bootTime}`);
+  lines.push(`Zona waktu: ${sys.timezone} | Waktu server: ${sys.serverTime} | NTP: ${sys.ntpSynced || '-'}`);
+  lines.push(`Proses: ${sys.processes} (zombie ${sys.zombies}) | User login: ${sys.loggedInUsers} | FD: ${sys.fileDescriptors}`);
+  lines.push('');
+  lines.push('[CPU]');
+  lines.push(`${cpu.model} | ${cpu.cores} core${cpu.mhz ? ` @ ${cpu.mhz} MHz` : ''}`);
+  lines.push(`Pemakaian: ${cpu.usage}% | Load: ${cpu.load1} ${cpu.load5} ${cpu.load15} | Steal: ${cpu.steal}% | IO wait: ${cpu.iowait}%`);
+  lines.push('');
+  lines.push('[MEMORI]');
+  lines.push(`Total ${hMB(mem.totalMB)} | Terpakai ${hMB(mem.usedMB)} (${mem.usedPct}%) | Tersedia ${hMB(mem.availableMB)} | Cache ${hMB(mem.cachedMB)} | Buffers ${hMB(mem.buffersMB)}`);
+  lines.push(`Swap: ${mem.swapTotalMB > 0 ? `${hMB(mem.swapUsedMB)} / ${hMB(mem.swapTotalMB)} (${mem.swapPct}%)` : 'tidak ada'}`);
+  lines.push('');
+  lines.push('[DISK]');
+  r.disks.forEach((d) => lines.push(`${d.mount} (${d.device}, ${d.type}): ${hMB(d.usedMB)} / ${hMB(d.sizeMB)} (${d.pct}%), sisa ${hMB(d.availMB)}, inode ${d.inodePct}%`));
+  lines.push('');
+  lines.push('[JARINGAN]');
+  lines.push(`Internet: ${net.internetOk ? 'normal' : 'bermasalah'} | Ping: ${net.pingMs !== null ? `${net.pingMs} ms` : '-'} | DNS: ${net.dnsResolves ? 'normal' : 'gagal'} | Koneksi aktif: ${net.established}`);
+  lines.push(`Gateway: ${net.gateway || '-'} | DNS server: ${net.dns.join(', ') || '-'}`);
+  net.interfaces.filter((i) => i.addrs.length || i.rxBytes || i.txBytes).forEach((i) => lines.push(`${i.name}: ${i.addrs.join(', ') || '-'} | RX ${hBytes(i.rxBytes)} | TX ${hBytes(i.txBytes)}`));
+  lines.push('');
+  lines.push(`[PORT TERBUKA] ${r.ports.map((p) => `${p.proto}/${p.port}(${p.process},${p.bind})`).join(' ') || '-'}`);
+  lines.push('');
+  lines.push(`[LAYANAN] ${r.services.map((s) => `${s.name}:${s.active}`).join(' ') || '-'}`);
+  lines.push(`Unit gagal: ${r.failedUnits.join(', ') || 'tidak ada'}`);
+  lines.push('');
+  lines.push('[DOCKER]');
+  lines.push(dk.installed ? `Versi ${dk.version || '-'} | Container ${dk.running}/${dk.total} | Image ${dk.images}` : 'Tidak terpasang');
+  dk.containers.forEach((c) => lines.push(`- ${c.name} (${c.image}) ${c.status}`));
+  lines.push('');
+  lines.push('[PTERODACTYL]');
+  lines.push(`Panel: ${hYesNo(pt.panel)}${pt.appUrl ? ` (${pt.appUrl})` : ''} | Wings: ${pt.wings ? `${pt.wingsActive} ${pt.wingsVersion}` : 'tidak terpasang'} | API: ${pt.wingsApiCode || '-'} | Folder server: ${pt.servers}`);
+  lines.push('');
+  lines.push('[KEAMANAN]');
+  lines.push(`SSH root: ${sc.sshRootLogin || '-'} | SSH password: ${sc.sshPasswordAuth || '-'} | Port SSH: ${sc.sshPort || '-'}`);
+  lines.push(`UFW: ${sc.ufw || '-'} | Fail2ban: ${sc.fail2ban || '-'} | Gagal login 24 jam: ${sc.failedSshLogins24h} | Reboot: ${hYesNo(sc.rebootRequired)} | Update: ${sc.upgradablePackages}`);
+  lines.push('');
+  lines.push('[TOP CPU]');
+  r.topCpu.forEach((p) => lines.push(`${p.cmd} (pid ${p.pid}, ${p.user}) CPU ${p.cpu}% RAM ${p.mem}% ${p.rssMB} MB`));
+  lines.push('');
+  lines.push('[TOP RAM]');
+  r.topMem.forEach((p) => lines.push(`${p.cmd} (pid ${p.pid}, ${p.user}) CPU ${p.cpu}% RAM ${p.mem}% ${p.rssMB} MB`));
+  return lines.join('\n');
+}
+
 function switchToolPanel(name) {
   document.querySelectorAll('.tool-menu-item[data-tool]').forEach(i => {
     i.classList.toggle('active', i.getAttribute('data-tool') === name);
@@ -331,6 +980,7 @@ function setPteroStatus(prefix, status) {
 function clearPteroConsole(prefix) {
   const box = document.getElementById(`${prefix}-console`);
   if (box) box.innerHTML = '<div class="cl-empty">Belum ada proses berjalan.</div>';
+  if (prefix === 'vph') clearHealthReport();
 }
 
 function appendPteroLine(prefix, cls, text) {
@@ -345,7 +995,7 @@ function appendPteroLine(prefix, cls, text) {
 }
 
 function setPteroFormDisabled(prefix, disabled) {
-  const btn = document.getElementById(`${prefix === 'pti' ? 'pti' : 'ptw'}-submit-btn`);
+  const btn = document.getElementById(`${prefix}-submit-btn`);
   if (btn) btn.disabled = disabled;
 }
 
@@ -357,7 +1007,11 @@ function renderPteroEntry(prefix, type, data, ts) {
   } else if (type === 'done') {
     setPteroStatus(prefix, 'success');
     setPteroFormDisabled(prefix, false);
-    if (data.url) {
+    if (data.kind === 'health') {
+      appendPteroLine(prefix, 'cl-done', `[${ts}] ✅ PEMERIKSAAN SELESAI — Skor ${data.score}/100 (${HEALTH_LABEL[data.overall] || data.overall})`);
+      renderHealthReport(data);
+      Toast.success('Pemeriksaan VPS selesai');
+    } else if (data.url) {
       appendPteroLine(prefix, 'cl-done', `[${ts}] ✅ PANEL BERHASIL DIINSTALL`);
       appendPteroLine(prefix, 'cl-done', `URL      : ${data.url}`);
       appendPteroLine(prefix, 'cl-done', `Admin    : ${data.adminUser}`);
@@ -378,11 +1032,231 @@ function renderPteroEntry(prefix, type, data, ts) {
   }
 }
 
+const DL_PLATFORMS = {
+  tiktok: {
+    path: '/tools/downloader/tiktok',
+    placeholder: 'https://vt.tiktok.com/xxxxxxx  atau  https://www.tiktok.com/@user/video/123',
+    hint: 'Video diunduh dalam kualitas HD tanpa watermark. Versi SD, watermark, dan audio MP3 juga tersedia.',
+    host: /(^|\.)tiktok\.com$/i,
+  },
+  instagram: {
+    path: '/tools/downloader/instagram',
+    placeholder: 'https://www.instagram.com/p/xxxxxxx/  atau  /reel/xxxxxxx/',
+    hint: 'Mendukung post, reel, dan carousel dari akun publik. Tiap foto/video bisa diunduh satu per satu atau sekaligus.',
+    host: /(^|\.)instagram\.com$/i,
+  },
+  facebook: {
+    path: '/tools/downloader/facebook',
+    placeholder: 'https://www.facebook.com/share/p/xxxxxxx/',
+    hint: 'Mendukung video dan foto dari postingan publik. Video diutamakan kualitas HD bila tersedia.',
+    host: /(^|\.)(facebook\.com|fb\.watch|fb\.me|fb\.com)$/i,
+  },
+  capcut: {
+    path: '/tools/downloader/capcut',
+    placeholder: 'https://www.capcut.com/tv2/xxxxxxx/',
+    hint: 'Tempel link video atau template CapCut (capcut.com/tv2/...).',
+    host: /(^|\.)capcut\.com$/i,
+  },
+};
+
+const DL_STATS = {
+  views: ['eye', 'Ditonton'],
+  likes: ['heart', 'Suka'],
+  comments: ['comment', 'Komentar'],
+  shares: ['share', 'Dibagikan'],
+  used: ['clone', 'Dipakai'],
+};
+
+let dlPlatform = 'tiktok';
+let dlBusy = false;
+let dlBatch = [];
+
+function dlFmtNum(n) {
+  return new Intl.NumberFormat('id-ID', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(n) || 0);
+}
+
+function dlDetectPlatform(url) {
+  let host = '';
+  try { host = new URL(String(url).trim()).hostname; } catch { return null; }
+  return Object.keys(DL_PLATFORMS).find((k) => DL_PLATFORMS[k].host.test(host)) || null;
+}
+
+function setDlPlatform(name, pushPath) {
+  if (!DL_PLATFORMS[name]) return;
+  const changed = dlPlatform !== name;
+  dlPlatform = name;
+  document.querySelectorAll('#dl-tabs .dl-tab').forEach((b) => b.classList.toggle('active', b.getAttribute('data-platform') === name));
+  const urlInput = document.getElementById('dl-url');
+  if (urlInput) urlInput.placeholder = DL_PLATFORMS[name].placeholder;
+  const hint = document.getElementById('dl-hint');
+  if (hint) hint.textContent = DL_PLATFORMS[name].hint;
+  if (changed) dlClearResult();
+  if (pushPath) {
+    const p = DL_PLATFORMS[name].path;
+    if (window.location.pathname !== p) history.pushState(null, '', p);
+  }
+}
+
+function dlClearResult() {
+  dlBatch = [];
+  const card = document.getElementById('dl-result-card');
+  const body = document.getElementById('dl-result-body');
+  if (card) card.style.display = 'none';
+  if (body) body.innerHTML = '';
+}
+
+function dlShowState(html, isError) {
+  const card = document.getElementById('dl-result-card');
+  const body = document.getElementById('dl-result-body');
+  if (!card || !body) return;
+  card.style.display = '';
+  body.innerHTML = `<div class="dl-state${isError ? ' error' : ''}">${html}</div>`;
+}
+
+function dlTrigger(href) {
+  const a = document.createElement('a');
+  a.href = href;
+  a.setAttribute('download', '');
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => a.remove(), 1000);
+}
+
+function dlItemIcon(kind) {
+  return kind === 'audio' ? 'music' : kind === 'image' ? 'image' : 'video';
+}
+
+function dlRenderResult(d) {
+  const card = document.getElementById('dl-result-card');
+  const body = document.getElementById('dl-result-body');
+  if (!card || !body) return;
+
+  const items = d.items || [];
+  const videos = items.filter((i) => i.kind === 'video');
+  const images = items.filter((i) => i.kind === 'image');
+  const audios = items.filter((i) => i.kind === 'audio');
+  const separateVideos = d.platform === 'instagram';
+  const html = [];
+
+  const statsHtml = (d.stats || []).filter((s) => DL_STATS[s.key]).map((s) => `<span class="dl-stat"><i class="fas fa-${DL_STATS[s.key][0]}"></i> ${escapeHtml(dlFmtNum(s.value))} ${escapeHtml(DL_STATS[s.key][1])}</span>`).join('');
+  const authorText = [d.author && d.author.name, d.author && d.author.username ? `@${d.author.username}` : ''].filter(Boolean).join(' · ');
+  html.push(`<div class="dl-head">
+    ${d.thumbnail ? `<img class="dl-cover" src="${escapeHtml(d.thumbnail)}" alt="" loading="lazy">` : ''}
+    <div class="dl-meta">
+      <div class="dl-title">${escapeHtml(d.title || `Media ${d.platformName}`)}</div>
+      ${authorText ? `<div class="dl-author">${escapeHtml(authorText)}</div>` : ''}
+      ${statsHtml ? `<div class="dl-stats">${statsHtml}</div>` : ''}
+    </div>
+  </div>`);
+
+  dlBatch = [];
+
+  if (videos.length && !separateVideos) {
+    const main = videos.find((v) => v.primary) || videos[0];
+    html.push(`<video class="dl-player" controls playsinline preload="none"${d.thumbnail ? ` poster="${escapeHtml(d.thumbnail)}"` : ''} src="${escapeHtml(main.previewUrl)}"></video>`);
+  }
+
+  const actionItems = separateVideos ? audios : videos.concat(audios);
+  if (actionItems.length) {
+    html.push('<div class="dl-actions">');
+    actionItems.forEach((it) => {
+      const cls = it.primary ? 'btn btn-primary' : 'btn btn-outline';
+      html.push(`<a class="${cls}" href="${escapeHtml(it.downloadUrl)}" download><i class="fas fa-download"></i> ${escapeHtml(it.label)}</a>`);
+    });
+    html.push('</div>');
+  }
+
+  const gridItems = separateVideos ? images.concat(videos) : images;
+  gridItems.sort((a, b) => items.indexOf(a) - items.indexOf(b));
+  if (gridItems.length) {
+    gridItems.forEach((it) => dlBatch.push(it.downloadUrl));
+    if (actionItems.length) html.push('<div class="dl-section-label">Media</div>');
+    if (gridItems.length > 1) {
+      html.push(`<div class="dl-all-row"><span class="text-xs text-muted">${gridItems.length} file ditemukan</span><button type="button" class="btn btn-primary btn-sm" id="dl-all-btn"><i class="fas fa-download"></i> Unduh Semua (${gridItems.length})</button></div>`);
+    }
+    html.push('<div class="dl-grid">');
+    gridItems.forEach((it) => {
+      const media = it.kind === 'video'
+        ? `<video controls playsinline preload="none"${it.posterUrl ? ` poster="${escapeHtml(it.posterUrl)}"` : ''} src="${escapeHtml(it.previewUrl)}"></video>`
+        : `<img src="${escapeHtml(it.previewUrl)}" alt="${escapeHtml(it.label)}" loading="lazy">`;
+      html.push(`<div class="dl-media">${media}<div class="dl-media-foot"><span><i class="fas fa-${dlItemIcon(it.kind)}"></i> ${escapeHtml(it.label)}</span><a class="btn btn-outline btn-sm" href="${escapeHtml(it.downloadUrl)}" download><i class="fas fa-download"></i></a></div></div>`);
+    });
+    html.push('</div>');
+  }
+
+  card.style.display = '';
+  body.innerHTML = html.join('');
+
+  const allBtn = document.getElementById('dl-all-btn');
+  if (allBtn) {
+    allBtn.addEventListener('click', () => {
+      const list = dlBatch.slice();
+      list.forEach((href, i) => setTimeout(() => dlTrigger(href), i * 700));
+      Toast.success(`Memulai ${list.length} unduhan`);
+    });
+  }
+}
+
+async function dlSubmit() {
+  if (dlBusy) return;
+  const input = document.getElementById('dl-url');
+  const btn = document.getElementById('dl-submit-btn');
+  const url = input.value.trim();
+  if (!url) { Toast.error('Link wajib diisi'); return; }
+
+  const detected = dlDetectPlatform(url);
+  if (detected && detected !== dlPlatform) setDlPlatform(detected, true);
+
+  dlBusy = true;
+  btn.disabled = true;
+  dlClearResult();
+  dlShowState('<i class="fas fa-spinner fa-spin"></i> Mengambil media, mohon tunggu...', false);
+
+  const res = await API.post('/api/tools/downloader/info', { platform: dlPlatform, url });
+  dlBusy = false;
+  btn.disabled = false;
+
+  if (!res || !res.success) {
+    const msg = (res && res.message) || 'Gagal mengambil media';
+    dlShowState(`<i class="fas fa-circle-exclamation"></i> ${escapeHtml(msg)}`, true);
+    Toast.error(msg);
+    return;
+  }
+  dlRenderResult(res.data);
+}
+
+document.querySelectorAll('#dl-tabs .dl-tab').forEach((b) => {
+  b.addEventListener('click', () => setDlPlatform(b.getAttribute('data-platform'), true));
+});
+
+document.getElementById('dl-form')?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  dlSubmit();
+});
+
+document.getElementById('dl-url')?.addEventListener('input', (e) => {
+  const detected = dlDetectPlatform(e.target.value);
+  if (detected && detected !== dlPlatform) setDlPlatform(detected, true);
+});
+
+document.getElementById('dl-paste-btn')?.addEventListener('click', async () => {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (!text) { Toast.error('Clipboard kosong'); return; }
+    const input = document.getElementById('dl-url');
+    input.value = text.trim();
+    input.dispatchEvent(new Event('input'));
+  } catch {
+    Toast.error('Tidak bisa membaca clipboard, tempel manual');
+  }
+});
+
 document.querySelectorAll('.tool-menu-item[data-tool]').forEach((el) => {
   el.addEventListener('click', () => {
     const name = el.getAttribute('data-tool');
     switchToolPanel(name);
-    const p = TOOLS[name]?.path;
+    const p = name === 'downloader' ? DL_PLATFORMS[dlPlatform].path : TOOLS[name]?.path;
     if (p && window.location.pathname !== p) history.pushState(null, '', p);
   });
 });
@@ -456,16 +1330,767 @@ document.getElementById('ptero-wings-form')?.addEventListener('submit', async (e
   startPteroPoll('ptw', res.jobId);
 });
 
+document.getElementById('vph-clear-console-btn')?.addEventListener('click', () => clearPteroConsole('vph'));
+document.getElementById('vph-copy-btn')?.addEventListener('click', () => {
+  if (lastHealthReport) copyText(healthReportText(lastHealthReport), 'Laporan');
+});
+
+document.getElementById('vps-health-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const payload = {
+    ip: document.getElementById('vph-ip').value.trim(),
+    password: document.getElementById('vph-password').value,
+  };
+  currentPteroTarget = 'vph';
+  clearPteroConsole('vph');
+  setPteroStatus('vph', 'running');
+  setPteroFormDisabled('vph', true);
+  appendPteroLine('vph', 'cl-stage', 'Mengirim permintaan cek kesehatan VPS...');
+  const res = await API.post('/api/tools/vps/health', payload);
+  if (!res.success) {
+    setPteroStatus('vph', 'failed');
+    setPteroFormDisabled('vph', false);
+    appendPteroLine('vph', 'cl-error', `❌ ${res.message}`);
+    Toast.error(res.message || 'Gagal memulai pemeriksaan');
+    return;
+  }
+  currentPteroJobId = res.jobId;
+  pteroAppliedLog = 0;
+  startPteroPoll('vph', res.jobId);
+});
+
+// ================= Tools > Manajemen GitHub =================
+// Buat repo dari ZIP, update repo dari ZIP, dan kelola repo (branch, commit, file,
+// visibilitas, rename, hapus). Semua lewat backend (/api/tools/github/*).
+// User LOGIN sekali (username + token) -> token disimpan sementara di memori SERVER,
+// bukan di browser (browser hanya mengingat username). Logout manual atau otomatis
+// setelah 10 menit tanpa aktivitas.
+// Upload/update jalan sebagai job di server; progresnya ditarik lewat polling + sinyal
+// socket, sama seperti Install Pterodactyl.
+const GH_API = '/api/tools/github';
+let ghJobId = null;
+let ghApplied = 0;
+let ghPollTimer = null;
+let ghPollFails = 0;
+let ghBusy = false;
+let ghMBusy = false;       // kunci aksi di tab Kelola supaya tidak dobel klik
+let ghRepos = [];
+let ghPage = 1;
+let ghHasMore = false;
+let ghSel = null;          // repo yang sedang dikelola
+let ghBranches = [];
+let ghBrowse = { path: '', crumbs: [], items: [] };
+
+// --- sesi login ---
+const GH_SESSION_CODE = 'GH_SESSION_REQUIRED';
+const GH_PING_EVERY_MS = 30 * 1000;   // maksimal 1 ping ke server per 30 detik saat user aktif
+let ghSession = null;                 // { username, login, name } kalau sedang login
+let ghIdleMs = 10 * 60 * 1000;        // diganti nilai dari server saat login
+let ghDeadline = 0;                   // epoch ms kapan auto logout (digeser tiap ada aktivitas)
+let ghTickTimer = null;
+let ghLastPing = 0;
+let ghDirty = false;                  // ada aktivitas yang belum dikabarkan ke server
+
+const ghEl = (id) => document.getElementById(id);
+const ghVal = (id) => (ghEl(id)?.value || '').trim();
+const ghSafeUrl = (u) => (typeof u === 'string' && /^https:\/\/github\.com\//.test(u) ? u : '#');
+const ghState = (html, error) => `<div class="dl-state${error ? ' error' : ''}">${html}</div>`;
+
+function ghCreds(needUser = true) {
+  if (!ghSession) { Toast.error('Login GitHub dulu (username & token)'); return null; }
+  const username = ghVal('gh-username') || ghSession.username;
+  if (needUser && !username) { Toast.error('Isi owner GitHub dulu'); return null; }
+  return { username };
+}
+
+// Kalau server bilang sesi sudah tidak ada (idle / logout di tab lain / token dicabut),
+// kembalikan UI ke form login.
+function ghCheckSessionLost(res) {
+  if (res && res.code === GH_SESSION_CODE) {
+    ghEndSession(res.message || 'Sesi GitHub berakhir. Login lagi.', 'warning');
+    return true;
+  }
+  return false;
+}
+
+async function ghManage(action, extra = {}) {
+  const res = await API.post(`${GH_API}/manage`, { action, ...extra });
+  ghCheckSessionLost(res);
+  return res;
+}
+
+function setGhBusy(b) {
+  ghBusy = b;
+  ['gh-create-btn', 'gh-update-btn'].forEach((id) => { const el = ghEl(id); if (el) el.disabled = b; });
+}
+
+function ghSetProgress(pct) {
+  const wrap = ghEl('gh-up-wrap');
+  if (pct === null) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  ghEl('gh-up-bar').style.width = `${pct}%`;
+  ghEl('gh-up-label').textContent = pct < 100 ? `Mengunggah ZIP... ${pct}%` : 'ZIP terkirim, server sedang memproses...';
+}
+
+function ghSwitchTab(name) {
+  document.querySelectorAll('#gh-tabs .dl-tab').forEach((b) => b.classList.toggle('active', b.getAttribute('data-ghtab') === name));
+  document.querySelectorAll('.gh-sub').forEach((el) => el.classList.toggle('active', el.id === `gh-sub-${name}`));
+  if (name === 'manage' && !ghRepos.length && ghSession) ghLoadRepos(true);
+}
+
+// ---------- sesi login / logout / auto-logout ----------
+function ghFmtClock(ms) {
+  const t = Math.max(0, Math.ceil(ms / 1000));
+  return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+}
+
+function ghSetBadge(loggedIn) {
+  const b = ghEl('gh-session-badge');
+  if (!b) return;
+  b.className = `ptero-status-badge ${loggedIn ? 'success' : 'idle'}`;
+  b.textContent = loggedIn ? 'Login' : 'Belum login';
+}
+
+// Tampilkan UI "sudah login" + mulai hitung mundur.
+function ghStartSession(viewer, session, ownerName, notes) {
+  ghSession = { username: session.username || ownerName, login: viewer.login, name: viewer.name || null };
+  ghIdleMs = session.idleTimeoutMs || ghIdleMs;
+  ghDeadline = Date.now() + (typeof session.remainingMs === 'number' ? session.remainingMs : ghIdleMs);
+  ghLastPing = Date.now();
+  ghDirty = false;
+
+  ghEl('gh-login-view').style.display = 'none';
+  ghEl('gh-session-view').style.display = '';
+  ghEl('gh-username').value = ghSession.username;
+  const info = ghEl('gh-session-info');
+  info.className = `gh-viewer ${notes && notes.level ? notes.level : 'ok'}`;
+  info.textContent = `✅ Login sebagai ${viewer.login}${viewer.name ? ` (${viewer.name})` : ''}.${notes && notes.text ? ` ${notes.text}` : ''}`;
+  ghSetBadge(true);
+
+  if (ghTickTimer) clearInterval(ghTickTimer);
+  ghTickTimer = setInterval(ghTick, 1000);
+  ghTick();
+}
+
+// Kembalikan UI ke form login dan bersihkan semua data repo yang sempat dimuat.
+function ghEndSession(message, kind = 'warning') {
+  const had = !!ghSession;
+  ghSession = null;
+  ghDeadline = 0;
+  ghDirty = false;
+  if (ghTickTimer) { clearInterval(ghTickTimer); ghTickTimer = null; }
+
+  const tokenInp = ghEl('gh-token');
+  if (tokenInp) { tokenInp.value = ''; tokenInp.type = 'password'; }
+  const eye = ghEl('gh-token-eye');
+  if (eye) eye.innerHTML = '<i class="fas fa-eye"></i>';
+  ghEl('gh-username').value = '';
+  ghEl('gh-viewer').style.display = 'none';
+
+  ghRepos = []; ghPage = 1; ghHasMore = false; ghSel = null; ghBranches = [];
+  ghBrowse = { path: '', crumbs: [], items: [] };
+  ghEl('gh-repo-list').innerHTML = ghState('Login GitHub di atas lalu klik "Muat Repo".');
+  ghEl('gh-more-btn').style.display = 'none';
+  ghEl('gh-detail-card').style.display = 'none';
+  ghEl('gh-repo-datalist').innerHTML = '';
+
+  ghEl('gh-session-view').style.display = 'none';
+  ghEl('gh-login-view').style.display = '';
+  ghSetBadge(false);
+  try {
+    const savedUser = localStorage.getItem('gh_tool_username');
+    if (savedUser && !ghVal('gh-login-username')) ghEl('gh-login-username').value = savedUser;
+  } catch (e) { /* abaikan */ }
+
+  if (had && message) Toast.show(message, kind);
+}
+
+// Dipanggil tiap detik: update hitung mundur & auto logout kalau idle habis.
+function ghTick() {
+  if (!ghSession) return;
+  if (ghBusy) { ghMarkActive(); }   // upload/update sedang jalan = user sedang menunggu, bukan idle
+  const now = Date.now();
+  if (ghDirty && now - ghLastPing >= GH_PING_EVERY_MS) { ghDirty = false; ghLastPing = now; ghPing(); }
+  const left = ghDeadline - now;
+  if (left <= 0) { ghAutoLogout(); return; }
+  const el = ghEl('gh-countdown');
+  if (el) {
+    el.textContent = ghFmtClock(left);
+    el.style.color = left <= 60 * 1000 ? 'var(--danger)' : '';
+  }
+}
+
+// Ada aktivitas user -> geser batas auto logout 10 menit dari sekarang.
+function ghMarkActive() {
+  if (!ghSession) return;
+  ghDeadline = Date.now() + ghIdleMs;
+  ghDirty = true;
+}
+
+async function ghPing() {
+  const res = await API.post(`${GH_API}/session/ping`);
+  if (res && res.success && res.loggedIn === false) {
+    ghEndSession('Sesi GitHub sudah berakhir di server. Login lagi untuk melanjutkan.', 'warning');
+  }
+}
+
+async function ghAutoLogout() {
+  if (!ghSession) return;
+  const idleMin = Math.round(ghIdleMs / 60000);
+  ghEndSession(`Auto logout GitHub: ${idleMin} menit tanpa aktivitas.`, 'warning');
+  API.post(`${GH_API}/logout`);   // hapus token dari memori server (best effort)
+}
+
+async function ghLogout() {
+  const btn = ghEl('gh-logout-btn');
+  btn.disabled = true;
+  const res = await API.post(`${GH_API}/logout`);
+  btn.disabled = false;
+  if (!res || !res.success) { Toast.error((res && res.message) || 'Gagal logout, coba lagi.'); return; }
+  ghEndSession('Logout GitHub berhasil.', 'success');
+}
+
+async function ghLogin(e) {
+  if (e) e.preventDefault();
+  const username = ghVal('gh-login-username');
+  const token = ghVal('gh-token');
+  if (!username) { Toast.error('Isi username GitHub dulu'); return; }
+  if (!token) { Toast.error('Isi token GitHub dulu'); return; }
+  const box = ghEl('gh-viewer');
+  const btn = ghEl('gh-login-btn');
+  btn.disabled = true;
+  box.style.display = 'block';
+  box.className = 'gh-viewer';
+  box.textContent = 'Memeriksa token...';
+  const res = await API.post(`${GH_API}/login`, { username, token });
+  btn.disabled = false;
+  if (!res || !res.success) {
+    box.className = 'gh-viewer err';
+    box.textContent = `❌ ${(res && res.message) || 'Login gagal.'}`;
+    return;
+  }
+  // token sudah di server, buang dari form
+  ghEl('gh-token').value = '';
+  ghEl('gh-token').type = 'password';
+  ghEl('gh-token-eye').innerHTML = '<i class="fas fa-eye"></i>';
+  box.style.display = 'none';
+  try { localStorage.setItem('gh_tool_username', username); } catch (err) { /* abaikan */ }
+
+  const v = res.viewer;
+  const notes = [];
+  let level = 'ok';
+  if (Array.isArray(v.scopes)) {
+    notes.push(`scope: ${v.scopes.length ? v.scopes.join(', ') : '(tidak ada)'}`);
+    if (!v.scopes.includes('repo') && !v.scopes.includes('public_repo')) { level = 'warn'; notes.push('⚠️ tidak ada scope "repo" — upload ke repo akan gagal'); }
+    if (!v.scopes.includes('delete_repo')) notes.push('hapus repo butuh scope "delete_repo"');
+  } else {
+    notes.push('fine-grained token (izin per-repo tidak bisa dibaca di sini)');
+  }
+  if (username.toLowerCase() !== String(v.login).toLowerCase()) {
+    level = 'warn';
+    notes.push(`⚠️ username "${username}" berbeda dengan pemilik token — dianggap nama organisasi`);
+  }
+  ghStartSession(v, res.session || {}, username, { level, text: notes.join(' • ') });
+  Toast.success('Login GitHub berhasil');
+  if (ghEl('gh-sub-manage').classList.contains('active')) ghLoadRepos(true);
+}
+
+// Pulihkan sesi kalau halaman di-refresh (token ada di server, bukan di browser).
+async function ghRestoreSession() {
+  const res = await API.get(`${GH_API}/session`);
+  if (res && res.success && res.loggedIn) {
+    ghStartSession({ login: res.login, name: res.name }, res, res.username);
+  }
+}
+
+// Aktivitas user di halaman ini = reset hitung mundur.
+['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'wheel', 'click'].forEach((evt) => {
+  document.addEventListener(evt, ghMarkActive, { passive: true, capture: true });
+});
+document.addEventListener('visibilitychange', () => { if (!document.hidden) ghTick(); });
+
+// ---------- upload / update (job) ----------
+function ghUpload(path, form) {
+  return new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', apiUrl(path));
+    xhr.withCredentials = true;
+    xhr.upload.onprogress = (e) => { if (e.lengthComputable) ghSetProgress(Math.min(100, Math.round((e.loaded / e.total) * 100))); };
+    xhr.onload = () => {
+      try { resolve(JSON.parse(xhr.responseText)); } catch (e) { resolve({ success: false, message: 'Respons server tidak valid.' }); }
+    };
+    xhr.onerror = () => resolve({ success: false, message: 'Koneksi gagal. Periksa jaringan.' });
+    xhr.send(form);
+  });
+}
+
+async function ghStartJob(path, form) {
+  setGhBusy(true);
+  clearPteroConsole('ghc');
+  ghEl('gh-result-link').style.display = 'none';
+  setPteroStatus('ghc', 'running');
+  appendPteroLine('ghc', 'cl-stage', 'Mengirim ZIP ke server...');
+  ghSetProgress(0);
+  const res = await ghUpload(path, form);
+  ghSetProgress(null);
+  if (!res || !res.success) {
+    setPteroStatus('ghc', 'failed');
+    setGhBusy(false);
+    appendPteroLine('ghc', 'cl-error', `❌ ${(res && res.message) || 'Gagal memulai proses'}`);
+    if (!ghCheckSessionLost(res)) Toast.error((res && res.message) || 'Gagal memulai proses');
+    return;
+  }
+  ghJobId = res.jobId;
+  ghApplied = 0;
+  ghPollFails = 0;
+  startGhPoll();
+}
+
+function startGhPoll() {
+  stopGhPoll();
+  ghPollTimer = setInterval(syncGhJob, 3000);
+  syncGhJob();
+}
+
+function stopGhPoll() {
+  if (ghPollTimer) { clearInterval(ghPollTimer); ghPollTimer = null; }
+}
+
+async function syncGhJob() {
+  const id = ghJobId;
+  if (!id) return;
+  const res = await API.get(`${GH_API}/jobs/${id}`);
+  if (id !== ghJobId) return;
+  if (!res || !res.success || !res.job) {
+    ghPollFails += 1;
+    const gone = res && /tidak ditemukan/i.test(res.message || '');
+    if (gone || ghPollFails >= 6) {
+      stopGhPoll();
+      setPteroStatus('ghc', 'failed');
+      setGhBusy(false);
+      appendPteroLine('ghc', 'cl-error', '❌ Koneksi ke job terputus (server mungkin restart). Cek GitHub langsung untuk melihat hasilnya.');
+    }
+    return;
+  }
+  ghPollFails = 0;
+  const job = res.job;
+  for (let i = ghApplied; i < job.log.length; i++) {
+    const entry = job.log[i];
+    const ts = new Date(entry.t || Date.now()).toLocaleTimeString('id-ID', { hour12: false });
+    renderGhEntry(entry.type, entry.data || {}, ts);
+  }
+  ghApplied = job.log.length;
+  if (job.status !== 'running') stopGhPoll();
+}
+
+function renderGhEntry(type, d, ts) {
+  if (type === 'stage') {
+    appendPteroLine('ghc', 'cl-stage', `[${ts}] ${d.text}`);
+  } else if (type === 'log') {
+    appendPteroLine('ghc', 'cl-log', `[${ts}] ${d.text}`);
+  } else if (type === 'done') {
+    stopGhPoll();
+    setPteroStatus('ghc', 'success');
+    setGhBusy(false);
+    const c = d.counts || {};
+    const title = d.action === 'create' ? 'REPOSITORY BERHASIL DIBUAT' : (d.changed ? 'REPOSITORY BERHASIL DIUPDATE' : 'TIDAK ADA PERUBAHAN');
+    appendPteroLine('ghc', 'cl-done', `[${ts}] ✅ ${title}`);
+    appendPteroLine('ghc', 'cl-done', `Repo    : ${d.fullName} (branch ${d.branch})`);
+    if (d.commitUrl) appendPteroLine('ghc', 'cl-done', `Commit  : ${d.commitUrl}`);
+    appendPteroLine('ghc', 'cl-done', `Ringkas : +${c.added || 0} baru, ~${c.modified || 0} diubah, -${c.deleted || 0} dihapus, ${c.unchanged || 0} tidak berubah`);
+    const a = ghEl('gh-result-link');
+    a.href = ghSafeUrl(d.url);
+    a.style.display = 'inline-flex';
+    ghRepos = []; // daftar di tab Kelola dimuat ulang saat dibuka lagi
+    Toast.success(d.action === 'create' ? 'Repository berhasil dibuat' : 'Update repository selesai');
+  } else if (type === 'error') {
+    stopGhPoll();
+    setPteroStatus('ghc', 'failed');
+    setGhBusy(false);
+    appendPteroLine('ghc', 'cl-error', `[${ts}] ❌ ${d.message}`);
+    Toast.error(d.message || 'Proses gagal');
+  }
+}
+
+function ghCheckZip(input) {
+  const file = input.files && input.files[0];
+  if (!file) { Toast.error('Pilih file ZIP dulu'); return null; }
+  if (!/\.zip$/i.test(file.name)) { Toast.error('File harus berformat .zip'); return null; }
+  if (file.size > 50 * 1024 * 1024) { Toast.error('Ukuran ZIP maksimal 50 MB'); return null; }
+  if (file.size === 0) { Toast.error('File ZIP kosong'); return null; }
+  return file;
+}
+
+ghEl('gh-create-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (ghBusy) return;
+  const c = ghCreds();
+  if (!c) return;
+  const repo = ghVal('gh-c-repo');
+  if (!repo) { Toast.error('Isi nama repository'); return; }
+  const file = ghCheckZip(ghEl('gh-c-zip'));
+  if (!file) return;
+  if (ghEl('gh-c-vis').value === 'public') {
+    const ok = await Dialog.confirm(`Repository "${repo}" akan dibuat PUBLIC — siapa pun bisa melihat isinya. Lanjutkan?`, { title: 'Buat repo public?', okText: 'Ya, buat public' });
+    if (!ok) return;
+  }
+  const form = new FormData();
+  form.append('username', c.username);
+  form.append('repo', repo);
+  form.append('visibility', ghEl('gh-c-vis').value);
+  form.append('description', ghVal('gh-c-desc'));
+  form.append('message', ghVal('gh-c-msg'));
+  form.append('includeEnv', ghEl('gh-c-env').checked ? 'true' : 'false');
+  form.append('zip', file);
+  await ghStartJob(`${GH_API}/create`, form);
+});
+
+ghEl('gh-update-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (ghBusy) return;
+  const c = ghCreds();
+  if (!c) return;
+  const repo = ghVal('gh-u-repo');
+  if (!repo) { Toast.error('Isi nama repository'); return; }
+  const file = ghCheckZip(ghEl('gh-u-zip'));
+  if (!file) return;
+  const mode = ghEl('gh-u-mode').value;
+  if (mode === 'replace') {
+    const dir = ghVal('gh-u-dir');
+    const ok = await Dialog.confirm(
+      `Mode "Ganti total": file di ${dir ? `folder ${dir}/` : 'repository'} yang TIDAK ada di ZIP akan dihapus (lewat satu commit, masih bisa dikembalikan dari riwayat Git). Lanjutkan?`,
+      { title: 'Ganti total isi repo?', okText: 'Ya, ganti total', danger: true }
+    );
+    if (!ok) return;
+  }
+  const form = new FormData();
+  form.append('username', c.username);
+  form.append('repo', repo);
+  form.append('branch', ghVal('gh-u-branch'));
+  form.append('mode', mode);
+  form.append('targetDir', ghVal('gh-u-dir'));
+  form.append('message', ghVal('gh-u-msg'));
+  form.append('includeEnv', ghEl('gh-u-env').checked ? 'true' : 'false');
+  form.append('zip', file);
+  await ghStartJob(`${GH_API}/update`, form);
+});
+
+// ---------- tab Kelola: daftar repo ----------
+function ghRenderRepoList() {
+  const box = ghEl('gh-repo-list');
+  if (!ghRepos.length) { box.innerHTML = ghState('Belum ada repository.'); ghEl('gh-more-btn').style.display = 'none'; return; }
+  box.innerHTML = ghRepos.map((r, i) => {
+    const meta = [r.language, `branch ${r.defaultBranch}`, hBytes((r.sizeKB || 0) * 1024), r.updatedAt ? formatDate(r.updatedAt, false) : null].filter(Boolean).map((x) => escapeHtml(x)).join(' • ');
+    return `<div class="gh-repo${ghSel && ghSel.fullName === r.fullName ? ' sel' : ''}">
+      <div class="gh-repo-main">
+        <div class="gh-repo-name">${escapeHtml(r.fullName)} <span class="badge ${r.private ? 'badge-warning' : 'badge-success'}">${r.private ? 'Private' : 'Public'}</span>${r.archived ? ' <span class="badge badge-secondary">Archived</span>' : ''}</div>
+        ${r.description ? `<div class="gh-repo-desc">${escapeHtml(r.description)}</div>` : ''}
+        <div class="gh-repo-meta">${meta}</div>
+      </div>
+      <button type="button" class="btn btn-outline btn-sm" data-gh-open="${i}">Kelola</button>
+    </div>`;
+  }).join('');
+  ghEl('gh-more-btn').style.display = ghHasMore ? '' : 'none';
+
+  const me = ghVal('gh-username').toLowerCase();
+  const dl = ghEl('gh-repo-datalist');
+  dl.innerHTML = '';
+  ghRepos.filter((r) => String(r.owner).toLowerCase() === me).forEach((r) => {
+    const o = document.createElement('option');
+    o.value = r.name;
+    dl.appendChild(o);
+  });
+}
+
+async function ghLoadRepos(reset) {
+  const c = ghCreds(false);
+  if (!c) return;
+  const box = ghEl('gh-repo-list');
+  const btn = ghEl('gh-load-repos-btn');
+  if (reset) { ghPage = 1; ghRepos = []; box.innerHTML = ghState('<i class="fas fa-spinner fa-spin"></i> Memuat repository...'); }
+  btn.disabled = true;
+  const res = await ghManage('list', { page: ghPage });
+  btn.disabled = false;
+  if (!res.success) { box.innerHTML = ghState(escapeHtml(res.message || 'Gagal memuat repository.'), true); return; }
+  ghRepos = ghRepos.concat(res.repos || []);
+  ghHasMore = !!res.hasMore;
+  ghPage = (res.page || ghPage) + 1;
+  ghRenderRepoList();
+}
+
+function ghOpenRepo(i) {
+  const r = ghRepos[i];
+  if (!r) return;
+  ghSel = r;
+  ghEl('gh-detail-card').style.display = '';
+  ghEl('gh-detail-title').innerHTML = `<i class="fab fa-github" style="color:var(--primary)"></i> ${escapeHtml(r.fullName)}`;
+  ghEl('gh-detail-open').href = ghSafeUrl(r.url);
+  ghEl('gh-detail-body').innerHTML = ghState('Pilih aksi di atas: File, Branch, atau Commit.');
+  ghUpdateVisBtn();
+  ghRenderRepoList();
+  ghEl('gh-detail-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function ghUpdateVisBtn() {
+  if (!ghSel) return;
+  ghEl('gh-vis-btn').innerHTML = `<i class="fas fa-eye"></i> Jadikan ${ghSel.private ? 'Public' : 'Private'}`;
+}
+
+const ghBase = () => ({ owner: ghSel.owner, repo: ghSel.name });
+const ghDetail = () => ghEl('gh-detail-body');
+
+// ---------- Kelola: branch ----------
+async function ghShowBranches() {
+  ghDetail().innerHTML = ghState('<i class="fas fa-spinner fa-spin"></i> Memuat branch...');
+  const res = await ghManage('branches', ghBase());
+  if (!res.success) { ghDetail().innerHTML = ghState(escapeHtml(res.message), true); return; }
+  ghBranches = res.branches || [];
+  ghSel.defaultBranch = res.defaultBranch;
+  const rows = ghBranches.map((b, i) => {
+    const isDef = b.name === res.defaultBranch;
+    return `<div class="gh-row">
+      <div class="gh-row-main"><b>${escapeHtml(b.name)}</b>${isDef ? ' <span class="badge badge-primary">default</span>' : ''}${b.protected ? ' <span class="badge badge-secondary">protected</span>' : ''}</div>
+      <div class="gh-row-btns">${isDef ? '' : `<button type="button" class="btn btn-outline btn-sm" data-br-act="default" data-i="${i}">Jadikan default</button><button type="button" class="btn btn-danger btn-sm" data-br-act="delete" data-i="${i}">Hapus</button>`}</div>
+    </div>`;
+  }).join('');
+  ghDetail().innerHTML = `<div class="dl-section-label" style="margin-top:0">Branch (${ghBranches.length})</div>${rows}
+    <div class="gh-inline-form">
+      <input type="text" class="form-control" id="gh-newbranch" placeholder="nama-branch-baru" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <input type="text" class="form-control" id="gh-frombranch" placeholder="dari branch (kosong = default)" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button type="button" class="btn btn-primary btn-sm" data-br-act="create"><i class="fas fa-plus"></i> Buat Branch</button>
+    </div>`;
+}
+
+// ---------- Kelola: commit ----------
+async function ghShowCommits() {
+  ghDetail().innerHTML = ghState('<i class="fas fa-spinner fa-spin"></i> Memuat commit...');
+  const res = await ghManage('commits', ghBase());
+  if (!res.success) { ghDetail().innerHTML = ghState(escapeHtml(res.message), true); return; }
+  const list = res.commits || [];
+  if (!list.length) { ghDetail().innerHTML = ghState('Belum ada commit.'); return; }
+  ghDetail().innerHTML = `<div class="dl-section-label" style="margin-top:0">${list.length} commit terakhir</div>` + list.map((c) => `<div class="gh-row">
+    <div class="gh-row-main">${escapeHtml(c.message || '(tanpa pesan)')}
+      <div class="gh-row-sub">${escapeHtml(c.author)}${c.date ? ` • ${escapeHtml(formatDate(c.date, true))}` : ''}</div></div>
+    <a class="gh-link" href="${ghSafeUrl(c.url)}" target="_blank" rel="noopener noreferrer"><code>${escapeHtml(c.sha)}</code></a>
+  </div>`).join('');
+}
+
+// ---------- Kelola: telusuri file ----------
+async function ghShowFiles(path) {
+  ghDetail().innerHTML = ghState('<i class="fas fa-spinner fa-spin"></i> Memuat file...');
+  const res = await ghManage('contents', { ...ghBase(), path: path || '', branch: ghSel.defaultBranch });
+  if (!res.success) {
+    if (path) { ghShowFiles(''); return; } // folder sudah tidak ada -> balik ke root
+    ghDetail().innerHTML = ghState(escapeHtml(res.message), true);
+    return;
+  }
+  const segs = res.path ? res.path.split('/') : [];
+  const crumbs = [''];
+  segs.forEach((sg, i) => crumbs.push(segs.slice(0, i + 1).join('/')));
+  ghBrowse = { path: res.path, crumbs, items: res.items || [] };
+  const crumbHtml = crumbs.map((cp, i) => `<button type="button" class="gh-link" data-fp-act="go" data-i="${i}">${i === 0 ? escapeHtml(ghSel.name) : escapeHtml(segs[i - 1])}</button>`).join(' / ');
+  const rows = ghBrowse.items.map((it, i) => `<div class="gh-row">
+    <div class="gh-row-main">${it.type === 'dir'
+      ? `<button type="button" class="gh-link" data-fp-act="open" data-i="${i}"><i class="fas fa-folder"></i> ${escapeHtml(it.name)}</button>`
+      : `<i class="fas fa-file" style="color:var(--text-muted)"></i> ${escapeHtml(it.name)} <span class="text-muted text-xs">${escapeHtml(hBytes(it.size))}</span>`}</div>
+    <div class="gh-row-btns"><button type="button" class="btn btn-danger btn-sm" data-fp-act="del" data-i="${i}" title="Hapus"><i class="fas fa-trash"></i></button></div>
+  </div>`).join('');
+  ghDetail().innerHTML = `<div class="gh-crumbs">${crumbHtml}</div>
+    <div class="gh-note" style="margin-bottom:6px">Branch: ${escapeHtml(ghSel.defaultBranch)}</div>
+    ${rows || ghState('Folder kosong.')}`;
+}
+
+// ---------- Kelola: aksi repo ----------
+async function ghRepoAction(act) {
+  if (!ghSel) return;
+  if (act === 'files') return ghShowFiles('');
+  if (act === 'branches') return ghShowBranches();
+  if (act === 'commits') return ghShowCommits();
+
+  if (act === 'go-update') {
+    ghEl('gh-username').value = ghSel.owner;
+    ghEl('gh-u-repo').value = ghSel.name;
+    ghEl('gh-u-branch').value = '';
+    ghSwitchTab('update');
+    ghEl('gh-sub-update').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+
+  if (act === 'visibility') {
+    const toPrivate = !ghSel.private;
+    const ok = await Dialog.confirm(
+      toPrivate ? `Jadikan "${ghSel.name}" PRIVATE? Hanya kamu dan kolaborator yang bisa melihatnya.` : `Jadikan "${ghSel.name}" PUBLIC? Siapa pun di internet bisa melihat isinya.`,
+      { title: 'Ubah visibilitas', okText: toPrivate ? 'Jadikan Private' : 'Jadikan Public' }
+    );
+    if (!ok) return;
+    const res = await ghManage('visibility', { ...ghBase(), private: toPrivate });
+    if (!res.success) { Toast.error(res.message || 'Gagal mengubah visibilitas'); return; }
+    ghSel.private = res.repo.private;
+    ghRepos = ghRepos.map((r) => (r.fullName === ghSel.fullName ? { ...r, private: res.repo.private } : r));
+    ghUpdateVisBtn();
+    ghRenderRepoList();
+    Toast.success(res.message);
+    return;
+  }
+
+  if (act === 'description') {
+    const v = await Dialog.prompt('Deskripsi repository (kosongkan untuk menghapus):', { title: 'Ubah deskripsi', defaultValue: ghSel.description || '', okText: 'Simpan' });
+    if (v === null || v === undefined) return;
+    const res = await ghManage('description', { ...ghBase(), description: v });
+    if (!res.success) { Toast.error(res.message || 'Gagal mengubah deskripsi'); return; }
+    ghSel.description = res.repo.description;
+    ghRepos = ghRepos.map((r) => (r.fullName === ghSel.fullName ? { ...r, description: res.repo.description } : r));
+    ghRenderRepoList();
+    Toast.success(res.message);
+    return;
+  }
+
+  if (act === 'rename') {
+    const v = await Dialog.prompt('Nama baru repository:', { title: 'Rename repository', defaultValue: ghSel.name, okText: 'Rename' });
+    if (v === null || v === undefined || !v.trim() || v.trim() === ghSel.name) return;
+    const res = await ghManage('rename', { ...ghBase(), newName: v.trim() });
+    if (!res.success) { Toast.error(res.message || 'Gagal rename'); return; }
+    const old = ghSel.fullName;
+    ghSel = { ...ghSel, name: res.repo.name, fullName: res.repo.fullName, url: res.repo.url };
+    ghRepos = ghRepos.map((r) => (r.fullName === old ? { ...r, name: res.repo.name, fullName: res.repo.fullName, url: res.repo.url } : r));
+    ghEl('gh-detail-title').innerHTML = `<i class="fab fa-github" style="color:var(--primary)"></i> ${escapeHtml(ghSel.fullName)}`;
+    ghEl('gh-detail-open').href = ghSafeUrl(ghSel.url);
+    ghRenderRepoList();
+    Toast.success(res.message);
+    return;
+  }
+
+  if (act === 'delete') {
+    const typed = await Dialog.prompt(
+      `Hapus PERMANEN repository ${ghSel.fullName}? Tindakan ini tidak bisa dibatalkan.\nKetik nama repository untuk konfirmasi:`,
+      { title: 'Hapus repository', placeholder: ghSel.name, okText: 'Hapus Permanen', danger: true }
+    );
+    if (typed === null || typed === undefined) return;
+    if (typed.trim() !== ghSel.name) { Toast.error('Nama tidak cocok — penghapusan dibatalkan'); return; }
+    const res = await ghManage('delete', { ...ghBase(), confirm: typed.trim() });
+    if (!res.success) { Toast.error(res.message || 'Gagal menghapus repository'); return; }
+    const gone = ghSel.fullName;
+    ghRepos = ghRepos.filter((r) => r.fullName !== gone);
+    ghSel = null;
+    ghEl('gh-detail-card').style.display = 'none';
+    ghRenderRepoList();
+    Toast.success(res.message);
+  }
+}
+
+// ---------- event wiring ----------
+ghEl('gh-detail-actions')?.addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-gh-act]');
+  if (!btn || ghMBusy) return;
+  ghMBusy = true;
+  try { await ghRepoAction(btn.getAttribute('data-gh-act')); } finally { ghMBusy = false; }
+});
+
+ghEl('gh-detail-body')?.addEventListener('click', async (e) => {
+  const br = e.target.closest('[data-br-act]');
+  const fp = e.target.closest('[data-fp-act]');
+  if ((!br && !fp) || ghMBusy || !ghSel) return;
+  ghMBusy = true;
+  try {
+    if (br) {
+      const act = br.getAttribute('data-br-act');
+      const b = ghBranches[Number(br.getAttribute('data-i'))];
+      if (act === 'create') {
+        const name = ghVal('gh-newbranch');
+        if (!name) { Toast.error('Isi nama branch baru'); return; }
+        const res = await ghManage('create-branch', { ...ghBase(), newBranch: name, from: ghVal('gh-frombranch') });
+        if (!res.success) { Toast.error(res.message || 'Gagal membuat branch'); return; }
+        Toast.success(res.message);
+        await ghShowBranches();
+      } else if (b && act === 'default') {
+        const ok = await Dialog.confirm(`Jadikan "${b.name}" sebagai branch default?`, { title: 'Ganti branch default', okText: 'Ya, ganti' });
+        if (!ok) return;
+        const res = await ghManage('default-branch', { ...ghBase(), branch: b.name });
+        if (!res.success) { Toast.error(res.message || 'Gagal mengganti branch default'); return; }
+        Toast.success(res.message);
+        await ghShowBranches();
+      } else if (b && act === 'delete') {
+        const ok = await Dialog.confirm(`Hapus branch "${b.name}"? Commit yang belum di-merge ke branch lain bisa hilang.`, { title: 'Hapus branch', okText: 'Hapus', danger: true });
+        if (!ok) return;
+        const res = await ghManage('delete-branch', { ...ghBase(), branch: b.name });
+        if (!res.success) { Toast.error(res.message || 'Gagal menghapus branch'); return; }
+        Toast.success(res.message);
+        await ghShowBranches();
+      }
+    } else if (fp) {
+      const act = fp.getAttribute('data-fp-act');
+      const i = Number(fp.getAttribute('data-i'));
+      if (act === 'go') { await ghShowFiles(ghBrowse.crumbs[i] || ''); return; }
+      const it = ghBrowse.items[i];
+      if (!it) return;
+      if (act === 'open') { await ghShowFiles(it.path); return; }
+      if (act === 'del') {
+        const ok = await Dialog.confirm(
+          it.type === 'dir' ? `Hapus folder "${it.path}" beserta SEMUA isinya dari branch ${ghSel.defaultBranch}? (dibuat sebagai satu commit)` : `Hapus file "${it.path}" dari branch ${ghSel.defaultBranch}? (dibuat sebagai satu commit)`,
+          { title: 'Hapus dari repository', okText: 'Hapus', danger: true }
+        );
+        if (!ok) return;
+        const res = await ghManage('delete-path', { ...ghBase(), path: it.path, branch: ghSel.defaultBranch });
+        if (!res.success) { Toast.error(res.message || 'Gagal menghapus'); return; }
+        Toast.success(res.message);
+        await ghShowFiles(ghBrowse.path);
+      }
+    }
+  } finally {
+    ghMBusy = false;
+  }
+});
+
+ghEl('gh-repo-list')?.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-gh-open]');
+  if (b) ghOpenRepo(Number(b.getAttribute('data-gh-open')));
+});
+
+ghEl('gh-tabs')?.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-ghtab]');
+  if (b) ghSwitchTab(b.getAttribute('data-ghtab'));
+});
+ghEl('gh-login-form')?.addEventListener('submit', ghLogin);
+ghEl('gh-logout-btn')?.addEventListener('click', ghLogout);
+ghEl('gh-load-repos-btn')?.addEventListener('click', () => ghLoadRepos(true));
+ghEl('gh-more-btn')?.addEventListener('click', () => ghLoadRepos(false));
+ghEl('ghc-clear-console-btn')?.addEventListener('click', () => clearPteroConsole('ghc'));
+ghEl('gh-token-eye')?.addEventListener('click', () => {
+  const inp = ghEl('gh-token');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  ghEl('gh-token-eye').innerHTML = `<i class="fas fa-eye${show ? '-slash' : ''}"></i>`;
+});
+try {
+  const savedUser = localStorage.getItem('gh_tool_username');
+  if (savedUser && ghEl('gh-login-username') && !ghEl('gh-login-username').value) ghEl('gh-login-username').value = savedUser;
+} catch (e) { /* abaikan */ }
+
 async function init() {
   const res = await Auth.check();
   if (!res) return;
   Auth.renderUserInfo(res.user, res.wallet);
   connectToolsSocket();
+  ghRestoreSession();
 
+  applyToolRoute();
+}
+
+function applyToolRoute() {
   const path = window.location.pathname.replace(/\/$/, '');
+  const dl = path.match(/^\/tools\/downloader(?:\/([a-z]+))?$/);
+  if (dl) {
+    switchToolPanel('downloader');
+    setDlPlatform(DL_PLATFORMS[dl[1]] ? dl[1] : dlPlatform, false);
+    return;
+  }
   const match = Object.entries(TOOLS).find(([, v]) => v.path === path);
   switchToolPanel(match ? match[0] : null);
 }
+
+window.addEventListener('popstate', applyToolRoute);
+
+setDlPlatform('tiktok', false);
 init();
 </script>
 <script src="/js/notebook.js" defer></script>
