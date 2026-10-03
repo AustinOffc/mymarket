@@ -112,11 +112,6 @@
           </div>
           <div class="card-body">
             <ul class="mem-list" id="mem-benefits"></ul>
-            <div id="mem-discounts-wrap" style="margin-top:16px;display:none">
-              <div class="text-sm" style="font-weight:600;margin-bottom:6px">Potongan harga per layanan</div>
-              <table class="mem-table"><tbody id="mem-discounts"></tbody></table>
-              <p class="text-xs text-muted" style="margin-top:8px">Potongan dihitung dari harga normal dan tidak pernah membuat harga di bawah harga modal layanan. Voucher/flash sale dihitung setelah potongan Gold.</p>
-            </div>
           </div>
         </div>
 
@@ -196,17 +191,6 @@ function renderMember(d) {
     li.querySelector('span').textContent = t;
     ul.appendChild(li);
   });
-
-  const tbody = document.getElementById('mem-discounts');
-  tbody.innerHTML = '';
-  active.forEach(x => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = '<td></td><td></td>';
-    tr.children[0].textContent = x.label;
-    tr.children[1].textContent = memDiscountText(x);
-    tbody.appendChild(tr);
-  });
-  document.getElementById('mem-discounts-wrap').style.display = active.length ? '' : 'none';
 }
 
 async function loadMember() {
