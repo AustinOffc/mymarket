@@ -500,10 +500,22 @@
           <div class="card-header"><span class="card-title"><i class="fas fa-fire" style="color:#FF7A1A"></i> Flash Sale Produk (Tampil di Beranda)</span></div>
           <div style="padding:0 20px 20px;display:grid;gap:14px">
             <div class="text-xs text-muted">Pilih produk, atur % potongan dan durasinya. Produk otomatis tampil di carousel Flash Sale di bawah banner beranda sampai durasi habis.</div>
+            <div>
+              <label class="form-label">1. Pilih Kategori</label>
+              <div id="fsp-cats" style="display:flex;flex-wrap:wrap;gap:8px"><span class="text-xs text-muted">Memuat kategori...</span></div>
+            </div>
+            <div id="fsp-subwrap" style="display:none">
+              <label class="form-label">2. Pilih Sub Kategori</label>
+              <div id="fsp-subs" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+            </div>
             <div class="form-group" style="margin:0">
-              <label class="form-label">Cari &amp; Pilih Produk</label>
-              <input type="text" class="form-control" id="fsp-search" placeholder="Ketik nama produk...">
-              <div id="fsp-results" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:220px;overflow-y:auto"></div>
+              <label class="form-label" id="fsp-list-label">3. Pilih Produk</label>
+              <input type="text" class="form-control" id="fsp-search" placeholder="Cari nama produk (opsional)...">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px">
+                <span class="text-xs text-muted" id="fsp-list-info"></span>
+                <button type="button" class="btn btn-outline btn-sm" id="fsp-pick-all" style="display:none"><i class="fas fa-check-double"></i> Pilih semua</button>
+              </div>
+              <div id="fsp-results" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:320px;overflow-y:auto"><div class="text-xs text-muted">Pilih kategori dulu, atau ketik nama produk.</div></div>
             </div>
             <div>
               <label class="form-label">Produk Terpilih (<span id="fsp-count">0</span>)</label>
@@ -2388,7 +2400,7 @@ const sectionLoaders = {
   complaints: () => loadComplaints(1),
   reports: () => loadReports(1),
   vouchers: () => loadVouchers(1),
-  flashsale: () => loadFlashSaleSection(1),
+  flashsale: () => { fspInit(); loadFlashSaleSection(1); },
   topup: loadTopupSection,
   ppob: loadPpobSection,
   socmed: loadSocmedSection,
@@ -5263,33 +5275,101 @@ function fspRenderSelected() {
       <i class="fas fa-xmark" style="cursor:pointer" data-fsp-remove="${escapeAttr(v.id)}"></i>
     </span>`).join('');
 }
+let fspCats = [], fspCat = null, fspSub = null, fspLast = [];
+function fspChip(label, attr, val, active) {
+  return `<button type="button" class="btn btn-sm ${active ? 'btn-primary' : 'btn-outline'}" ${attr}="${escapeAttr(val)}">${escapeHtml(label)}</button>`;
+}
+function fspDescendants(id) {
+  const out = [id];
+  fspCats.filter(c => c.parent_id === id).forEach(c => out.push(...fspDescendants(c.id)));
+  return out;
+}
+function fspRenderCats() {
+  const roots = fspCats.filter(c => !c.parent_id);
+  document.getElementById('fsp-cats').innerHTML = roots.length
+    ? roots.map(c => fspChip(c.name, 'data-fsp-cat', c.id, fspCat === c.id)).join('')
+    : '<span class="text-xs text-muted">Belum ada kategori</span>';
+  const subs = fspCat ? fspCats.filter(c => c.parent_id === fspCat) : [];
+  document.getElementById('fsp-subwrap').style.display = subs.length ? '' : 'none';
+  document.getElementById('fsp-subs').innerHTML = subs.length
+    ? fspChip('Semua', 'data-fsp-sub', '', !fspSub) + subs.map(c => fspChip(c.name, 'data-fsp-sub', c.id, fspSub === c.id)).join('')
+    : '';
+}
+async function fspInit() {
+  if (fspCats.length) return;
+  const res = await API.get('/api/categories');
+  fspCats = (res.success && res.data) ? res.data : [];
+  fspRenderCats();
+}
+function fspRenderList() {
+  const box = document.getElementById('fsp-results');
+  const pick = document.getElementById('fsp-pick-all');
+  if (!fspLast.length) { pick.style.display = 'none'; return; }
+  pick.style.display = '';
+  box.innerHTML = fspLast.map(v => {
+    const on = fspSelected.has(v.id);
+    return `
+    <div data-fsp-add="${escapeAttr(v.id)}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid ${on ? 'var(--primary)' : 'var(--border)'};border-radius:10px;cursor:pointer">
+      ${v.image_url ? `<img src="${escapeHtml(v.image_url)}" style="width:38px;height:38px;border-radius:8px;object-fit:cover">` : '<i class="fas fa-box" style="width:38px;text-align:center"></i>'}
+      <div style="flex:1;min-width:0"><div class="text-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(v.name)}</div><div class="text-xs text-muted">${formatRupiah(v.price)} · ${escapeHtml(v.seller_name)}</div></div>
+      <i class="fas ${on ? 'fa-circle-check' : 'fa-plus'}" style="${on ? 'color:var(--primary)' : ''}"></i>
+    </div>`;
+  }).join('');
+}
 async function fspSearch() {
   const q = document.getElementById('fsp-search').value.trim();
   const box = document.getElementById('fsp-results');
-  const res = await API.get(`/api/owner/flashsale/product-search?q=${encodeURIComponent(q)}`);
-  if (!res.success || !res.data.length) { box.innerHTML = '<div class="text-xs text-muted">Produk tidak ditemukan</div>'; return; }
-  box.innerHTML = res.data.map(v => `
-    <div data-fsp-add="${escapeAttr(v.id)}" data-fsp-name="${escapeAttr(v.name)}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;cursor:pointer;${fspSelected.has(v.id) ? 'opacity:.5' : ''}">
-      ${v.image_url ? `<img src="${escapeHtml(v.image_url)}" style="width:34px;height:34px;border-radius:8px;object-fit:cover">` : '<i class="fas fa-box" style="width:34px;text-align:center"></i>'}
-      <div style="flex:1;min-width:0"><div class="text-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(v.name)}</div><div class="text-xs text-muted">${formatRupiah(v.price)} · ${escapeHtml(v.seller_name)}</div></div>
-      <i class="fas fa-plus"></i>
-    </div>`).join('');
+  const info = document.getElementById('fsp-list-info');
+  const catId = fspSub || fspCat;
+  if (!catId && !q) {
+    fspLast = [];
+    box.innerHTML = '<div class="text-xs text-muted">Pilih kategori dulu, atau ketik nama produk.</div>';
+    info.textContent = ''; document.getElementById('fsp-pick-all').style.display = 'none';
+    return;
+  }
+  box.innerHTML = '<div class="text-xs text-muted">Memuat produk...</div>';
+  const qs = new URLSearchParams();
+  if (q) qs.set('q', q);
+  if (catId) qs.set('category_ids', fspDescendants(catId).join(','));
+  const res = await API.get(`/api/owner/flashsale/product-search?${qs.toString()}`);
+  if (!res.success) { fspLast = []; box.innerHTML = `<div class="text-xs" style="color:var(--danger)">${escapeHtml(res.message || 'Gagal memuat produk')}</div>`; info.textContent = ''; document.getElementById('fsp-pick-all').style.display = 'none'; return; }
+  fspLast = res.data;
+  info.textContent = res.total > res.data.length ? `Menampilkan ${res.data.length} dari ${res.total} produk` : `${res.data.length} produk`;
+  if (!fspLast.length) { box.innerHTML = '<div class="text-xs text-muted">Tidak ada produk di kategori ini</div>'; document.getElementById('fsp-pick-all').style.display = 'none'; return; }
+  fspRenderList();
 }
+document.getElementById('fsp-cats').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-fsp-cat]');
+  if (!b) return;
+  fspCat = (fspCat === b.dataset.fspCat) ? null : b.dataset.fspCat;
+  fspSub = null;
+  fspRenderCats(); fspSearch();
+});
+document.getElementById('fsp-subs').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-fsp-sub]');
+  if (!b) return;
+  fspSub = b.dataset.fspSub || null;
+  fspRenderCats(); fspSearch();
+});
 document.getElementById('fsp-search').addEventListener('input', () => { clearTimeout(fspTimer); fspTimer = setTimeout(fspSearch, 300); });
-document.getElementById('fsp-search').addEventListener('focus', () => { if (!document.getElementById('fsp-results').children.length) fspSearch(); });
+document.getElementById('fsp-pick-all').addEventListener('click', () => {
+  fspLast.forEach(v => fspSelected.set(v.id, { id: v.id, name: v.name }));
+  fspRenderSelected(); fspRenderList();
+});
 document.getElementById('fsp-results').addEventListener('click', (e) => {
   const row = e.target.closest('[data-fsp-add]');
   if (!row) return;
-  fspSelected.set(row.dataset.fspAdd, { id: row.dataset.fspAdd, name: row.dataset.fspName });
-  row.style.opacity = '.5';
-  fspRenderSelected();
+  const id = row.dataset.fspAdd;
+  if (fspSelected.has(id)) fspSelected.delete(id);
+  else { const v = fspLast.find(x => x.id === id); fspSelected.set(id, { id, name: v ? v.name : id }); }
+  fspRenderSelected(); fspRenderList();
 });
 document.getElementById('fsp-selected').addEventListener('click', (e) => {
   const x = e.target.closest('[data-fsp-remove]');
   if (!x) return;
   fspSelected.delete(x.dataset.fspRemove);
   fspRenderSelected();
-  fspSearch();
+  fspRenderList();
 });
 document.getElementById('fsp-submit').addEventListener('click', async (e) => {
   const percent = parseInt(document.getElementById('fsp-percent').value);
@@ -5311,8 +5391,8 @@ document.getElementById('fsp-submit').addEventListener('click', async (e) => {
   if (!res.success) return Toast.error(res.message);
   Toast.success(res.message);
   fspSelected.clear(); fspRenderSelected();
-  ['fsp-percent', 'fsp-duration', 'fsp-quota', 'fsp-label', 'fsp-search'].forEach(id => { document.getElementById(id).value = ''; });
-  document.getElementById('fsp-results').innerHTML = '';
+  ['fsp-percent', 'fsp-duration', 'fsp-quota', 'fsp-label'].forEach(id => { document.getElementById(id).value = ''; });
+  fspRenderList();
   loadFlashSaleSection(1);
 });
 async function stopFlashSale(id) {
