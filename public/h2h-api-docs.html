@@ -128,6 +128,7 @@ h4.sub { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-sp
     <div class="nav-title">Endpoint</div>
     <a href="#catalog"><i class="fas fa-list"></i> Katalog Produk</a>
     <a href="#topup-items"><i class="fas fa-gamepad"></i> Item Topup Game</a>
+    <a href="#modules"><i class="fas fa-layer-group"></i> Modul Lain (PPOB, dll)</a>
     <a href="#balance"><i class="fas fa-wallet"></i> Cek Saldo</a>
     <a href="#order"><i class="fas fa-bolt"></i> Buat Order</a>
     <a href="#order-status"><i class="fas fa-search"></i> Cek Status Order</a>
@@ -412,6 +413,38 @@ public class TopupItemsExample {
             <div class="note"><i class="fas fa-circle-info"></i><div>Modul Topup Game yang dimatikan owner membalas <code>403</code> dengan pesan <em>Modul Topup Game tidak dibuka untuk H2H API</em>.</div></div>
           </div>
         </div>
+      </section>
+
+      <section class="docs-section" id="modules">
+        <h2>Modul Lain: PPOB, App Premium, Sosmed, Nomor OTP, Subdomain</h2>
+        <p class="lead">Selain produk <code>general</code> dan <code>topup</code>, semua menu di web lainnya juga bisa dipesan lewat H2H. Harga, validasi, dan refund otomatis sama persis dengan order dari web. Harga di katalog sudah termasuk diskon H2H. Modul yang dimatikan owner akan menjawab <code>403</code>.</p>
+
+        <h4 class="sub">Endpoint katalog</h4>
+        <div class="table-scroll"><table class="field-table"><tr><th>Endpoint</th><th>Isi</th></tr>
+          <tr><td><code>GET /catalog/ppob</code></td><td>Daftar kategori PPOB. Item per kategori: <code>GET /catalog/ppob/:category_key</code></td></tr>
+          <tr><td><code>GET /catalog/appprem</code></td><td>Semua produk App Premium (<code>item_id</code>, harga, stok, <code>input_fields</code>)</td></tr>
+          <tr><td><code>GET /catalog/socmed</code></td><td>Daftar kategori Sosmed dari semua server. Layanan per kategori: <code>GET /catalog/socmed/:category_key?server=1</code></td></tr>
+          <tr><td><code>GET /catalog/nokos</code></td><td>Penawaran Nomor OTP yang ada stok (<code>offer_id</code>, harga)</td></tr>
+          <tr><td><code>GET /catalog/subdomain</code></td><td>Domain yang tersedia beserta harga</td></tr>
+        </table></div>
+
+        <h4 class="sub">Body order per modul</h4>
+        <p>Semua dikirim ke <code>POST /order</code> dengan <code>product_type</code> sesuai modul, plus <code>ref_id</code> opsional.</p>
+        <div class="table-scroll"><table class="field-table"><tr><th>product_type</th><th>Field</th></tr>
+          <tr><td><code>ppob</code></td><td><code>category_key</code>, <code>product_code</code>, <code>target_id</code> (nomor/ID pelanggan), <code>quantity</code> (nominal, hanya untuk produk <code>open_denom</code>)</td></tr>
+          <tr><td><code>appprem</code></td><td><code>item_id</code>, <code>quantity</code> (default 1, maks 20), <code>order_values</code> (objek, sesuai <code>input_fields</code> item)</td></tr>
+          <tr><td><code>socmed</code></td><td><code>server</code>, <code>category_key</code>, <code>service_id</code>, <code>target_id</code> (link/username), <code>quantity</code>, <code>comments</code> (khusus layanan komentar custom, satu per baris)</td></tr>
+          <tr><td><code>nokos</code></td><td><code>offer_id</code> dari katalog. Satu akun hanya boleh punya satu order OTP aktif</td></tr>
+          <tr><td><code>subdomain</code></td><td><code>domain</code>, <code>name</code>, <code>ip</code>, <code>proxied</code> (true/false, opsional)</td></tr>
+        </table></div>
+
+        <h4 class="sub">Contoh order PPOB (cURL)</h4>
+        <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl -X POST https://api.mymarket.web.id/api/h2h/v1/order \
+  -H "X-API-Key: h2h_live_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{"product_type":"ppob","category_key":"pulsa","product_code":"TSEL10","target_id":"081234567890","ref_id":"TRX-0001"}'</code></pre></div>
+
+        <div class="note"><i class="fas fa-circle-info"></i><div>Status akhir dari provider (mis. pulsa sukses, OTP masuk, akun App Premium terkirim) tampil di <code>result.provider_status</code> dan <code>result.detail</code> saat kamu memanggil <code>GET /order/:id</code>. Untuk topup game, statusnya ada di <code>result.status</code>. Begitu status akhir terdeteksi, webhook <code>order.completed</code> atau <code>order.failed</code> dikirim satu kali.</div></div>
       </section>
 
       <section class="docs-section" id="balance">
