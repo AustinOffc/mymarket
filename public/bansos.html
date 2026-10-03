@@ -57,11 +57,6 @@
     .bansos-log-error { color: var(--coral); }
     .bansos-log-warn { color: var(--warning); }
 
-    .bulk-captcha-box {
-      flex: 0 0 auto; min-width: 84px; padding: 0 14px; text-align: center; display: flex;
-      align-items: center; justify-content: center; font-weight: 800; font-size: 16px;
-      border-radius: var(--radius-sm); background: var(--warning); color: #1a1a1a;
-    }
     .bulk-processing-box { text-align: center; padding: 26px 14px; }
     .bulk-processing-box .loading-spinner { margin: 0 auto 14px; }
     .bulk-processing-box .bp-title { font-weight: 700; font-size: 13.5px; margin-bottom: 4px; }
@@ -93,6 +88,7 @@
       <div class="nav-item" data-href="/subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
       <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
       <div class="nav-item" data-href="/tools"><span class="nav-icon"><i class="fas fa-toolbox"></i></span> Tools</div>
+      <div class="nav-item" data-href="/pricelist"><span class="nav-icon"><i class="fas fa-tags"></i></span> Daftar Harga</div>
       <div class="nav-item" data-href="/h2h"><span class="nav-icon"><i class="fas fa-plug-circle-bolt"></i></span> H2H API</div>
       <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
     </nav>
@@ -185,12 +181,6 @@
             <button type="button" id="bulk-qty-minus">−</button>
             <input type="text" id="bulk-qty-input" value="5" readonly>
             <button type="button" id="bulk-qty-plus">+</button>
-          </div>
-
-          <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Verifikasi Keamanan</label>
-          <div style="display:flex;gap:10px;margin-bottom:18px">
-            <div class="bulk-captcha-box" id="bulk-captcha-question">- x -</div>
-            <input type="number" id="bulk-captcha-answer" class="form-control" placeholder="Hasil perkalian">
           </div>
 
           <button class="btn btn-primary btn-full btn-lg" id="bulk-generate-btn" onclick="generateBulkAm()"><i class="fas fa-bolt"></i> Generate Akun Sekarang</button>
@@ -288,7 +278,6 @@ function switchTab(tabId) {
   ['am', 'bulk', 'ptero', 'netflix'].forEach(t => {
     document.getElementById(`tab-btn-${t}`).className = `btn ${t === tabId ? 'btn-primary' : 'btn-outline'}`;
   });
-  if (tabId === 'bulk') loadBulkCaptcha();
 }
 
 async function fetchStats() {
@@ -400,7 +389,6 @@ async function generateNetflix() {
 }
 
 // --- Bulk AM ---
-let bulkCaptchaToken = '';
 let bulkPollTimer = null;
 let bulkLockCountdownTimer = null;
 let bulkAccountsCache = [];
@@ -414,15 +402,6 @@ function bulkQtyStep(delta) {
   let v = (parseInt(input.value, 10) || 1) + delta;
   v = Math.min(max, Math.max(1, v));
   input.value = v;
-}
-
-async function loadBulkCaptcha() {
-  const res = await API.get('/api/bansos/am/bulk/captcha');
-  if (res.success) {
-    bulkCaptchaToken = res.data.token;
-    document.getElementById('bulk-captcha-question').textContent = res.data.question;
-    document.getElementById('bulk-captcha-answer').value = '';
-  }
 }
 
 function setBulkButtonState(state, waitSeconds) {
@@ -541,11 +520,9 @@ async function generateBulkAm() {
   if (!Auth.requireLogin('Masuk atau daftar dulu untuk klaim bansos.')) return;
 
   const total = Math.min(5, Math.max(1, parseInt(document.getElementById('bulk-qty-input').value, 10) || 1));
-  const answer = parseInt(document.getElementById('bulk-captcha-answer').value, 10);
-  if (!Number.isFinite(answer)) { Toast.warning('Isi jawaban verifikasi keamanan dulu.'); return; }
 
   logMsg(`Memulai generate ${total} akun Premium...`, 'info');
-  const res = await API.post('/api/bansos/am/bulk', { total, answer, token: bulkCaptchaToken });
+  const res = await API.post('/api/bansos/am/bulk', { total });
 
   if (res.success) {
     document.getElementById('bulk-processing-box').style.display = '';
@@ -559,7 +536,6 @@ async function generateBulkAm() {
   } else {
     Toast.error(res.message);
     logMsg(res.message, 'error');
-    loadBulkCaptcha();
   }
 }
 

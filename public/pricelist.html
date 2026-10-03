@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Harga — Austin Store Marketplace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/notebook.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
+  <script>
+    document.querySelector('#fa-local') && (function(){
+      var t=document.querySelector('link[href*="jsdelivr"][href*="fontawesome"]');
+      t&&t.addEventListener('load',function(){var l=document.getElementById('fa-local');l&&l.parentNode.removeChild(l);});
+    })();
+  </script>
+
+  <style>
+    .pl-tabs { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+    .pl-toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+    .pl-toolbar .pl-select { flex:1 1 260px; min-width:0; }
+    .pl-toolbar .pl-search { flex:1 1 200px; min-width:0; }
+    .pl-servers { display:flex; gap:8px; margin-bottom:12px; }
+    .pl-servers button { flex:0 0 auto; }
+    .pl-table th, .pl-table td { white-space:nowrap; vertical-align:middle; }
+    .pl-table td.pl-name { white-space:normal; min-width:180px; }
+    .pl-table td.pl-code { font-family:var(--font-mono); font-size:13px; color:var(--text-muted); }
+    .pl-num { text-align:center; }
+    .pl-status { display:inline-flex; align-items:center; gap:6px; font-weight:600; font-size:13px; }
+    .pl-status.ok { color:var(--success); }
+    .pl-status.off { color:var(--danger); }
+    .pl-note { font-size:12.5px; color:var(--text-muted); margin-top:10px; line-height:1.5; }
+    .pl-count { font-size:13px; color:var(--text-muted); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <div class="nav-item" data-href="/dashboard"><span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard</div>
+      <div class="nav-item" data-href="/order"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Marketplace</div>
+      <div class="nav-item" data-href="/topup"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Topup Game</div>
+      <div class="nav-item" data-href="/ppob"><span class="nav-icon"><i class="fas fa-receipt"></i></span> PPOB</div>
+      <div class="nav-item" data-href="/sosmed"><span class="nav-icon"><i class="fas fa-share-nodes"></i></span> Sosial Media</div>
+      <div class="nav-item" data-href="/nokos"><span class="nav-icon"><i class="fas fa-sim-card"></i></span> Nomor OTP</div>
+      <div class="nav-item" data-href="/appprem"><span class="nav-icon"><i class="fas fa-crown"></i></span> App Premium</div>
+      <div class="nav-item" data-href="/bansos"><span class="nav-icon"><i class="fas fa-gift"></i></span> Bansos Austin</div>
+      <div class="nav-item" data-href="/subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
+      <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
+      <div class="nav-item" data-href="/tools"><span class="nav-icon"><i class="fas fa-toolbox"></i></span> Tools</div>
+      <div class="nav-item active" data-href="/pricelist"><span class="nav-icon"><i class="fas fa-tags"></i></span> Daftar Harga</div>
+      <div class="nav-item" data-href="/h2h"><span class="nav-icon"><i class="fas fa-plug-circle-bolt"></i></span> H2H API</div>
+      <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" data-user-avatar></div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" data-user-name>...</div>
+          <div class="sidebar-user-role" data-user-role>Member</div>
+        </div>
+      </div>
+      <div class="nav-item mt-8" data-logout style="color:#ef4444"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Keluar</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Daftar Harga</div>
+      <div class="topbar-actions">
+        <div class="notif-bell-wrapper">
+          <button class="btn-icon" id="notif-bell"><i class="fas fa-bell"></i></button>
+          <span class="notif-badge" id="notif-badge"></span>
+        </div>
+        <button class="btn-icon" id="theme-toggle"><i class="fas fa-moon"></i></button>
+        <div class="notif-bell-wrapper" id="topbar-chat-wrapper">
+          <button class="btn-icon" id="topbar-chat-btn" onclick="location.href='/messages'" title="Pesan Jual Beli"><i class="fas fa-comment-dots"></i></button>
+          <span class="notif-badge" id="chat-unread-badge"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><i class="fas fa-tags" style="margin-right:8px"></i>Daftar Harga</span>
+          <span class="pl-count" id="pl-count"></span>
+        </div>
+        <div class="card-body">
+          <div class="pl-tabs" id="pl-tabs">
+            <button class="btn btn-primary btn-sm" data-tab="ppob"><i class="fas fa-receipt"></i> Pulsa &amp; PPOB</button>
+            <button class="btn btn-outline btn-sm" data-tab="game"><i class="fas fa-gamepad"></i> Game &amp; Streaming</button>
+            <button class="btn btn-outline btn-sm" data-tab="sosmed"><i class="fas fa-share-nodes"></i> Sosmed</button>
+          </div>
+
+          <div class="pl-servers" id="pl-servers" style="display:none">
+            <button class="btn btn-primary btn-sm" data-server="1">Server 1</button>
+            <button class="btn btn-outline btn-sm" data-server="2">Server 2</button>
+            <button class="btn btn-outline btn-sm" data-server="3">Server 3</button>
+          </div>
+
+          <div class="pl-toolbar">
+            <select class="form-select pl-select" id="pl-select" aria-label="Pilih kategori"></select>
+            <input type="search" class="form-control pl-search" id="pl-search" placeholder="Cari kode / produk..." autocomplete="off">
+          </div>
+
+          <div class="table-wrapper">
+            <table class="table pl-table">
+              <thead id="pl-head"></thead>
+              <tbody id="pl-body">
+                <tr><td colspan="5"><div class="loading-spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pl-note" id="pl-note"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+<script src="/js/cs.js"></script>
+<script>
+let currentTab = 'ppob';
+let currentServer = '1';
+let currentItems = [];
+let loadSeq = 0; // cegah respons lama menimpa respons terbaru saat user ganti tab/kategori cepat
+
+const TAB_CFG = {
+  ppob:   { label: 'Produk',  note: 'Harga Member adalah harga yang kamu bayar di menu PPOB. Kolom H2H hanya terisi jika H2H API aktif untuk modul PPOB.' },
+  game:   { label: 'Produk',  note: 'Kolom H2H adalah harga lewat H2H API (sudah termasuk diskon H2H). Produk bertanda "-" belum tersedia lewat H2H API.' },
+  sosmed: { label: 'Layanan', note: 'Harga Sosmed dihitung per 1000. Total bayar menyesuaikan jumlah yang kamu pesan di menu Sosial Media.' },
+};
+
+function esc(str) {
+  const div = document.createElement('div');
+  div.textContent = str ?? '';
+  return div.innerHTML;
+}
+
+function priceBadge(value, cls) {
+  if (value === null || value === undefined) return '<span class="text-muted">-</span>';
+  return `<span class="badge ${cls}" style="font-family:var(--font-mono)">${formatRupiah(value)}</span>`;
+}
+
+function statusCell(status) {
+  return status === 'available'
+    ? '<span class="pl-status ok"><i class="fas fa-circle-check"></i> Tersedia</span>'
+    : '<span class="pl-status off"><i class="fas fa-circle-xmark"></i> Kosong</span>';
+}
+
+function renderHead() {
+  const head = document.getElementById('pl-head');
+  if (currentTab === 'sosmed') {
+    head.innerHTML = `<tr><th>Kode</th><th>${TAB_CFG.sosmed.label}</th><th class="pl-num">Harga / 1000</th><th class="pl-num">Min</th><th class="pl-num">Max</th><th class="pl-num">Status</th></tr>`;
+  } else {
+    head.innerHTML = `<tr><th>Kode</th><th>${TAB_CFG[currentTab].label}</th><th class="pl-num">Member</th><th class="pl-num">H2H</th><th class="pl-num">Status</th></tr>`;
+  }
+}
+
+function colCount() { return currentTab === 'sosmed' ? 6 : 5; }
+
+function setMessage(html) {
+  document.getElementById('pl-body').innerHTML = `<tr><td colspan="${colCount()}"><div class="table-empty">${html}</div></td></tr>`;
+  document.getElementById('pl-count').textContent = '';
+}
+
+function renderRows() {
+  const q = document.getElementById('pl-search').value.trim().toLowerCase();
+  const rows = q
+    ? currentItems.filter((it) => String(it.code).toLowerCase().includes(q) || String(it.name).toLowerCase().includes(q))
+    : currentItems;
+
+  document.getElementById('pl-count').textContent = `${rows.length} item`;
+  if (!rows.length) {
+    setMessage(currentItems.length ? 'Tidak ada hasil untuk pencarianmu' : 'Belum ada produk');
+    document.getElementById('pl-count').textContent = `0 item`;
+    return;
+  }
+
+  document.getElementById('pl-body').innerHTML = rows.map((it) => {
+    if (currentTab === 'sosmed') {
+      return `<tr>
+        <td class="pl-code">${esc(it.code)}</td>
+        <td class="pl-name">${esc(it.name)}</td>
+        <td class="pl-num">${priceBadge(it.price, 'badge-primary')}</td>
+        <td class="pl-num">${Number(it.min).toLocaleString('id-ID')}</td>
+        <td class="pl-num">${it.max ? Number(it.max).toLocaleString('id-ID') : '-'}</td>
+        <td class="pl-num">${statusCell(it.status)}</td>
+      </tr>`;
+    }
+    const price = it.open_denom ? '<span class="text-muted">Bebas nominal</span>' : priceBadge(it.price, 'badge-primary');
+    return `<tr>
+      <td class="pl-code">${esc(it.code)}</td>
+      <td class="pl-name">${esc(it.name)}</td>
+      <td class="pl-num">${price}</td>
+      <td class="pl-num">${it.open_denom ? '<span class="text-muted">-</span>' : priceBadge(it.h2h_price, 'badge-info')}</td>
+      <td class="pl-num">${statusCell(it.status)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function setSelectOptions(options) {
+  const sel = document.getElementById('pl-select');
+  sel.innerHTML = options.map((o) => `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join('');
+}
+
+async function loadGroups() {
+  const seq = ++loadSeq;
+  renderHead();
+  document.getElementById('pl-note').textContent = TAB_CFG[currentTab].note;
+  document.getElementById('pl-search').value = '';
+  document.getElementById('pl-body').innerHTML = `<tr><td colspan="${colCount()}"><div class="loading-spinner"></div></td></tr>`;
+  document.getElementById('pl-count').textContent = '';
+  currentItems = [];
+
+  let res;
+  if (currentTab === 'ppob') res = await API.get('/api/pricelist/ppob/categories');
+  else if (currentTab === 'game') res = await API.get('/api/pricelist/game/groups');
+  else res = await API.get(`/api/pricelist/sosmed/categories?server=${currentServer}`);
+  if (seq !== loadSeq) return;
+
+  if (!res.success || !(res.data || []).length) {
+    setSelectOptions([]);
+    setMessage(esc(res.message || 'Belum ada kategori'));
+    return;
+  }
+
+  const opts = res.data.map((d) => (currentTab === 'game'
+    ? { value: d.game, label: d.game }
+    : { value: d.key, label: d.name }));
+  setSelectOptions(opts);
+  loadItems();
+}
+
+async function loadItems() {
+  const value = document.getElementById('pl-select').value;
+  if (!value) return;
+  const seq = ++loadSeq;
+  document.getElementById('pl-body').innerHTML = `<tr><td colspan="${colCount()}"><div class="loading-spinner"></div></td></tr>`;
+  document.getElementById('pl-count').textContent = '';
+
+  const q = encodeURIComponent(value);
+  let res;
+  if (currentTab === 'ppob') res = await API.get(`/api/pricelist/ppob/items?category=${q}`);
+  else if (currentTab === 'game') res = await API.get(`/api/pricelist/game/items?game=${q}`);
+  else res = await API.get(`/api/pricelist/sosmed/items?category=${q}&server=${currentServer}`);
+  if (seq !== loadSeq) return;
+
+  if (!res.success) {
+    currentItems = [];
+    setMessage(esc(res.message || 'Gagal memuat daftar harga'));
+    return;
+  }
+  currentItems = res.data.items || [];
+  renderRows();
+}
+
+function setActive(containerSel, attr, value, activeCls, idleCls) {
+  document.querySelectorAll(`${containerSel} button`).forEach((btn) => {
+    btn.className = btn.dataset[attr] === value ? `btn ${activeCls} btn-sm` : `btn ${idleCls} btn-sm`;
+  });
+}
+
+function switchTab(tab) {
+  if (tab === currentTab) return;
+  currentTab = tab;
+  setActive('#pl-tabs', 'tab', tab, 'btn-primary', 'btn-outline');
+  document.getElementById('pl-servers').style.display = tab === 'sosmed' ? 'flex' : 'none';
+  loadGroups();
+}
+
+function switchServer(server) {
+  if (server === currentServer) return;
+  currentServer = server;
+  setActive('#pl-servers', 'server', server, 'btn-primary', 'btn-outline');
+  loadGroups();
+}
+
+async function init() {
+  const res = await Auth.check();
+  if (!res) return;
+  Auth.renderUserInfo(res.user, res.wallet);
+
+  document.querySelectorAll('#pl-tabs button').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+  document.querySelectorAll('#pl-servers button').forEach((b) => b.addEventListener('click', () => switchServer(b.dataset.server)));
+  document.getElementById('pl-select').addEventListener('change', loadItems);
+  document.getElementById('pl-search').addEventListener('input', renderRows);
+
+  loadGroups();
+}
+
+init();
+</script>
+<script src="/js/notebook.js" defer></script>
+</body>
+</html>

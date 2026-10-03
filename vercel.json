@@ -23,6 +23,7 @@
     { "source": "/mutasi", "destination": "/mutasi.html" },
     { "source": "/history", "destination": "/history.html" },
     { "source": "/leaderboard", "destination": "/leaderboard.html" },
+    { "source": "/pricelist", "destination": "/pricelist.html" },
     { "source": "/profile", "destination": "/profile.html" },
     { "source": "/download-apk", "destination": "/download-apk.html" },
     { "source": "/withdraw", "destination": "/withdraw.html" },

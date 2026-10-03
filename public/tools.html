@@ -177,6 +177,7 @@
       <div class="nav-item" data-href="/subdomain"><span class="nav-icon"><i class="fas fa-globe"></i></span> Subdomain</div>
       <div class="nav-item" data-href="/panel"><span class="nav-icon"><i class="fas fa-server"></i></span> Panel Pterodactyl</div>
       <div class="nav-item" data-href="/tools"><span class="nav-icon"><i class="fas fa-toolbox"></i></span> Tools</div>
+      <div class="nav-item" data-href="/pricelist"><span class="nav-icon"><i class="fas fa-tags"></i></span> Daftar Harga</div>
       <div class="nav-item" data-href="/h2h"><span class="nav-icon"><i class="fas fa-plug-circle-bolt"></i></span> H2H API</div>
       <div class="nav-item" data-href="/leaderboard"><span class="nav-icon"><i class="fas fa-trophy"></i></span> Leaderboard</div>
     </nav>
@@ -563,6 +564,8 @@
                     <button type="button" class="btn btn-outline btn-sm" data-gh-act="branches"><i class="fas fa-code-branch"></i> Branch</button>
                     <button type="button" class="btn btn-outline btn-sm" data-gh-act="commits"><i class="fas fa-clock-rotate-left"></i> Commit</button>
                     <button type="button" class="btn btn-outline btn-sm" data-gh-act="go-update"><i class="fas fa-file-zipper"></i> Update dari ZIP</button>
+                    <button type="button" class="btn btn-outline btn-sm" data-gh-act="upload-file"><i class="fas fa-file-arrow-up"></i> Upload File</button>
+                    <input type="file" id="gh-file-input" multiple style="display:none">
                     <button type="button" class="btn btn-outline btn-sm" data-gh-act="visibility" id="gh-vis-btn"><i class="fas fa-eye"></i> Ubah Visibilitas</button>
                     <button type="button" class="btn btn-outline btn-sm" data-gh-act="description"><i class="fas fa-pen"></i> Deskripsi</button>
                     <button type="button" class="btn btn-outline btn-sm" data-gh-act="rename"><i class="fas fa-i-cursor"></i> Rename</button>
@@ -1424,12 +1427,14 @@ function setGhBusy(b) {
   ['gh-create-btn', 'gh-update-btn'].forEach((id) => { const el = ghEl(id); if (el) el.disabled = b; });
 }
 
+let ghUploadWhat = 'ZIP';   // label progress: 'ZIP' atau 'file'
 function ghSetProgress(pct) {
   const wrap = ghEl('gh-up-wrap');
   if (pct === null) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
   ghEl('gh-up-bar').style.width = `${pct}%`;
-  ghEl('gh-up-label').textContent = pct < 100 ? `Mengunggah ZIP... ${pct}%` : 'ZIP terkirim, server sedang memproses...';
+  const what = ghUploadWhat || 'ZIP';
+  ghEl('gh-up-label').textContent = pct < 100 ? `Mengunggah ${what}... ${pct}%` : `${what} terkirim, server sedang memproses...`;
 }
 
 function ghSwitchTab(name) {
@@ -1629,7 +1634,7 @@ async function ghStartJob(path, form) {
   clearPteroConsole('ghc');
   ghEl('gh-result-link').style.display = 'none';
   setPteroStatus('ghc', 'running');
-  appendPteroLine('ghc', 'cl-stage', 'Mengirim ZIP ke server...');
+  appendPteroLine('ghc', 'cl-stage', `Mengirim ${ghUploadWhat} ke server...`);
   ghSetProgress(0);
   const res = await ghUpload(path, form);
   ghSetProgress(null);
@@ -1742,6 +1747,7 @@ ghEl('gh-create-form')?.addEventListener('submit', async (e) => {
   form.append('message', ghVal('gh-c-msg'));
   form.append('includeEnv', ghEl('gh-c-env').checked ? 'true' : 'false');
   form.append('zip', file);
+  ghUploadWhat = 'ZIP';
   await ghStartJob(`${GH_API}/create`, form);
 });
 
@@ -1772,7 +1778,71 @@ ghEl('gh-update-form')?.addEventListener('submit', async (e) => {
   form.append('message', ghVal('gh-u-msg'));
   form.append('includeEnv', ghEl('gh-u-env').checked ? 'true' : 'false');
   form.append('zip', file);
+  ghUploadWhat = 'ZIP';
   await ghStartJob(`${GH_API}/update`, form);
+});
+
+// ---------- Upload file langsung (tanpa ZIP) ----------
+let ghPickCtx = null;
+
+function ghPickFiles(ctx) {
+  if (ghBusy) { Toast.error('Masih ada proses GitHub yang berjalan'); return; }
+  if (!ghSel) return;
+  ghPickCtx = ctx;
+  const input = ghEl('gh-file-input');
+  input.value = '';
+  input.multiple = !!ctx.multiple;
+  input.click();
+}
+
+ghEl('gh-file-input')?.addEventListener('change', async () => {
+  const input = ghEl('gh-file-input');
+  const ctx = ghPickCtx;
+  const picked = Array.from(input.files || []);
+  ghPickCtx = null;
+  if (!ctx || !picked.length || !ghSel || ghBusy) return;
+  if (picked.length > 20) { Toast.error('Maksimal 20 file sekali upload'); return; }
+  const big = picked.find((f) => f.size > 25 * 1024 * 1024);
+  if (big) { Toast.error(`"${big.name}" lebih dari 25 MB`); return; }
+  if (picked.some((f) => f.size === 0)) { Toast.error('Ada file yang kosong (0 byte)'); return; }
+  const c = ghCreds();
+  if (!c) return;
+
+  const target = ctx.replacePath
+    ? ctx.replacePath
+    : `${ctx.dir ? ctx.dir + '/' : ''}${picked.length === 1 ? picked[0].name : picked.length + ' file'}`;
+  const ok = await Dialog.confirm(
+    ctx.replacePath
+      ? `Ganti "${ctx.replacePath}" di branch ${ghSel.defaultBranch} dengan file "${picked[0].name}"? (dibuat sebagai satu commit)`
+      : `Upload ${picked.length === 1 ? `"${picked[0].name}"` : `${picked.length} file`} ke ${ctx.dir ? `folder ${ctx.dir}/` : 'root repo'} branch ${ghSel.defaultBranch}? File dengan nama sama akan ditimpa, file lain tidak disentuh.`,
+    { title: ctx.replacePath ? 'Ganti file' : 'Upload file', okText: 'Ya, upload' }
+  );
+  if (!ok) return;
+
+  const form = new FormData();
+  form.append('username', c.username);
+  form.append('repo', ghSel.name);
+  form.append('branch', ghSel.defaultBranch || '');
+  form.append('targetDir', ctx.dir || '');
+  form.append('replacePath', ctx.replacePath || '');
+  form.append('message', ctx.replacePath ? `Update ${ctx.replacePath}` : (picked.length === 1 ? `Update ${target}` : `Upload ${picked.length} file`));
+  picked.forEach((f) => form.append('files', f, f.name));
+
+  ghUploadWhat = 'file';
+  const wasBrowsing = !!ghEl('gh-detail-body')?.querySelector('.gh-crumbs');   // daftar file sedang tampil
+  const browsePath = ghBrowse ? ghBrowse.path : '';
+  await ghStartJob(`${GH_API}/update-file`, form);
+  ghUploadWhat = 'ZIP';
+  ghEl('ghc-console')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // segarkan daftar file setelah job selesai
+  if (wasBrowsing) {
+    const t = setInterval(() => {
+      if (ghBusy) return;
+      clearInterval(t);
+      if (ghSel) ghShowFiles(browsePath);
+    }, 1500);
+    setTimeout(() => clearInterval(t), 120000);
+  }
 });
 
 // ---------- tab Kelola: daftar repo ----------
@@ -1893,7 +1963,7 @@ async function ghShowFiles(path) {
     <div class="gh-row-main">${it.type === 'dir'
       ? `<button type="button" class="gh-link" data-fp-act="open" data-i="${i}"><i class="fas fa-folder"></i> ${escapeHtml(it.name)}</button>`
       : `<i class="fas fa-file" style="color:var(--text-muted)"></i> ${escapeHtml(it.name)} <span class="text-muted text-xs">${escapeHtml(hBytes(it.size))}</span>`}</div>
-    <div class="gh-row-btns"><button type="button" class="btn btn-danger btn-sm" data-fp-act="del" data-i="${i}" title="Hapus"><i class="fas fa-trash"></i></button></div>
+    <div class="gh-row-btns">${it.type === 'file' ? `<button type="button" class="btn btn-outline btn-sm" data-fp-act="replace" data-i="${i}" title="Ganti file ini"><i class="fas fa-file-arrow-up"></i></button> ` : ''}<button type="button" class="btn btn-danger btn-sm" data-fp-act="del" data-i="${i}" title="Hapus"><i class="fas fa-trash"></i></button></div>
   </div>`).join('');
   ghDetail().innerHTML = `<div class="gh-crumbs">${crumbHtml}</div>
     <div class="gh-note" style="margin-bottom:6px">Branch: ${escapeHtml(ghSel.defaultBranch)}</div>
@@ -1906,6 +1976,12 @@ async function ghRepoAction(act) {
   if (act === 'files') return ghShowFiles('');
   if (act === 'branches') return ghShowBranches();
   if (act === 'commits') return ghShowCommits();
+
+  if (act === 'upload-file') {
+    // upload ke folder yang sedang dibuka di tab File (kosong = root repo)
+    ghPickFiles({ dir: (ghBrowse && ghBrowse.path) || '', replacePath: '', multiple: true });
+    return;
+  }
 
   if (act === 'go-update') {
     ghEl('gh-username').value = ghSel.owner;
@@ -2024,6 +2100,7 @@ ghEl('gh-detail-body')?.addEventListener('click', async (e) => {
       const it = ghBrowse.items[i];
       if (!it) return;
       if (act === 'open') { await ghShowFiles(it.path); return; }
+      if (act === 'replace') { ghPickFiles({ dir: '', replacePath: it.path, multiple: false }); return; }
       if (act === 'del') {
         const ok = await Dialog.confirm(
           it.type === 'dir' ? `Hapus folder "${it.path}" beserta SEMUA isinya dari branch ${ghSel.defaultBranch}? (dibuat sebagai satu commit)` : `Hapus file "${it.path}" dari branch ${ghSel.defaultBranch}? (dibuat sebagai satu commit)`,
