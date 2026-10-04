@@ -54,6 +54,11 @@
     .server-heading { font-weight: 700; font-size: 14px; margin: 16px 0 8px; padding-bottom: 4px; border-bottom: 1px dashed var(--border, #bbb); }
     .server-heading:first-child { margin-top: 0; }
     .server-badge { display:inline-block; font-size:11.5px; font-weight:700; color:var(--primary); border:1px solid var(--primary); border-radius:6px; padding:1px 7px; margin-bottom:4px; }
+    .type-tabs { display:flex; gap:8px; overflow-x:auto; padding:2px 0 12px; margin-bottom:4px; -webkit-overflow-scrolling:touch; }
+    .type-chip { flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; padding:7px 14px; border-radius:999px; border:1px solid var(--border,#bbb); background:var(--bg-card); color:var(--text); cursor:pointer; white-space:nowrap; transition:background .15s,border-color .15s,color .15s; }
+    .type-chip .n { font-size:11.5px; font-weight:600; opacity:.7; }
+    .type-chip:hover { border-color:var(--primary); }
+    .type-chip.active { background:var(--primary); border-color:var(--primary); color:#fff; }
     .special-note { font-size:13px; background:var(--bg-alt,#f4f4f5); border:1px dashed var(--border,#bbb); border-radius:8px; padding:8px 12px; margin-bottom:12px; }
 
     .item-list { display: flex; flex-direction: column; gap: 10px; }
@@ -218,6 +223,9 @@ let currentCategory = null;
 let currentVariants = [];
 let currentVariant = null; 
 let currentItems = [];
+let currentTypes = [];
+let activeType = null;
+let currentNote = '';
 let selectedItem = null; 
 let flashMap = {}; // kode item topup -> { price_before, price_strike, price_after, label } dari carousel flash sale
 
@@ -265,6 +273,10 @@ async function init() {
           await openVariant(v);
           const it = currentItems.find(x => x.code === itemCode);
           if (it) {
+            if (currentTypes.length > 1 && it.type !== activeType) {
+              activeType = it.type;
+              renderItemList();
+            }
             const row = document.querySelector(`#item-list .item-row[data-code="${(window.CSS && CSS.escape) ? CSS.escape(itemCode) : itemCode}"]`);
             if (row) row.scrollIntoView({ block: 'center' });
             openOrderModal(it);
@@ -378,7 +390,18 @@ async function openVariant(variant, push = true) {
     return;
   }
   currentItems = res.data.items;
-  const isSpecial = !!variant.special;
+  currentTypes = res.data.types || [];
+  activeType = currentTypes.length ? currentTypes[0].key : null;
+  currentNote = res.data.note || '';
+  renderItemList();
+}
+
+function renderItemList() {
+  const list = document.getElementById('item-list');
+  const isSpecial = !!(currentVariant && currentVariant.special);
+  const hasTabs = currentTypes.length > 1;
+  const visible = hasTabs ? currentItems.filter(it => it.type === activeType) : currentItems;
+
   const renderRow = (it) => {
     const fl = flashMap[it.code];
     const priceHtml = fl
@@ -394,18 +417,32 @@ async function openVariant(variant, push = true) {
       <div class="item-price">${priceHtml}</div>
     </div>`;
   };
+
+  const tabsHtml = hasTabs
+    ? `<div class="type-tabs">${currentTypes.map(t => `<button type="button" class="type-chip${t.key === activeType ? ' active' : ''}" data-type="${escapeAttr(t.key)}">${escapeHtml(t.label)} <span class="n">${t.count}</span></button>`).join('')}</div>`
+    : '';
+
+  let rowsHtml;
   if (isSpecial) {
-    // Sub kategori lintas server: pisahkan per server/region dengan judul + catatan.
     let lastServer = null;
-    const noteHtml = res.data.note ? `<div class="special-note"><i class="fas fa-circle-info"></i> ${escapeHtml(res.data.note)}</div>` : '';
-    list.innerHTML = noteHtml + currentItems.map(it => {
+    const noteHtml = currentNote ? `<div class="special-note"><i class="fas fa-circle-info"></i> ${escapeHtml(currentNote)}</div>` : '';
+    rowsHtml = noteHtml + visible.map(it => {
       const head = it.server_label !== lastServer ? `<div class="server-heading"><i class="fas fa-server"></i> Server ${escapeHtml(it.server_label || 'Lainnya')}</div>` : '';
       lastServer = it.server_label;
       return head + renderRow(it);
     }).join('');
   } else {
-    list.innerHTML = currentItems.map(renderRow).join('');
+    rowsHtml = visible.map(renderRow).join('');
   }
+
+  list.innerHTML = tabsHtml + rowsHtml;
+
+  list.querySelectorAll('.type-chip').forEach(el => {
+    el.addEventListener('click', () => {
+      activeType = el.dataset.type;
+      renderItemList();
+    });
+  });
   list.querySelectorAll('.item-row').forEach(el => {
     el.addEventListener('click', () => {
       const it = currentItems.find(x => x.code === el.dataset.code);

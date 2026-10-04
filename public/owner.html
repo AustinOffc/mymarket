@@ -655,6 +655,28 @@
           </form>
         </div>
 
+        <div class="card mb-16">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-calendar-week" style="color:var(--primary)"></i> Margin Khusus Weekly Diamond Pass (Mobile Legends)</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Hanya berlaku untuk item Weekly Diamond Pass Mobile Legends. Item lain tetap memakai margin global di atas. Pilih "Ikuti margin global" untuk menonaktifkan margin khusus ini.</p>
+          <form id="topup-wdp-margin-form" style="padding:0 20px 20px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Tipe Margin</label>
+              <select class="form-control" id="topup-wdp-margin-type">
+                <option value="global">Ikuti margin global</option>
+                <option value="percent">Persen (%)</option>
+                <option value="flat">Nominal Tetap (Rp)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Nilai</label>
+              <input type="number" class="form-control" id="topup-wdp-margin-value" min="0" step="1" style="max-width:160px">
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan Margin Weekly ML</button>
+          </form>
+        </div>
+
         <div class="card">
           <div class="card-header">
             <span class="card-title"><i class="fas fa-images" style="color:var(--primary)"></i> Kategori &amp; Foto Topup Game</span>
@@ -3289,6 +3311,9 @@ async function loadTopupSection() {
   document.getElementById('topup-api-key-status').textContent = d.vip_api_key_set ? '(sudah tersimpan)' : '(belum diatur)';
   document.getElementById('topup-margin-type').value = d.margin?.type || 'percent';
   document.getElementById('topup-margin-value').value = d.margin?.value ?? 5;
+  document.getElementById('topup-wdp-margin-type').value = d.margin_weekly_ml?.type || 'global';
+  document.getElementById('topup-wdp-margin-value').value = d.margin_weekly_ml?.value ?? '';
+  syncWdpMarginInput();
 
   const grid = document.getElementById('topup-categories-grid');
   grid.innerHTML = d.categories.map(c => `
@@ -3334,6 +3359,24 @@ document.getElementById('topup-api-form')?.addEventListener('submit', async (e) 
     vip_api_key: document.getElementById('topup-api-key').value.trim(),
   };
   const r = await API.post('/api/owner/topup/settings', body);
+  r.success ? (Toast.success(r.message), loadTopupSection()) : Toast.error(r.message);
+});
+
+function syncWdpMarginInput() {
+  const isGlobal = document.getElementById('topup-wdp-margin-type').value === 'global';
+  const input = document.getElementById('topup-wdp-margin-value');
+  input.disabled = isGlobal;
+  if (isGlobal) input.value = '';
+}
+
+document.getElementById('topup-wdp-margin-type')?.addEventListener('change', syncWdpMarginInput);
+
+document.getElementById('topup-wdp-margin-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const type = document.getElementById('topup-wdp-margin-type').value;
+  const value = document.getElementById('topup-wdp-margin-value').value;
+  if (type !== 'global' && value === '') { Toast.error('Isi nilai margin Weekly Diamond Pass ML'); return; }
+  const r = await API.post('/api/owner/topup/settings', { weekly_ml_margin_type: type, weekly_ml_margin_value: value });
   r.success ? (Toast.success(r.message), loadTopupSection()) : Toast.error(r.message);
 });
 
