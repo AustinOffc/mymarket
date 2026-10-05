@@ -1640,6 +1640,28 @@
               <span class="text-xs text-muted">Dipotong dari harga jual normal, otomatis dikreditkan balik ke saldo reseller setelah order berhasil.</span>
             </div>
             <div class="form-group" style="margin:0">
+              <label class="form-label">Diskon Khusus PPOB (terpisah dari diskon global)</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <select class="form-control" id="h2h-ppob-discount-type" style="max-width:180px">
+                  <option value="flat">Nominal Tetap (Rp)</option>
+                  <option value="percent">Persen (%)</option>
+                </select>
+                <input type="number" class="form-control" id="h2h-ppob-discount-value" min="0" step="any" style="max-width:160px" placeholder="Contoh: 50">
+              </div>
+              <span class="text-xs text-muted">Produk PPOB TIDAK ikut diskon global di atas. Disarankan nominal tetap (mis. Rp50 per transaksi) karena margin PPOB juga nominal. Harga tidak akan pernah turun di bawah harga modal. Isi 0 untuk tanpa diskon.</span>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Diskon Khusus Weekly Diamond Pass ML (terpisah dari diskon global)</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <select class="form-control" id="h2h-wdp-discount-type" style="max-width:180px">
+                  <option value="flat">Nominal Tetap (Rp)</option>
+                  <option value="percent">Persen (%)</option>
+                </select>
+                <input type="number" class="form-control" id="h2h-wdp-discount-value" min="0" step="any" style="max-width:160px" placeholder="Contoh: 50">
+              </div>
+              <span class="text-xs text-muted">Hanya untuk item Weekly Diamond Pass Mobile Legends, tidak ikut diskon global. Harga tidak akan turun di bawah harga modal. Isi 0 untuk tanpa diskon.</span>
+            </div>
+            <div class="form-group" style="margin:0">
               <label class="form-label">Modul Produk yang Dibuka untuk H2H API</label>
               <div id="h2h-modules-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:6px"></div>
               <span class="text-xs text-muted">Kategori produk umum (marketplace biasa) juga bisa dikecualikan satu-satu dari menu <b>Kategori</b>.</span>
@@ -4832,7 +4854,7 @@ async function loadMemberSettings() {
     row.innerHTML = '<span class="text-sm" style="font-weight:600"></span>'
       + '<select class="form-control" data-mod-type="' + m.key + '"><option value="percent">Persen (%)</option><option value="flat">Nominal (Rp)</option></select>'
       + '<input type="number" class="form-control" min="0" step="any" data-mod-value="' + m.key + '">';
-    row.querySelector('span').textContent = m.label;
+    row.querySelector('span').textContent = m.label + ((m.key === 'ppob' || m.key === 'topup_wdp') ? ' (disarankan Nominal Rp)' : '');
     row.querySelector('select').value = cur.type;
     row.querySelector('input').value = cur.value;
     box.appendChild(row);
@@ -6235,6 +6257,10 @@ async function loadH2hSection() {
   if (res.success) {
     document.getElementById('h2h-enabled').checked = !!res.data.enabled;
     document.getElementById('h2h-discount').value = res.data.discount_percent || 0;
+    document.getElementById('h2h-ppob-discount-type').value = res.data.ppob_discount?.type || 'flat';
+    document.getElementById('h2h-ppob-discount-value').value = res.data.ppob_discount?.value ?? 0;
+    document.getElementById('h2h-wdp-discount-type').value = res.data.weekly_ml_discount?.type || 'flat';
+    document.getElementById('h2h-wdp-discount-value').value = res.data.weekly_ml_discount?.value ?? 0;
     const grid = document.getElementById('h2h-modules-grid');
     grid.innerHTML = Object.keys(H2H_MODULE_LABELS).map((key) => `
       <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;background:var(--bg-soft);border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:pointer">
@@ -6253,6 +6279,10 @@ async function loadH2hSection() {
       const r = await API.post('/api/owner/h2h/settings', {
         enabled: document.getElementById('h2h-enabled').checked,
         discount_percent: parseFloat(document.getElementById('h2h-discount').value) || 0,
+        ppob_discount_type: document.getElementById('h2h-ppob-discount-type').value,
+        ppob_discount_value: document.getElementById('h2h-ppob-discount-value').value || 0,
+        weekly_ml_discount_type: document.getElementById('h2h-wdp-discount-type').value,
+        weekly_ml_discount_value: document.getElementById('h2h-wdp-discount-value').value || 0,
         modules,
       });
       r.success ? Toast.success(r.message) : Toast.error(r.message);
