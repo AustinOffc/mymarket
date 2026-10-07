@@ -1317,6 +1317,36 @@
 
         <div class="card mb-16">
           <div class="card-header">
+            <span class="card-title"><i class="fas fa-rotate" style="color:var(--primary)"></i> Auto Restart Server</span>
+          </div>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Restart otomatis semua server di Location ID yang dipilih (langsung dari panel Pterodactyl, bukan hanya yang tercatat di marketplace). Hanya server yang sedang <b>menyala</b> yang di-restart — server off, starting, suspended, atau yang memakai egg <b>All In One</b> dilewati. Ringkasan tiap putaran dikirim ke Telegram. Butuh Client API Key milik akun admin.</p>
+          <form id="ptero-autorestart-form" style="padding:0 20px 20px;display:grid;gap:12px;max-width:520px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="ar-enabled" style="width:18px;height:18px">
+              <span><b>Aktifkan auto restart</b> <span id="ar-state" class="text-xs text-muted"></span></span>
+            </label>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Location ID target</label>
+                <input type="text" class="form-control" id="ar-locations" placeholder="2,3">
+                <p class="text-xs text-muted" style="margin:4px 0 0">Pisahkan dengan koma.</p>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Durasi (jam)</label>
+                <input type="number" class="form-control" id="ar-interval" min="1" max="720" step="1" placeholder="12">
+                <p class="text-xs text-muted" style="margin:4px 0 0" id="ar-interval-hint">Restart tiap berapa jam.</p>
+              </div>
+            </div>
+            <div class="text-xs text-muted" id="ar-info" style="line-height:1.7"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button type="submit" class="btn btn-primary" style="width:fit-content"><i class="fas fa-save"></i> Simpan</button>
+              <button type="button" class="btn btn-secondary" id="ar-run-now" style="width:fit-content"><i class="fas fa-play"></i> Jalankan sekarang</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header">
             <span class="card-title"><i class="fas fa-sliders" style="color:var(--primary)"></i> Custom Builder — Batas &amp; Tarif</span>
           </div>
           <p class="text-xs text-muted" style="padding:0 20px 14px">User sekarang mengatur sendiri spek VPS-nya (bukan stok paket tetap). Atur batas min/max dan tarif per unit di sini. Slider spek di halaman user mulai dari batas minimum masing-masing (default: RAM 1GB + CPU 50% + Disk 1GB = Rp850).</p>
@@ -4257,6 +4287,7 @@ document.getElementById('subdomain-general-form')?.addEventListener('submit', as
 
 async function loadPteroSection() {
   await loadPteroSettings();
+  loadAutoRestart();
   await loadPteroStacks();
   await loadPteroPanels(1);
   await loadPteroNodes();
@@ -4308,6 +4339,44 @@ async function loadPteroSettings() {
   document.getElementById('ptero-stock-status').textContent = s.max ? `Stok saat ini: ${s.used}/${s.max} terpakai — sumber: ${sourceLabel}` : '';
   fillPricingForm(d.pricing);
 }
+
+async function loadAutoRestart() {
+  const res = await API.get('/api/owner/ptero/auto-restart');
+  if (!res.success) return;
+  const d = res.data;
+  document.getElementById('ar-enabled').checked = !!d.enabled;
+  document.getElementById('ar-state').textContent = d.running ? '(sedang berjalan...)' : '';
+  document.getElementById('ar-locations').value = d.locations || '';
+  const iv = document.getElementById('ar-interval');
+  iv.value = d.intervalHours || 12;
+  iv.min = d.min_hours || 1; iv.max = d.max_hours || 720;
+  document.getElementById('ar-interval-hint').textContent = `Restart tiap berapa jam (${iv.min}-${iv.max}).`;
+  const s = d.lastSummary;
+  const lines = [];
+  lines.push(`Terakhir jalan: <b>${d.lastRun ? formatDate(d.lastRun) : 'belum pernah'}</b>`);
+  lines.push(`Jadwal berikutnya: <b>${!d.enabled ? 'nonaktif' : (d.nextRun ? formatDate(d.nextRun) : 'setelah 1 menit (hitungan dimulai)')}</b>`);
+  if (s) lines.push(`Hasil terakhir (location ${escapeHtml(s.locations || '-')}): ${s.restarted} di-restart, ${s.skippedOff} off dilewati, ${s.skippedSuspended} suspended dilewati, ${s.skippedEgg || 0} All In One dilewati, ${s.failed} gagal, dari ${s.total} server`);
+  document.getElementById('ar-info').innerHTML = lines.join('<br>');
+}
+
+document.getElementById('ptero-autorestart-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const r = await API.post('/api/owner/ptero/auto-restart', {
+    enabled: document.getElementById('ar-enabled').checked,
+    locations: document.getElementById('ar-locations').value.trim(),
+    interval_hours: document.getElementById('ar-interval').value.trim(),
+  });
+  r.success ? (Toast.success(r.message), loadAutoRestart()) : Toast.error(r.message);
+});
+
+document.getElementById('ar-run-now')?.addEventListener('click', async () => {
+  if (!confirm('Jalankan auto restart sekarang? Semua server yang sedang menyala di location target akan di-restart.')) return;
+  const btn = document.getElementById('ar-run-now');
+  btn.disabled = true;
+  const r = await API.post('/api/owner/ptero/auto-restart/run', {});
+  r.success ? Toast.success(r.message) : Toast.error(r.message);
+  setTimeout(() => { btn.disabled = false; loadAutoRestart(); }, 3000);
+});
 
 document.getElementById('ptero-settings-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
