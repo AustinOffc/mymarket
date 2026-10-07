@@ -227,6 +227,28 @@ function renderStockMeter(slots) {
     </div>`;
 }
 
+// Dropdown pilih server (Server 1 / Server 2) + stok masing-masing. Server yang stoknya habis atau
+// belum dikonfigurasi dinonaktifkan. onChange(slot) dipanggil tiap pilihan berubah (dipakai render meter stok).
+function setupServerSelect(selectId, servers, onChange) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  const list = (servers && servers.length) ? servers : [{ server_no: 1, name: 'Server 1', max: 0, used: 0, available: 1 }];
+  select.innerHTML = list.map((s) => {
+    const unavailable = s.source === 'unavailable';
+    const full = !unavailable && Number(s.max) > 0 && Number(s.available) <= 0;
+    const info = unavailable ? 'belum tersedia' : (Number(s.max) > 0 ? (full ? 'penuh' : `sisa ${s.available}/${s.max}`) : '');
+    return `<option value="${s.server_no}" ${unavailable || full ? 'disabled' : ''}>${s.name || 'Server ' + s.server_no}${info ? ' — ' + info : ''}</option>`;
+  }).join('');
+  const firstOk = list.find((s) => s.source !== 'unavailable' && !(Number(s.max) > 0 && Number(s.available) <= 0));
+  select.value = String((firstOk || list[0]).server_no);
+  const fire = () => {
+    const slot = list.find((s) => String(s.server_no) === select.value) || list[0];
+    if (typeof onChange === 'function') onChange(slot);
+  };
+  select.onchange = fire;
+  fire();
+}
+
 function statusBadge(status) {
   const map = {
     pending:   ['badge-warning',   'Pending'],

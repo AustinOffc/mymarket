@@ -172,6 +172,16 @@
             <div class="builder-card" style="margin-bottom:16px">
               <div class="builder-row" style="margin-bottom:0">
                 <div class="builder-row-head">
+                  <span class="builder-row-label"><i class="fas fa-server" style="color:var(--primary)"></i> Pilih Server</span>
+                </div>
+                <select class="form-control" id="p-server"></select>
+                <p class="text-xs text-muted" style="margin-top:6px">Pilih Server 1 atau Server 2. Stok tiap server dihitung terpisah.</p>
+              </div>
+            </div>
+
+            <div class="builder-card" style="margin-bottom:16px">
+              <div class="builder-row" style="margin-bottom:0">
+                <div class="builder-row-head">
                   <span class="builder-row-label"><i class="fas fa-layer-group" style="color:var(--primary)"></i> Tipe Server</span>
                 </div>
                 <select class="form-control" id="p-stack"></select>
@@ -257,6 +267,16 @@
                   <select class="form-control" id="buyer-merge-account-select"></select>
                   <p class="text-xs text-muted" style="margin-top:4px;display:none" id="buyer-merge-account-empty">Kamu belum punya akun panel yang bisa digabung. Pakai "Panel Baru" dulu.</p>
                 </div>
+              </div>
+            </div>
+
+            <div class="builder-card" style="margin-bottom:16px">
+              <div class="builder-row" style="margin-bottom:0">
+                <div class="builder-row-head">
+                  <span class="builder-row-label"><i class="fas fa-server" style="color:var(--primary)"></i> Pilih Server</span>
+                </div>
+                <select class="form-control" id="b-server"></select>
+                <p class="text-xs text-muted" style="margin-top:6px">Pilih Server 1 atau Server 2. Stok tiap server dihitung terpisah.</p>
               </div>
             </div>
 
@@ -602,9 +622,12 @@ async function loadPricing() {
   }
   pricing = res.data;
   ['personal-content', 'buyer-content'].forEach((id) => document.getElementById(id).style.display = 'block');
-  const stockHtml = renderStockMeter(pricing.slots);
-  document.getElementById('personal-stock-meter').innerHTML = stockHtml;
-  document.getElementById('buyer-stock-meter').innerHTML = stockHtml;
+  setupServerSelect('p-server', pricing.servers, (slot) => {
+    document.getElementById('personal-stock-meter').innerHTML = renderStockMeter(slot);
+  });
+  setupServerSelect('b-server', pricing.servers, (slot) => {
+    document.getElementById('buyer-stock-meter').innerHTML = renderStockMeter(slot);
+  });
 
   setupStackSelect('p-stack', pricing); setupStackSelect('b-stack', pricing);
   setupSlider('p', pricing); setupSlider('b', pricing);
@@ -671,7 +694,7 @@ document.getElementById('personal-form-custom').addEventListener('submit', async
   e.preventDefault();
   const identity = buildPanelIdentityFields(personalMethod, 'personal-merge-account-select', 'p-username-custom');
   if (!identity) return;
-  const body = { mode: 'custom', ...identity, stack: document.getElementById('p-stack').value, ram_gb: Number(document.getElementById('p-ram-slider').value), cpu_pct: Number(document.getElementById('p-cpu-slider').value), disk_gb: Number(document.getElementById('p-disk-slider').value) };
+  const body = { mode: 'custom', ...identity, server_no: Number(document.getElementById('p-server').value) || 1, stack: document.getElementById('p-stack').value, ram_gb: Number(document.getElementById('p-ram-slider').value), cpu_pct: Number(document.getElementById('p-cpu-slider').value), disk_gb: Number(document.getElementById('p-disk-slider').value) };
   const btn = document.getElementById('p-submit-custom-btn');
   btnLoading(btn, true);
   const res = await API.post('/api/reseller/panels/personal', body);
@@ -690,7 +713,7 @@ document.getElementById('personal-form-unlimited').addEventListener('submit', as
   if (!identity) return;
   const btn = document.getElementById('p-submit-unlimited-btn');
   btnLoading(btn, true);
-  const res = await API.post('/api/reseller/panels/personal', { mode: 'unlimited', ...identity, stack: document.getElementById('p-stack').value });
+  const res = await API.post('/api/reseller/panels/personal', { mode: 'unlimited', ...identity, server_no: Number(document.getElementById('p-server').value) || 1, stack: document.getElementById('p-stack').value });
   btnLoading(btn, false);
   if (!res.success) { Toast.error(res.message); if (res.ptpt_required) showView('overview'); return; }
   Toast.success(res.message);
@@ -735,7 +758,7 @@ document.getElementById('buyer-form-custom').addEventListener('submit', async (e
   if (!proof_image_url) return Toast.error('Upload bukti transaksi dulu');
   const identity = buildPanelIdentityFields(buyerMethod, 'buyer-merge-account-select', 'b-username-custom');
   if (!identity) return;
-  const body = { mode: 'custom', ...identity, buyer_label, proof_image_url, stack: document.getElementById('b-stack').value, ram_gb: Number(document.getElementById('b-ram-slider').value), cpu_pct: Number(document.getElementById('b-cpu-slider').value), disk_gb: Number(document.getElementById('b-disk-slider').value) };
+  const body = { mode: 'custom', ...identity, buyer_label, proof_image_url, server_no: Number(document.getElementById('b-server').value) || 1, stack: document.getElementById('b-stack').value, ram_gb: Number(document.getElementById('b-ram-slider').value), cpu_pct: Number(document.getElementById('b-cpu-slider').value), disk_gb: Number(document.getElementById('b-disk-slider').value) };
   const btn = document.getElementById('b-submit-custom-btn');
   btnLoading(btn, true);
   const res = await API.post('/api/reseller/panels/buyer', body);
@@ -759,7 +782,7 @@ document.getElementById('buyer-form-unlimited').addEventListener('submit', async
   if (!identity) return;
   const btn = document.getElementById('b-submit-unlimited-btn');
   btnLoading(btn, true);
-  const res = await API.post('/api/reseller/panels/buyer', { mode: 'unlimited', ...identity, buyer_label, proof_image_url, stack: document.getElementById('b-stack').value });
+  const res = await API.post('/api/reseller/panels/buyer', { mode: 'unlimited', ...identity, buyer_label, proof_image_url, server_no: Number(document.getElementById('b-server').value) || 1, stack: document.getElementById('b-stack').value });
   btnLoading(btn, false);
   if (!res.success) { Toast.error(res.message); if (res.ptpt_required) showView('overview'); return; }
   Toast.success(res.message);
@@ -915,6 +938,7 @@ async function refreshManage() {
   `;
 
   document.getElementById('manage-info-grid').innerHTML = `
+    <div><div class="info-field-label">Server</div><div class="info-field-value">Server ${p.server_no === 2 ? 2 : 1}</div></div>
     ${p.stack_label ? `<div><div class="info-field-label">Tipe Server</div><div class="info-field-value">${escapeHtml(p.stack_label)}</div></div>` : ''}
     <div><div class="info-field-label">Paket</div><div class="info-field-value">${escapeHtml(p.plan_name)}</div></div>
     <div><div class="info-field-label">${scope === 'reseller_personal' ? 'Masa Aktif' : 'Kedaluwarsa'}</div><div class="info-field-value">${p.expiresAt ? formatDate(p.expiresAt, false) : 'Tanpa Expired'}</div></div>

@@ -1296,6 +1296,25 @@
               </div>
             </div>
             <p class="text-xs text-muted" id="ptero-stock-status" style="margin:-6px 0 0"></p>
+            <div style="border-top:1px dashed var(--border,#ccc);padding-top:10px;margin-top:2px">
+              <b style="font-size:13px"><i class="fas fa-server"></i> Server 2</b>
+              <p class="text-xs text-muted" style="margin:2px 0 8px">Field di atas = Server 1. Server 2 pakai Location ID sendiri dan stok sendiri (dihitung terpisah).</p>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Location ID</label>
+                  <input type="text" class="form-control" id="ptero-location-id-2" placeholder="3">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Max Stok Panel</label>
+                  <input type="number" class="form-control" id="ptero-max-slots-2" min="1" placeholder="40">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Node ID Stok</label>
+                  <input type="text" class="form-control" id="ptero-stock-node-id-2" placeholder="Kosongkan = auto">
+                </div>
+              </div>
+              <p class="text-xs text-muted" id="ptero-stock-status-2" style="margin:6px 0 0"></p>
+            </div>
             <div class="form-group" style="margin:0">
               <label class="form-label">Docker Image</label>
               <input type="text" class="form-control" id="ptero-docker-image" placeholder="ghcr.io/austinoffc/eggaustin:main">
@@ -4293,6 +4312,13 @@ async function loadPteroSettings() {
   document.getElementById('ptero-root-pw-env').value = d.root_password_env_key || '';
   document.getElementById('ptero-max-slots').value = d.max_panel_slots || '';
   document.getElementById('ptero-stock-node-id').value = d.stock_node_id || '';
+  document.getElementById('ptero-location-id-2').value = d.location_id_2 || '';
+  document.getElementById('ptero-max-slots-2').value = d.max_panel_slots_2 || '';
+  document.getElementById('ptero-stock-node-id-2').value = d.stock_node_id_2 || '';
+  const s2 = d.slots_2 || {};
+  document.getElementById('ptero-stock-status-2').textContent = s2.source === 'unavailable'
+    ? `Server 2 belum siap: ${s2.error || 'cek Location ID / node'}`
+    : (s2.max ? `Stok Server 2 saat ini: ${s2.used}/${s2.max} terpakai` : '');
   const s = d.slots || {};
   const sourceLabel = { live: 'live via API', 'live-stale': 'live via API (cache lama, API sempat gagal)', 'db-fallback': 'fallback hitung baris DB (API belum/gagal terhubung)' }[s.source] || s.source || '-';
   document.getElementById('ptero-stock-status').textContent = s.max ? `Stok saat ini: ${s.used}/${s.max} terpakai — sumber: ${sourceLabel}` : '';
@@ -4312,6 +4338,9 @@ document.getElementById('ptero-settings-form')?.addEventListener('submit', async
     root_password_env_key: document.getElementById('ptero-root-pw-env').value.trim(),
     max_panel_slots: document.getElementById('ptero-max-slots').value.trim(),
     stock_node_id: document.getElementById('ptero-stock-node-id').value.trim(),
+    location_id_2: document.getElementById('ptero-location-id-2').value.trim(),
+    max_panel_slots_2: document.getElementById('ptero-max-slots-2').value.trim(),
+    stock_node_id_2: document.getElementById('ptero-stock-node-id-2').value.trim(),
   };
   const r = await API.post('/api/owner/ptero/settings', body);
   r.success ? (Toast.success(r.message), loadPteroSettings()) : Toast.error(r.message);
