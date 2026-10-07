@@ -31,6 +31,8 @@
     { "source": "/tools/installpterodactyl", "destination": "/tools.html" },
     { "source": "/tools/startwings", "destination": "/tools.html" },
     { "source": "/tools/cekvps", "destination": "/tools.html" },
+    { "source": "/tools/installtema", "destination": "/tools.html" },
+    { "source": "/tools/uninstalltema", "destination": "/tools.html" },
     { "source": "/tools/github", "destination": "/tools.html" },
     { "source": "/tools/downloader", "destination": "/tools.html" },
     { "source": "/tools/downloader/tiktok", "destination": "/tools.html" },

@@ -56,7 +56,7 @@ const NOT_BUYER_ROUTES = new Set(['/withdraw', '/seller/withdraw']);
 
 // Menu Tools (Install Pterodactyl via SSH, dst) — khusus user yang sudah
 // daftar/login, peran apa pun (bukan cuma buyer, dan bukan cuma owner).
-const AUTH_REQUIRED_ROUTES = new Set(['/tools', '/tools/installpterodactyl', '/tools/startwings', '/tools/cekvps', '/tools/github', '/tools/downloader', '/tools/downloader/tiktok', '/tools/downloader/instagram', '/tools/downloader/facebook', '/tools/downloader/capcut']);
+const AUTH_REQUIRED_ROUTES = new Set(['/tools', '/tools/installpterodactyl', '/tools/startwings', '/tools/cekvps', '/tools/installtema', '/tools/uninstalltema', '/tools/github', '/tools/downloader', '/tools/downloader/tiktok', '/tools/downloader/instagram', '/tools/downloader/facebook', '/tools/downloader/capcut']);
 
 function getCookie(req, name) {
   const header = req.headers.get('cookie') || '';

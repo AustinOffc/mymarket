@@ -218,6 +218,12 @@
           <div class="tool-menu-item" data-tool="ptero-wings" data-path="/tools/startwings">
             <i class="fas fa-feather-pointed"></i> Start Wings
           </div>
+          <div class="tool-menu-item" data-tool="ptero-theme" data-path="/tools/installtema">
+            <i class="fas fa-palette"></i> Install Tema Pterodactyl
+          </div>
+          <div class="tool-menu-item" data-tool="ptero-theme-reset" data-path="/tools/uninstalltema">
+            <i class="fas fa-rotate-left"></i> Uninstall Tema (Reset Panel)
+          </div>
           <div class="tool-menu-item" data-tool="vps-health" data-path="/tools/cekvps">
             <i class="fas fa-heart-pulse"></i> Cek Kesehatan VPS
           </div>
@@ -336,6 +342,116 @@
               </div>
               <div class="card-body">
                 <div class="ptero-console" id="ptw-console"><div class="cl-empty">Belum ada proses berjalan. Isi form di atas lalu klik "Jalankan Start Wings".</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-panel" id="tool-panel-ptero-theme">
+            <div class="card mb-16">
+              <div class="card-header"><span class="card-title"><i class="fas fa-palette" style="color:var(--primary)"></i> Install Tema Pterodactyl (via SSH)</span></div>
+              <form id="ptero-theme-form" style="padding:0 20px 20px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">IP VPS (yang sudah ada panel)</label>
+                  <input type="text" class="form-control" id="ptt-ip" placeholder="1.2.3.4" autocomplete="off">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Password Root</label>
+                  <input type="password" class="form-control" id="ptt-password" placeholder="Password SSH root" autocomplete="new-password">
+                </div>
+                <div class="form-group" style="margin:0;grid-column:1/-1">
+                  <label class="form-label">Pilih Tema</label>
+                  <select class="form-control" id="ptt-theme"><option value="">Memuat daftar tema...</option></select>
+                </div>
+                <div id="ptt-links-box" style="display:none;grid-column:1/-1;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Link Kontak Admin</label>
+                    <input type="text" class="form-control" id="ptt-link-admin" placeholder="https://t.me/username" autocomplete="off">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Link Channel</label>
+                    <input type="text" class="form-control" id="ptt-link-channel" placeholder="https://t.me/channel" autocomplete="off">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">Link Grup</label>
+                    <input type="text" class="form-control" id="ptt-link-group" placeholder="https://chat.whatsapp.com/xxxx" autocomplete="off">
+                  </div>
+                </div>
+                <div id="ptt-overwrite-warn" class="text-xs" style="display:none;grid-column:1/-1;color:#ef4444">
+                  ⚠️ Tema ini MENGGANTI SELURUH file panel (hanya .env yang dipertahankan). Reviactyl juga mengganti Wings dengan Reviactyl Agent.
+                </div>
+                <label id="ptt-bp-box" style="display:none;grid-column:1/-1;gap:8px;align-items:flex-start;font-size:13px">
+                  <input type="checkbox" id="ptt-install-bp" checked style="margin-top:3px">
+                  <span>Install Blueprint otomatis kalau belum terpasang (tema Blueprint wajib punya Blueprint).</span>
+                </label>
+                <label style="display:flex;grid-column:1/-1;gap:8px;align-items:flex-start;font-size:13px">
+                  <input type="checkbox" id="ptt-backup" checked style="margin-top:3px">
+                  <span>Backup panel (+ database kalau bisa) ke <code>/root</code> VPS sebelum tema dipasang (disarankan).</span>
+                </label>
+                <label style="display:flex;grid-column:1/-1;gap:8px;align-items:flex-start;font-size:13px">
+                  <input type="checkbox" id="ptt-confirm" required style="margin-top:3px">
+                  <span>Saya paham file panel akan diubah dan panel bisa sebentar tidak bisa diakses selama proses.</span>
+                </label>
+                <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <button type="submit" class="btn btn-primary" id="ptt-submit-btn"><i class="fas fa-play"></i> Mulai Install Tema</button>
+                  <span class="text-xs text-muted">Proses 5-30 menit (build aset), jangan tutup halaman. Password tidak disimpan. Kalau panel error setelahnya, pakai tools Uninstall Tema (Reset Panel).</span>
+                </div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+                <span class="card-title"><i class="fas fa-terminal" style="color:var(--text-muted)"></i> Console Log</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="ptero-status-badge idle" id="ptt-status-badge">Idle</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="ptt-clear-console-btn"><i class="fas fa-broom"></i> Bersihkan</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="ptero-console" id="ptt-console"><div class="cl-empty">Belum ada proses berjalan. Isi form di atas lalu klik "Mulai Install Tema".</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-panel" id="tool-panel-ptero-theme-reset">
+            <div class="card mb-16">
+              <div class="card-header"><span class="card-title"><i class="fas fa-rotate-left" style="color:var(--danger)"></i> Uninstall Tema (Reset Panel ke Original)</span></div>
+              <form id="ptero-theme-reset-form" style="padding:0 20px 20px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">IP VPS (yang ada panel)</label>
+                  <input type="text" class="form-control" id="ptu-ip" placeholder="1.2.3.4" autocomplete="off">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Password Root</label>
+                  <input type="password" class="form-control" id="ptu-password" placeholder="Password SSH root" autocomplete="new-password">
+                </div>
+                <div class="text-xs" style="grid-column:1/-1;color:#ef4444">
+                  ⚠️ Panel dikembalikan ke Pterodactyl original versi stable TERBARU: semua tema, extension Blueprint, dan modifikasi lain (mis. auto-suspend) akan hilang. Hanya .env yang dipertahankan; database tidak dihapus. Panel bisa sebentar tidak bisa diakses.
+                </div>
+                <label style="display:flex;grid-column:1/-1;gap:8px;align-items:flex-start;font-size:13px">
+                  <input type="checkbox" id="ptu-backup" checked style="margin-top:3px">
+                  <span>Backup panel (+ database kalau bisa) ke <code>/root</code> VPS sebelum di-reset (disarankan).</span>
+                </label>
+                <label style="display:flex;grid-column:1/-1;gap:8px;align-items:flex-start;font-size:13px">
+                  <input type="checkbox" id="ptu-confirm" required style="margin-top:3px">
+                  <span>Saya paham panel akan di-reset ke original dan tema/modifikasi akan terhapus.</span>
+                </label>
+                <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <button type="submit" class="btn btn-primary" id="ptu-submit-btn"><i class="fas fa-play"></i> Mulai Uninstall Tema</button>
+                  <span class="text-xs text-muted">Proses 5-15 menit. Password tidak disimpan.</span>
+                </div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+                <span class="card-title"><i class="fas fa-terminal" style="color:var(--text-muted)"></i> Console Log</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="ptero-status-badge idle" id="ptu-status-badge">Idle</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="ptu-clear-console-btn"><i class="fas fa-broom"></i> Bersihkan</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="ptero-console" id="ptu-console"><div class="cl-empty">Belum ada proses berjalan. Isi form di atas lalu klik "Mulai Uninstall Tema".</div></div>
               </div>
             </div>
           </div>
@@ -615,13 +731,15 @@ const TOOLS = {
   'ptero-install': { path: '/tools/installpterodactyl' },
   'ptero-wings':   { path: '/tools/startwings' },
   'vps-health':    { path: '/tools/cekvps' },
+  'ptero-theme':   { path: '/tools/installtema' },
+  'ptero-theme-reset': { path: '/tools/uninstalltema' },
   'downloader':    { path: '/tools/downloader' },
   'github':        { path: '/tools/github' },
 };
 
 let toolsSocket = null;
 let currentPteroJobId = null;
-let currentPteroTarget = null; // 'pti' (install), 'ptw' (wings), atau 'vph' (cek VPS) — nentuin console mana yang dipakai
+let currentPteroTarget = null; // 'pti' (install), 'ptw' (wings), 'vph' (cek VPS), 'ptt' (install tema), atau 'ptu' (uninstall tema) — nentuin console mana yang dipakai
 let pteroAppliedLog = 0;   // berapa baris job.log yang sudah ditampilkan (buat sinkron, hindari duplikat)
 let pteroPollTimer = null; // fallback polling kalau event socket telat/tidak sampai sama sekali
 
@@ -1015,6 +1133,19 @@ function renderPteroEntry(prefix, type, data, ts) {
       appendPteroLine(prefix, 'cl-done', `[${ts}] ✅ PEMERIKSAAN SELESAI — Skor ${data.score}/100 (${HEALTH_LABEL[data.overall] || data.overall})`);
       renderHealthReport(data);
       Toast.success('Pemeriksaan VPS selesai');
+    } else if (data.kind === 'theme-install') {
+      appendPteroLine(prefix, 'cl-done', `[${ts}] ✅ TEMA ${data.theme} BERHASIL DIINSTALL`);
+      if (data.blueprintInstalled) appendPteroLine(prefix, 'cl-log', 'Blueprint ikut diinstall otomatis.');
+      if (data.panelUrl) appendPteroLine(prefix, 'cl-done', `Panel    : ${data.panelUrl}`);
+      if (data.backupFile) appendPteroLine(prefix, 'cl-log', `Backup   : ${data.backupFile}${data.backupDb ? ' + ' + data.backupDb : ''} (di VPS)`);
+      appendPteroLine(prefix, 'cl-log', 'Buka panel lalu hard refresh (Ctrl+Shift+R) supaya tema baru tampil.');
+      Toast.success('Install tema selesai');
+    } else if (data.kind === 'theme-reset') {
+      appendPteroLine(prefix, 'cl-done', `[${ts}] ✅ PANEL BERHASIL DI-RESET KE ORIGINAL`);
+      if (data.panelUrl) appendPteroLine(prefix, 'cl-done', `Panel    : ${data.panelUrl}`);
+      if (data.backupFile) appendPteroLine(prefix, 'cl-log', `Backup   : ${data.backupFile}${data.backupDb ? ' + ' + data.backupDb : ''} (di VPS)`);
+      appendPteroLine(prefix, 'cl-log', 'Buka panel lalu hard refresh (Ctrl+Shift+R).');
+      Toast.success('Uninstall tema selesai');
     } else if (data.url) {
       appendPteroLine(prefix, 'cl-done', `[${ts}] ✅ PANEL BERHASIL DIINSTALL`);
       appendPteroLine(prefix, 'cl-done', `URL      : ${data.url}`);
@@ -1361,6 +1492,101 @@ document.getElementById('vps-health-form')?.addEventListener('submit', async (e)
   currentPteroJobId = res.jobId;
   pteroAppliedLog = 0;
   startPteroPoll('vph', res.jobId);
+});
+
+// ================= Tools > Install Tema / Uninstall Tema (Reset Panel) =================
+// Backend: POST /api/tools/ptero/theme/install | /theme/uninstall (job & console log
+// memakai mekanisme yang sama dengan Install Pterodactyl: socket + polling job).
+let themeCatalog = [];
+const THEME_GROUP_LABEL = {
+  standard: 'Tema Standar',
+  blueprint: 'Tema Blueprint',
+  overwrite: 'Tema Timpa Panel (mengganti seluruh panel)',
+};
+
+function currentTheme() {
+  const id = document.getElementById('ptt-theme')?.value;
+  return themeCatalog.find((t) => t.id === id) || null;
+}
+
+function onThemeChange() {
+  const t = currentTheme();
+  const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? 'grid' : 'none'; };
+  show('ptt-links-box', !!(t && t.needsLinks));
+  show('ptt-overwrite-warn', !!(t && t.group === 'overwrite'));
+  const bp = document.getElementById('ptt-bp-box');
+  if (bp) bp.style.display = t && t.group === 'blueprint' ? 'flex' : 'none';
+}
+
+async function loadThemeCatalog() {
+  const sel = document.getElementById('ptt-theme');
+  if (!sel) return;
+  const res = await API.get('/api/tools/ptero/themes');
+  if (!res || !res.success || !Array.isArray(res.themes)) {
+    sel.innerHTML = '';
+    sel.add(new Option('Gagal memuat daftar tema (muat ulang halaman)', ''));
+    return;
+  }
+  themeCatalog = res.themes;
+  sel.innerHTML = '';
+  sel.add(new Option('— Pilih tema —', ''));
+  ['standard', 'blueprint', 'overwrite'].forEach((g) => {
+    const items = themeCatalog.filter((t) => t.group === g);
+    if (!items.length) return;
+    const og = document.createElement('optgroup');
+    og.label = THEME_GROUP_LABEL[g];
+    items.forEach((t) => og.appendChild(new Option(t.name, t.id)));
+    sel.appendChild(og);
+  });
+  onThemeChange();
+}
+
+document.getElementById('ptt-theme')?.addEventListener('change', onThemeChange);
+document.getElementById('ptt-clear-console-btn')?.addEventListener('click', () => clearPteroConsole('ptt'));
+document.getElementById('ptu-clear-console-btn')?.addEventListener('click', () => clearPteroConsole('ptu'));
+
+async function submitThemeJob(prefix, url, payload, startText, failText) {
+  currentPteroTarget = prefix;
+  clearPteroConsole(prefix);
+  setPteroStatus(prefix, 'running');
+  setPteroFormDisabled(prefix, true);
+  appendPteroLine(prefix, 'cl-stage', startText);
+  const res = await API.post(url, payload);
+  if (!res.success) {
+    setPteroStatus(prefix, 'failed');
+    setPteroFormDisabled(prefix, false);
+    appendPteroLine(prefix, 'cl-error', `❌ ${res.message}`);
+    Toast.error(res.message || failText);
+    return;
+  }
+  currentPteroJobId = res.jobId;
+  pteroAppliedLog = 0;
+  startPteroPoll(prefix, res.jobId);
+}
+
+document.getElementById('ptero-theme-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const t = currentTheme();
+  if (!t) { Toast.error('Pilih tema dulu'); return; }
+  await submitThemeJob('ptt', '/api/tools/ptero/theme/install', {
+    ip: document.getElementById('ptt-ip').value.trim(),
+    password: document.getElementById('ptt-password').value,
+    themeId: t.id,
+    linkAdmin: document.getElementById('ptt-link-admin').value.trim(),
+    linkChannel: document.getElementById('ptt-link-channel').value.trim(),
+    linkGroup: document.getElementById('ptt-link-group').value.trim(),
+    installBlueprint: document.getElementById('ptt-install-bp').checked,
+    backup: document.getElementById('ptt-backup').checked,
+  }, `Mengirim permintaan install tema ${t.name}...`, 'Gagal memulai install tema');
+});
+
+document.getElementById('ptero-theme-reset-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  await submitThemeJob('ptu', '/api/tools/ptero/theme/uninstall', {
+    ip: document.getElementById('ptu-ip').value.trim(),
+    password: document.getElementById('ptu-password').value,
+    backup: document.getElementById('ptu-backup').checked,
+  }, 'Mengirim permintaan uninstall tema (reset panel)...', 'Gagal memulai uninstall tema');
 });
 
 // ================= Tools > Manajemen GitHub =================
@@ -2149,6 +2375,7 @@ async function init() {
   if (!res) return;
   Auth.renderUserInfo(res.user, res.wallet);
   connectToolsSocket();
+  loadThemeCatalog();
   ghRestoreSession();
 
   applyToolRoute();
