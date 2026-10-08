@@ -2490,6 +2490,7 @@
 
 <script src="/js/app.js"></script>
 <script src="/js/custom-select.js"></script>
+<script src="/js/custom-picker.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
 <script src="/js/chat.js"></script>
 <script>
@@ -3601,7 +3602,7 @@ document.getElementById('ppob-products-tbody')?.addEventListener('click', async 
     const r = await API.post(`/api/owner/ppob/products/${id}/toggle`, { active: !active });
     r.success ? loadPpobProducts() : Toast.error(r.message);
   } else if (btn.dataset.action === 'delete-ppob-product') {
-    if (!confirm('Hapus produk PPOB ini? Tindakan tidak bisa dibatalkan.')) return;
+    if (!await showConfirm('Hapus produk PPOB ini? Tindakan tidak bisa dibatalkan.', { title: 'Hapus Produk PPOB', okText: 'Hapus', danger: true })) return;
     const r = await API.request('DELETE', `/api/owner/ppob/products/${id}`);
     r.success ? (Toast.success(r.message), loadPpobProducts()) : Toast.error(r.message);
   }
@@ -3638,7 +3639,7 @@ document.getElementById('ppob-sync-btn')?.addEventListener('click', async (e) =>
   const category = document.getElementById('ppob-sync-category').value;
   if (!category) return;
   const catName = ppobCategoriesCache.find((c) => c.key === category)?.name || category;
-  if (!confirm(`Sync produk kategori "${catName}" dari daftar harga OkeConnect sekarang?`)) return;
+  if (!await showConfirm(`Sync produk kategori "${catName}" dari daftar harga OkeConnect sekarang?`, { title: 'Sync Produk', okText: 'Sync Sekarang' })) return;
 
   e.target.classList.add('btn-loading');
   e.target.disabled = true;
@@ -4143,7 +4144,7 @@ async function resetPteroQuota() {
 }
 
 async function resetAllPteroQuota() {
-  if (!confirm('Reset kuota panel gratis SEMUA user ke default? Total panel yang sudah diambil tidak berubah.')) return;
+  if (!await showConfirm('Reset kuota panel gratis SEMUA user ke default? Total panel yang sudah diambil tidak berubah.', { title: 'Reset Semua Kuota', okText: 'Reset', danger: true })) return;
   const btn = document.getElementById('bpq-reset-all-btn');
   btn.disabled = true;
   const r = await API.post('/api/owner/bansos/ptero/quota/reset-all', {});
@@ -4370,7 +4371,7 @@ document.getElementById('ptero-autorestart-form')?.addEventListener('submit', as
 });
 
 document.getElementById('ar-run-now')?.addEventListener('click', async () => {
-  if (!confirm('Jalankan auto restart sekarang? Semua server yang sedang menyala di location target akan di-restart.')) return;
+  if (!await showConfirm('Jalankan auto restart sekarang? Semua server yang sedang menyala di location target akan di-restart.', { title: 'Auto Restart', okText: 'Jalankan', danger: true })) return;
   const btn = document.getElementById('ar-run-now');
   btn.disabled = true;
   const r = await API.post('/api/owner/ptero/auto-restart/run', {});
@@ -5734,14 +5735,14 @@ async function saveFlashSaleEdit(btn) {
   loadFlashSaleSection(1);
 }
 async function stopFlashSale(id) {
-  if (!confirm('Hentikan flash sale ini sekarang?')) return;
+  if (!await showConfirm('Hentikan flash sale ini sekarang?', { title: 'Hentikan Flash Sale', okText: 'Hentikan', danger: true })) return;
   const res = await API.request('PUT', `/api/seller/flashsale/${id}`, { active: false });
   if (!res.success) return Toast.error(res.message);
   Toast.success('Flash sale dihentikan');
   loadFlashSaleSection(1);
 }
 async function deleteFlashSale(id) {
-  if (!confirm('Hapus flash sale ini?')) return;
+  if (!await showConfirm('Hapus flash sale ini?', { title: 'Hapus Flash Sale', okText: 'Hapus', danger: true })) return;
   const res = await API.request('DELETE', `/api/seller/flashsale/${id}`);
   if (!res.success) return Toast.error(res.message);
   Toast.success(res.message);

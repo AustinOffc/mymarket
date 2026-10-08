@@ -1035,6 +1035,55 @@ textarea.form-control, .form-textarea { min-height: 90px; resize: vertical; line
 .csel-option.is-disabled-opt { opacity: .4; cursor: not-allowed; pointer-events: none; }
 .csel-panel-empty { padding: 14px 12px; font-size: 13px; color: var(--text-muted); text-align: center; }
 
+/* ==== Custom Picker (themed replacement for native date / datetime / datalist popups) ==== */
+.cdt { position: relative; }
+.cdt-native { display: none !important; }
+.cdt-trigger {
+  width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  cursor: pointer; user-select: none; outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.cdt-trigger .cdt-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cdt-trigger .cdt-value.is-placeholder { color: var(--text-muted); }
+.cdt-trigger .cdt-icon { flex-shrink: 0; font-size: 14px; color: var(--text-muted); }
+.cdt-trigger:hover:not(.is-disabled) { border-color: var(--primary); }
+.cdt-trigger:focus-visible, .cdt.open .cdt-trigger { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .18); }
+.cdt-trigger.is-disabled { opacity: .6; cursor: not-allowed; }
+
+.cdt-panel {
+  position: fixed; z-index: 9999; padding: 12px; max-width: calc(100vw - 16px);
+  background: var(--bg-card-solid); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  opacity: 0; transform: translateY(-6px) scale(.98); pointer-events: none;
+  transition: opacity .15s ease, transform .15s ease;
+}
+.cdt-panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+.cdt-panel.drop-up { transform: translateY(6px) scale(.98); }
+.cdt-panel.drop-up.open { transform: translateY(0) scale(1); }
+.cdt-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.cdt-title { font-weight: 800; font-size: 14px; }
+.cdt-nav { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-hover); color: var(--text); cursor: pointer; font-size: 12px; }
+.cdt-nav:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+.cdt-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cdt-dow span { text-align: center; font-size: 11.5px; font-weight: 700; color: var(--text-muted); padding: 4px 0; text-transform: uppercase; }
+.cdt-day { height: 34px; border: none; border-radius: 10px; background: transparent; color: var(--text); font-size: 13.5px; font-family: inherit; cursor: pointer; transition: background .12s, color .12s; }
+.cdt-day:hover { background: var(--primary-light); color: var(--primary); }
+.cdt-day.is-today { box-shadow: inset 0 0 0 1.5px var(--primary); }
+.cdt-day.is-selected { background: var(--primary); color: #fff; font-weight: 700; }
+.cdt-time { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-soft); color: var(--text-muted); }
+.cdt-spin { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.cdt-spin button { width: 40px; height: 22px; border: none; border-radius: 8px; background: var(--bg-hover); color: var(--text); cursor: pointer; font-weight: 700; line-height: 1; }
+.cdt-spin button:hover { background: var(--primary-light); color: var(--primary); }
+.cdt-spin input { width: 40px; text-align: center; padding: 6px 0; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: 15px; font-family: var(--font-mono); font-weight: 700; }
+.cdt-spin input:focus { outline: none; border-color: var(--primary); }
+.cdt-colon { font-weight: 800; font-size: 18px; color: var(--text); }
+.cdt-foot { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.cdt-link { border: none; background: none; color: var(--primary); font-weight: 700; font-size: 13px; cursor: pointer; padding: 6px 2px; font-family: inherit; }
+.cdt-ok { margin-left: auto; border: none; border-radius: 10px; background: var(--primary); color: #fff; font-weight: 700; font-size: 13px; padding: 8px 18px; cursor: pointer; font-family: inherit; }
+.cdl-panel { max-height: 240px; }
+
 /* ==== Qty Stepper (shared +/- quantity control, themed) ==== */
 /* inline-flex, bukan flex: supaya box-nya shrink-to-fit ke isinya (tombol+angka),
    bukan melebar penuh mengikuti lebar parent (yang bikin dia "memanjang ke kanan"

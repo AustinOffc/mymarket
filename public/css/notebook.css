@@ -200,7 +200,7 @@ code, pre, kbd, .mono { font-family: var(--font-mono); }
 
 /* ---------- Kartu = kertas catatan ---------- */
 .card, .stat-card, .order-card, .ticket-card, .game-tile, .seller-tile, .cat-icon-tile, .auth-card,
-.notif-panel, .cs-panel, .modal, .gdlg, .chat-window, .method-btn, .trust-item, .qr-box, .csel-panel {
+.notif-panel, .cs-panel, .modal, .gdlg, .chat-window, .method-btn, .trust-item, .qr-box, .csel-panel, .cdt-panel {
   background: var(--bg-card); border: 1.6px solid var(--nb-border); border-radius: var(--wobble);
   box-shadow: 3px 4px 0 var(--nb-shadow); backdrop-filter: none; -webkit-backdrop-filter: none;
 }
@@ -273,11 +273,11 @@ a:hover { color: inherit; }
 .form-control, .csel-trigger, .market-search, .input-addons, .chat-input-row input, select, textarea, input[type=text], input[type=password], input[type=email], input[type=number], input[type=search], input[type=tel], input[type=url] {
   font-family: var(--font-body);
 }
-.form-control, .csel-trigger, .market-search, .input-addons {
+.form-control, .csel-trigger, .cdt-trigger, .market-search, .input-addons {
   background: var(--bg-card); color: var(--text); border: 1.5px solid var(--nb-border); border-radius: 6px; font-size: 16px;
   box-shadow: inset 0 -2px 0 rgba(29,27,24,.06);
 }
-[data-theme="dark"] .form-control, [data-theme="dark"] .csel-trigger, [data-theme="dark"] .market-search { background: var(--nb-subtle); }
+[data-theme="dark"] .form-control, [data-theme="dark"] .csel-trigger, [data-theme="dark"] .cdt-trigger, [data-theme="dark"] .market-search { background: var(--nb-subtle); }
 .form-control::placeholder, .market-search input::placeholder { color: var(--text-muted); opacity: .8; }
 .form-control:focus, .csel-trigger:focus, .csel.open .csel-trigger, .market-search:focus-within, .input-addons:focus-within {
   border-color: var(--primary); box-shadow: 2px 3px 0 var(--primary-light); outline: none;
@@ -286,7 +286,9 @@ a:hover { color: inherit; }
 .input-addon { background: var(--paper-header); color: var(--text); border-color: var(--nb-border); font-family: var(--font-mono); }
 .form-hint { color: var(--text-muted); font-family: var(--font-mono); font-size: 12px; }
 .form-error { color: var(--danger); }
-.csel-panel { box-shadow: 3px 4px 0 var(--nb-shadow); }
+.csel-panel, .cdt-panel { box-shadow: 3px 4px 0 var(--nb-shadow); }
+.cdt-day:hover, .cdt-nav:hover, .cdt-spin button:hover { background: var(--sticky); color: var(--ink); }
+.cdt-day.is-selected, .cdt-ok { color: #fff; }
 .csel-option:hover, .csel-option.active, .csel-option.selected { background: var(--sticky); color: var(--ink); }
 input[type=checkbox], input[type=radio] { accent-color: var(--primary); }
 

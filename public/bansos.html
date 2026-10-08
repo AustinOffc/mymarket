@@ -57,6 +57,17 @@
     .bansos-log-error { color: var(--coral); }
     .bansos-log-warn { color: var(--warning); }
 
+    .react-emoji-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .react-emoji-chip {
+      width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;
+      font-size: 22px; line-height: 1; cursor: pointer; user-select: none;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      transition: all .15s;
+    }
+    .react-emoji-chip:hover { border-color: var(--primary); }
+    .react-emoji-chip.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .18); }
+    .react-emoji-hint { font-size: 12.5px; color: var(--text-muted); margin-bottom: 16px; }
+
     .bulk-processing-box { text-align: center; padding: 26px 14px; }
     .bulk-processing-box .loading-spinner { margin: 0 auto 14px; }
     .bulk-processing-box .bp-title { font-weight: 700; font-size: 13.5px; margin-bottom: 4px; }
@@ -124,19 +135,21 @@
         <div><span class="eyebrow">Bansos Austin</span><h2 style="font-size:17px">Giveaway Alight Motion & Netflix Premium</h2></div>
       </div>
       <p style="font-size:13px;color:var(--text-muted);margin:-8px 0 18px">
-        <i class="fas fa-circle-info"></i> Layanan gratis, dibatasi <strong>5x per hari</strong> per pengguna. Kuota reset otomatis setiap hari.
+        <i class="fas fa-circle-info"></i> Layanan gratis <strong>tanpa batas kuota harian</strong>. Hanya Panel Gratis yang memakai jatah.
       </p>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
         <div class="card bansos-stat-card">
           <div class="stat-label">Total Alight Motion Terverifikasi</div>
           <div class="stat-value" id="stat-am-total">0</div>
-          <div class="stat-quota"><span class="badge badge-secondary">Kuota Anda: <span id="quota-am">5</span>/5</span></div>
         </div>
         <div class="card bansos-stat-card">
           <div class="stat-label">Total Token Netflix Dibuat</div>
           <div class="stat-value" id="stat-netflix-total">0</div>
-          <div class="stat-quota"><span class="badge badge-secondary">Kuota Anda: <span id="quota-netflix">5</span>/5</span></div>
+        </div>
+        <div class="card bansos-stat-card" style="grid-column:1/-1">
+          <div class="stat-label">Total React WA Terkirim</div>
+          <div class="stat-value" id="stat-react-total">0</div>
         </div>
         <div class="card bansos-stat-card" id="stat-panel-card" style="grid-column:1/-1;display:none">
           <div class="stat-label">Total Panel Gratis Diambil</div>
@@ -147,6 +160,7 @@
       <div class="bansos-tabs">
         <button class="btn btn-primary" id="tab-btn-am" onclick="switchTab('am')"><i class="fas fa-film"></i> Alight Motion</button>
         <button class="btn btn-outline" id="tab-btn-bulk" onclick="switchTab('bulk')"><i class="fas fa-layer-group"></i> Bulk AM</button>
+        <button class="btn btn-outline" id="tab-btn-react" onclick="switchTab('react')"><i class="fas fa-comment-dots"></i> React WA</button>
         <button class="btn btn-outline" id="tab-btn-ptero" onclick="switchTab('ptero')" style="display:none"><i class="fas fa-server"></i> Panel Gratis</button>
         <button class="btn btn-outline" id="tab-btn-netflix" onclick="switchTab('netflix')"><i class="fas fa-tv"></i> Netflix Token</button>
       </div>
@@ -195,10 +209,27 @@
           <div id="bulk-result"></div>
         </div>
 
+        <div id="tab-react" class="bansos-tab-content">
+          <div class="card-header" style="padding:0 0 14px 0;border:none"><span class="card-title">React Postingan Channel WhatsApp</span></div>
+          <p style="font-size:13px;color:var(--text-muted);margin:-6px 0 16px">
+            Kirim reaksi emoji ke postingan Channel WhatsApp. Gratis, tanpa kuota harian.
+          </p>
+
+          <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Link Postingan Channel</label>
+          <input type="url" id="react-url" class="form-control" placeholder="https://whatsapp.com/channel/xxxx/123" style="margin-bottom:14px" autocomplete="off">
+
+          <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:8px">Pilih Reaksi (<span id="react-count">4</span>/6)</label>
+          <div class="react-emoji-grid" id="react-emoji-grid"></div>
+          <div class="react-emoji-hint">Ketuk emoji untuk memilih / melepas. Minimal 1, maksimal 6.</div>
+
+          <button class="btn btn-primary btn-full btn-lg" id="react-btn" onclick="sendReactWa()"><i class="fas fa-paper-plane"></i> Kirim React Sekarang</button>
+          <div id="react-result"></div>
+        </div>
+
         <div id="tab-netflix" class="bansos-tab-content">
           <div class="card-header" style="padding:0 0 14px 0;border:none"><span class="card-title">Generate Token Netflix</span></div>
           <p style="font-size:13px;color:var(--text-muted);margin:-6px 0 16px">
-            Tekan tombol di bawah untuk mendapatkan link premium Netflix otomatis. Kuota Anda terpotong setelah token berhasil dibuat.
+            Tekan tombol di bawah untuk mendapatkan link premium Netflix otomatis. Gratis tanpa batas kuota harian.
           </p>
           <button class="btn btn-primary btn-full btn-lg" id="netflix-btn" onclick="generateNetflix()"><i class="fas fa-bolt"></i> Generate Token Sekarang</button>
           <div id="netflix-result"></div>
@@ -276,7 +307,7 @@ function logMsg(msg, type = 'info') {
 function switchTab(tabId) {
   document.querySelectorAll('.bansos-tab-content').forEach(el => el.classList.remove('active'));
   document.getElementById(`tab-${tabId}`).classList.add('active');
-  ['am', 'bulk', 'ptero', 'netflix'].forEach(t => {
+  ['am', 'bulk', 'react', 'ptero', 'netflix'].forEach(t => {
     document.getElementById(`tab-btn-${t}`).className = `btn ${t === tabId ? 'btn-primary' : 'btn-outline'}`;
   });
 }
@@ -286,8 +317,7 @@ async function fetchStats() {
   if (!res.success) return;
   document.getElementById('stat-am-total').textContent = res.data.totals.alightMotion ?? 0;
   document.getElementById('stat-netflix-total').textContent = res.data.totals.netflix ?? 0;
-  document.getElementById('quota-am').textContent = res.data.quota.am.remaining;
-  document.getElementById('quota-netflix').textContent = res.data.quota.netflix.remaining;
+  document.getElementById('stat-react-total').textContent = res.data.totals.reactWa ?? 0;
 
   document.getElementById('stat-panel-total').textContent = res.data.totals.panel ?? 0;
   document.getElementById('stat-panel-card').style.display = res.data.ptero_enabled ? '' : 'none';
@@ -381,6 +411,60 @@ async function generateNetflix() {
         <div class="bansos-result-row"><span class="bansos-result-label">Plan</span><span class="bansos-result-value">${escapeHtml(res.data.plan || '-')}</span></div>
         <div class="bansos-result-row"><span class="bansos-result-label">Kualitas</span><span class="bansos-result-value">${escapeHtml(res.data.quality || '-')}</span></div>
         ${rows}
+      </div>`;
+    fetchStats();
+  } else {
+    logMsg(res.message, 'error');
+    Toast.error(res.message);
+  }
+}
+
+// --- React WA ---
+const REACT_EMOJIS = ['🔥', '❤️', '🥶', '😱', '👍', '😂', '😮', '😢', '🙏', '🎉', '😍', '🤯'];
+const REACT_MAX = 6;
+let reactSelected = ['🔥', '❤️', '🥶', '😱'];
+
+function renderReactEmojis() {
+  const grid = document.getElementById('react-emoji-grid');
+  grid.innerHTML = REACT_EMOJIS.map(e =>
+    `<div class="react-emoji-chip${reactSelected.includes(e) ? ' selected' : ''}" data-emoji="${e}" role="button" tabindex="0">${e}</div>`
+  ).join('');
+  document.getElementById('react-count').textContent = reactSelected.length;
+}
+
+document.getElementById('react-emoji-grid').addEventListener('click', (ev) => {
+  const chip = ev.target.closest('.react-emoji-chip');
+  if (!chip) return;
+  const e = chip.dataset.emoji;
+  if (reactSelected.includes(e)) {
+    reactSelected = reactSelected.filter(x => x !== e);
+  } else {
+    if (reactSelected.length >= REACT_MAX) { Toast.warning(`Maksimal ${REACT_MAX} emoji.`); return; }
+    reactSelected.push(e);
+  }
+  renderReactEmojis();
+});
+renderReactEmojis();
+
+async function sendReactWa() {
+  if (!Auth.requireLogin('Masuk atau daftar dulu untuk klaim bansos.')) return;
+  const url = document.getElementById('react-url').value.trim();
+  if (!url) { Toast.warning('Harap masukkan link postingan channel.'); return; }
+  if (!reactSelected.length) { Toast.warning('Pilih minimal 1 emoji.'); return; }
+
+  const btn = document.getElementById('react-btn');
+  setLoading(btn, true);
+  logMsg('Mengirim react ke postingan channel...', 'info');
+  const res = await API.post('/api/bansos/react-wa', { url, reactions: reactSelected });
+  setLoading(btn, false);
+
+  if (res.success) {
+    logMsg(res.message, 'success');
+    Toast.success(res.message);
+    document.getElementById('react-result').innerHTML = `
+      <div class="bansos-result-box">
+        <div class="bansos-result-row"><span class="bansos-result-label">Status</span><span class="badge badge-success">Berhasil</span></div>
+        <div class="bansos-result-row"><span class="bansos-result-label">Reaksi</span><span class="bansos-result-value">${(res.data?.reactions || []).map(escapeHtml).join(' ')}</span></div>
       </div>`;
     fetchStats();
   } else {
