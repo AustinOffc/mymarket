@@ -1713,8 +1713,8 @@
           <p class="text-xs text-muted" style="padding:0 20px 14px">Daftar semua API Key H2H yang pernah dibuat user. API Key sendiri dibuat mandiri oleh masing-masing user dari halaman akun mereka — owner hanya bisa memantau &amp; menonaktifkan.</p>
           <div class="table-wrapper">
             <table class="table">
-              <thead><tr><th>User</th><th>Key</th><th>Webhook</th><th>Total Request</th><th>Terakhir Dipakai</th><th>Status</th><th>Aksi</th></tr></thead>
-              <tbody id="h2h-keys-tbody"><tr><td colspan="7" class="table-empty">Memuat...</td></tr></tbody>
+              <thead><tr><th>User</th><th>Key</th><th>Webhook</th><th>Request</th><th>Order</th><th>Berhasil</th><th>Gagal</th><th>Total Belanja</th><th>Terakhir Dipakai</th><th>Status</th><th>Aksi</th></tr></thead>
+              <tbody id="h2h-keys-tbody"><tr><td colspan="11" class="table-empty">Memuat...</td></tr></tbody>
             </table>
           </div>
           <div class="pagination"><div class="pagination-nav" id="h2h-keys-pagination"></div></div>
@@ -6383,7 +6383,7 @@ async function loadH2hKeys(page) {
   const res = await API.get(`/api/owner/h2h/keys?page=${page}&limit=20`);
   const tbody = document.getElementById('h2h-keys-tbody');
   if (!res.success || !res.data.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Belum ada API Key H2H yang dibuat user</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" class="table-empty">Belum ada API Key H2H yang dibuat user</td></tr>`;
     document.getElementById('h2h-keys-pagination').innerHTML = '';
     return;
   }
@@ -6393,6 +6393,10 @@ async function loadH2hKeys(page) {
       <td class="text-xs" style="font-family:var(--font-mono)">${escapeHtml(k.key_preview || '-')}</td>
       <td class="text-xs text-muted" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${k.webhook_url ? escapeHtml(k.webhook_url) : '-'}</td>
       <td class="text-sm">${k.total_requests || 0}</td>
+      <td class="text-sm">${k.orders_total || 0}</td>
+      <td class="text-sm" style="color:var(--success)">${k.orders_success || 0}</td>
+      <td class="text-sm" style="color:${k.orders_failed ? 'var(--danger)' : 'inherit'}">${k.orders_failed || 0}</td>
+      <td class="text-sm" style="white-space:nowrap">${formatRupiah(k.total_spent || 0)}</td>
       <td class="text-xs text-muted">${k.lastUsedAt ? formatDate(k.lastUsedAt) : '-'}</td>
       <td>${k.active ? statusBadge('active') : statusBadge('suspended')}</td>
       <td>${k.active ? `<button class="btn btn-danger btn-sm" data-action="revoke-h2h-key" data-id="${k.id}"><i class="fas fa-ban"></i> Nonaktifkan</button>` : '<span class="text-xs text-muted">—</span>'}</td>

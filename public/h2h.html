@@ -20,6 +20,17 @@
       border: 1px dashed var(--primary); border-radius: 8px; padding: 12px 14px;
       word-break: break-all; display: flex; align-items: center; gap: 10px; justify-content: space-between;
     }
+    .h2h-key-box code { flex: 1; min-width: 0; letter-spacing: .02em; }
+    .h2h-key-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .h2h-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+    @media (min-width: 560px) { .h2h-stat-grid { grid-template-columns: repeat(3, 1fr); } }
+    .h2h-stat { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+    .h2h-stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+    .h2h-stat-value { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; line-height: 1.2; word-break: break-word; }
+    .h2h-stat-value.ok { color: var(--success); }
+    .h2h-stat-value.bad { color: var(--danger); }
+    .h2h-stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+    .h2h-subtitle { font-size: 13px; font-weight: 700; margin: 14px 0 8px; }
     .h2h-status-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
   </style>
 </head>
@@ -102,18 +113,54 @@
               <span id="h2h-status-badge">-</span>
             </div>
             <div class="text-xs text-muted" id="h2h-key-meta" style="margin-bottom:14px"></div>
-            <div id="h2h-key-reveal" style="display:none;margin-bottom:14px">
-              <label class="form-label">API Key Baru (simpan sekarang, hanya tampil sekali)</label>
+            <div id="h2h-key-box-wrap" style="display:none;margin-bottom:14px">
+              <label class="form-label">API Key</label>
               <div class="h2h-key-box">
                 <code id="h2h-key-value">-</code>
-                <button class="btn btn-outline btn-sm" id="h2h-copy-key-btn" type="button"><i class="fas fa-copy"></i></button>
+                <span class="h2h-key-actions">
+                  <button class="btn btn-outline btn-sm" id="h2h-eye-btn" type="button" title="Lihat / sembunyikan API Key" aria-label="Lihat atau sembunyikan API Key"><i class="fas fa-eye"></i></button>
+                  <button class="btn btn-outline btn-sm" id="h2h-copy-key-btn" type="button" title="Salin API Key" aria-label="Salin API Key"><i class="fas fa-copy"></i></button>
+                </span>
               </div>
+              <div class="text-xs text-muted" id="h2h-key-hint" style="margin-top:6px"></div>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap">
               <button class="btn btn-primary btn-sm" id="h2h-generate-btn"><i class="fas fa-rotate"></i> Generate / Ganti API Key</button>
               <button class="btn btn-danger btn-sm" id="h2h-revoke-btn" style="display:none"><i class="fas fa-ban"></i> Nonaktifkan</button>
             </div>
           </div>
+        </div>
+
+        <div class="card" id="h2h-stats-card" style="display:none">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <span class="card-title"><i class="fas fa-chart-simple" style="color:var(--primary)"></i> Statistik API Key</span>
+            <button class="btn btn-outline btn-sm" id="h2h-stats-refresh" type="button" title="Muat ulang"><i class="fas fa-rotate-right"></i></button>
+          </div>
+          <div class="card-body">
+            <div id="h2h-stats-body"><div class="text-sm text-muted">Memuat...</div></div>
+          </div>
+        </div>
+
+        <div class="card" id="h2h-orders-card" style="display:none">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <span class="card-title"><i class="fas fa-list-check" style="color:var(--primary)"></i> Riwayat Order H2H</span>
+            <select class="form-control" id="h2h-orders-filter" style="width:auto">
+              <option value="">Semua status</option>
+              <option value="success">Berhasil</option>
+              <option value="failed">Gagal</option>
+              <option value="partial">Sebagian Berhasil</option>
+              <option value="awaiting_payment">Menunggu QRIS</option>
+              <option value="processing">Diproses</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead><tr><th>Waktu</th><th>Produk</th><th>Target</th><th>Harga</th><th>Status</th></tr></thead>
+              <tbody id="h2h-orders-tbody"><tr><td colspan="5" class="table-empty">Memuat...</td></tr></tbody>
+            </table>
+          </div>
+          <div class="pagination"><div class="pagination-nav" id="h2h-orders-pagination"></div></div>
         </div>
 
         <div class="card">
@@ -152,11 +199,130 @@
 <script src="/js/cs.js"></script>
 <script>
 let h2hHasKey = false;
+let h2hKeyPreview = null;   // preview dari server, dipakai untuk mendeteksi key berganti
+let h2hKeyPlain = null;     // key lengkap, hanya ada di memori halaman ini setelah tombol mata ditekan
+let h2hKeyVisible = false;
+let h2hCanReveal = false;
+
+const H2H_MODULE_LABELS = {
+  general: 'Produk Marketplace', topup: 'Topup Game', nokos: 'Nomor OTP',
+  ppob: 'PPOB', appprem: 'App Premium', socmed: 'Sosial Media', subdomain: 'Subdomain',
+};
 
 function h2hAlert(containerId, message, type = 'danger') {
   const box = document.getElementById(containerId);
   if (!message) { box.innerHTML = ''; return; }
-  box.innerHTML = `<div class="alert alert-${type}" style="margin-bottom:14px"><i class="fas fa-circle-${type === 'success' ? 'check' : 'exclamation'}"></i> ${message}</div>`;
+  box.innerHTML = `<div class="alert alert-${type}" style="margin-bottom:14px"><i class="fas fa-circle-${type === 'success' ? 'check' : 'exclamation'}"></i> ${escapeHtml(message)}</div>`;
+}
+
+function h2hMaskedKey() {
+  const tail = h2hKeyPreview ? h2hKeyPreview.slice(-4) : '';
+  return `h2h_live_${'•'.repeat(24)}${tail}`;
+}
+
+function renderH2hKey() {
+  const wrap = document.getElementById('h2h-key-box-wrap');
+  wrap.style.display = h2hKeyPreview ? '' : 'none';
+  if (!h2hKeyPreview) return;
+  document.getElementById('h2h-key-value').textContent = (h2hKeyVisible && h2hKeyPlain) ? h2hKeyPlain : h2hMaskedKey();
+  document.getElementById('h2h-eye-btn').innerHTML = `<i class="fas fa-eye${h2hKeyVisible ? '-slash' : ''}"></i>`;
+  document.getElementById('h2h-key-hint').textContent = h2hCanReveal
+    ? 'Tekan ikon mata untuk melihat key lengkap. Jangan bagikan key ini ke siapa pun.'
+    : 'Key ini dibuat sebelum fitur lihat-ulang ada. Klik "Generate Ulang API Key" sekali supaya key bisa dilihat kapan saja.';
+}
+
+// Ambil key lengkap dari server (sekali, lalu disimpan di memori halaman).
+async function ensureH2hKey() {
+  if (h2hKeyPlain) return h2hKeyPlain;
+  if (!h2hCanReveal) { h2hAlert('h2h-key-alert', 'Key ini dibuat sebelum fitur lihat-ulang ada. Klik Generate Ulang API Key sekali, setelah itu key bisa dilihat kapan saja.', 'danger'); return null; }
+  const r = await API.post('/api/h2h/key/reveal');
+  if (!r.success) {
+    if (r.code === 'NOT_REVEALABLE') { h2hCanReveal = false; renderH2hKey(); }
+    h2hAlert('h2h-key-alert', r.message || 'Gagal menampilkan API Key');
+    return null;
+  }
+  h2hAlert('h2h-key-alert', '');
+  h2hKeyPlain = r.data.api_key;
+  return h2hKeyPlain;
+}
+
+function h2hStatusBadge(status) {
+  const map = {
+    success: ['badge-success', 'Berhasil'], partial: ['badge-warning', 'Sebagian'],
+    failed: ['badge-danger', 'Gagal'], awaiting_payment: ['badge-info', 'Menunggu QRIS'],
+    processing: ['badge-info', 'Diproses'], pending: ['badge-secondary', 'Pending'],
+  };
+  const [cls, label] = map[status] || ['badge-secondary', status];
+  return `<span class="badge ${cls}">${escapeHtml(label)}</span>`;
+}
+
+function h2hTile(label, value, { cls = '', sub = '' } = {}) {
+  return `<div class="h2h-stat"><div class="h2h-stat-label">${label}</div><div class="h2h-stat-value ${cls}">${value}</div>${sub ? `<div class="h2h-stat-sub">${sub}</div>` : ''}</div>`;
+}
+
+async function loadH2hStats() {
+  const body = document.getElementById('h2h-stats-body');
+  const res = await API.get('/api/h2h/key/stats');
+  if (!res.success || !res.data) { body.innerHTML = `<div class="text-sm text-muted">${escapeHtml(res.message || 'Belum ada data')}</div>`; return; }
+  const d = res.data, o = d.orders, m = d.money;
+  const waiting = o.processing + o.awaiting_payment;
+  const rate = o.success_rate === null ? '-' : `${o.success_rate}%`;
+
+  const periodRow = (label, p) => `<tr><td>${label}</td><td>${p.total}</td><td>${p.success}</td><td>${p.failed}</td><td>${formatRupiah(p.spent)}</td></tr>`;
+  const moduleRows = d.modules.length
+    ? d.modules.map((x) => `<tr><td>${escapeHtml(H2H_MODULE_LABELS[x.module] || x.module)}</td><td>${x.total}</td><td>${x.success}</td><td>${x.failed}</td><td>${formatRupiah(x.spent)}</td></tr>`).join('')
+    : `<tr><td colspan="5" class="table-empty">Belum ada order</td></tr>`;
+
+  body.innerHTML = `
+    <div class="h2h-stat-grid">
+      ${h2hTile('Order Masuk', o.total, { sub: o.last_order_at ? `Terakhir ${formatDate(o.last_order_at)}` : 'Belum ada order' })}
+      ${h2hTile('Berhasil', o.success, { cls: 'ok', sub: o.partial ? `+${o.partial} sebagian berhasil` : '' })}
+      ${h2hTile('Gagal', o.failed, { cls: o.failed ? 'bad' : '' })}
+      ${h2hTile('Diproses / Menunggu', waiting, { sub: o.awaiting_payment ? `${o.awaiting_payment} menunggu bayar QRIS` : '' })}
+      ${h2hTile('Success Rate', rate, { sub: 'Berhasil dari order yang sudah selesai' })}
+      ${h2hTile('Total Request', d.requests.total, { sub: d.requests.last_used_at ? `Terakhir ${formatDate(d.requests.last_used_at)}` : 'Belum pernah dipakai' })}
+      ${h2hTile('Total Belanja', formatRupiah(m.total_spent), { sub: 'Order berhasil' })}
+      ${h2hTile('Hemat Diskon H2H', formatRupiah(m.total_discount))}
+      ${h2hTile('Saldo Saat Ini', formatRupiah(m.balance))}
+    </div>
+
+    <div class="h2h-subtitle">Per Periode</div>
+    <div class="table-wrapper"><table class="table">
+      <thead><tr><th>Periode</th><th>Order</th><th>Berhasil</th><th>Gagal</th><th>Belanja</th></tr></thead>
+      <tbody>${periodRow('Hari ini', d.periods.today)}${periodRow('7 hari', d.periods.last_7_days)}${periodRow('30 hari', d.periods.last_30_days)}</tbody>
+    </table></div>
+
+    <div class="h2h-subtitle">Per Modul Produk</div>
+    <div class="table-wrapper"><table class="table">
+      <thead><tr><th>Modul</th><th>Order</th><th>Berhasil</th><th>Gagal</th><th>Belanja</th></tr></thead>
+      <tbody>${moduleRows}</tbody>
+    </table></div>
+
+    <div class="text-xs text-muted" style="margin-top:12px">Key dibuat: ${d.requests.key_created_at ? formatDate(d.requests.key_created_at) : '-'}</div>`;
+}
+
+async function loadH2hOrders(page = 1) {
+  const status = document.getElementById('h2h-orders-filter').value;
+  const res = await API.get(`/api/h2h/key/orders?page=${page}&limit=10${status ? `&status=${status}` : ''}`);
+  const tbody = document.getElementById('h2h-orders-tbody');
+  if (!res.success || !res.data.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">${res.success ? 'Belum ada order H2H' : escapeHtml(res.message || 'Gagal memuat order')}</td></tr>`;
+    document.getElementById('h2h-orders-pagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = res.data.map((o) => `
+    <tr>
+      <td class="text-xs text-muted" style="white-space:nowrap">${formatDate(o.createdAt)}</td>
+      <td class="text-sm">
+        ${escapeHtml(o.product_name || '-')}${o.quantity > 1 ? ` &times;${o.quantity}` : ''}
+        <div class="text-xs text-muted">${escapeHtml(H2H_MODULE_LABELS[o.product_type] || o.product_type)}${o.ref_id ? ` &middot; ref: ${escapeHtml(o.ref_id)}` : ''}</div>
+        ${o.message ? `<div class="text-xs" style="color:var(--danger)">${escapeHtml(o.message)}</div>` : ''}
+      </td>
+      <td class="text-xs" style="font-family:var(--font-mono)">${escapeHtml(o.target_id || '-')}</td>
+      <td class="text-sm" style="white-space:nowrap">${formatRupiah(o.price)}</td>
+      <td>${h2hStatusBadge(o.status)}</td>
+    </tr>`).join('');
+  renderPagination('h2h-orders-pagination', res.page, res.pages, loadH2hOrders);
 }
 
 async function loadH2hStatus() {
@@ -164,6 +330,12 @@ async function loadH2hStatus() {
   if (!res.success) { h2hAlert('h2h-key-alert', res.message || 'Gagal memuat status API Key'); return; }
   const d = res.data;
   h2hHasKey = !!d.key_preview;
+
+  // Key berganti (mis. di-generate dari perangkat lain) -> buang key lama dari memori halaman.
+  if (d.key_preview !== h2hKeyPreview) { h2hKeyPlain = null; h2hKeyVisible = false; }
+  h2hKeyPreview = d.key_preview || null;
+  h2hCanReveal = !!d.can_reveal;
+  renderH2hKey();
 
   if (!d.h2h_enabled) {
     document.getElementById('h2h-status-badge').innerHTML = '<span class="badge badge-secondary">H2H API sedang dinonaktifkan owner</span>';
@@ -176,7 +348,7 @@ async function loadH2hStatus() {
   }
 
   document.getElementById('h2h-key-meta').innerHTML = d.key_preview
-    ? `Key: <code>${d.key_preview}</code> &middot; Total request: ${d.total_requests || 0} &middot; Terakhir dipakai: ${d.lastUsedAt ? formatDate(d.lastUsedAt) : 'belum pernah'}`
+    ? `Total request: ${d.total_requests || 0} &middot; Terakhir dipakai: ${d.lastUsedAt ? formatDate(d.lastUsedAt) : 'belum pernah'}`
     : 'Generate API Key untuk mulai mengakses H2H API.';
 
   document.getElementById('h2h-revoke-btn').style.display = (d.key_preview && d.active) ? '' : 'none';
@@ -185,6 +357,10 @@ async function loadH2hStatus() {
     : '<i class="fas fa-rotate"></i> Generate API Key';
 
   document.getElementById('h2h-webhook-url').value = d.webhook_url || '';
+
+  document.getElementById('h2h-stats-card').style.display = d.key_preview ? '' : 'none';
+  document.getElementById('h2h-orders-card').style.display = d.key_preview ? '' : 'none';
+  if (d.key_preview) { loadH2hStats(); loadH2hOrders(1); }
 }
 
 document.getElementById('h2h-generate-btn').addEventListener('click', async () => {
@@ -192,9 +368,19 @@ document.getElementById('h2h-generate-btn').addEventListener('click', async () =
   const r = await API.post('/api/h2h/key/generate');
   if (!r.success) { h2hAlert('h2h-key-alert', r.message); return; }
   h2hAlert('h2h-key-alert', r.message, 'success');
-  document.getElementById('h2h-key-value').textContent = r.data.api_key;
-  document.getElementById('h2h-key-reveal').style.display = '';
+  // Key baru langsung ditampilkan; set preview dulu supaya loadH2hStatus tidak menganggapnya "key berganti".
+  h2hKeyPreview = r.data.preview;
+  h2hKeyPlain = r.data.api_key;
+  h2hKeyVisible = true;
   loadH2hStatus();
+});
+
+document.getElementById('h2h-eye-btn').addEventListener('click', async () => {
+  if (h2hKeyVisible) { h2hKeyVisible = false; renderH2hKey(); return; }
+  const key = await ensureH2hKey();
+  if (!key) return;
+  h2hKeyVisible = true;
+  renderH2hKey();
 });
 
 document.getElementById('h2h-revoke-btn').addEventListener('click', async () => {
@@ -217,10 +403,14 @@ document.getElementById('h2h-webhook-save-btn').addEventListener('click', async 
   loadH2hStatus();
 });
 
-document.getElementById('h2h-copy-key-btn').addEventListener('click', () => {
-  navigator.clipboard.writeText(document.getElementById('h2h-key-value').textContent);
-  Toast.success('API Key disalin');
+document.getElementById('h2h-copy-key-btn').addEventListener('click', async () => {
+  const key = await ensureH2hKey();
+  if (!key) return;
+  try { await navigator.clipboard.writeText(key); Toast.success('API Key disalin'); }
+  catch { Toast.error('Gagal menyalin, tekan ikon mata lalu salin manual'); }
 });
+document.getElementById('h2h-stats-refresh').addEventListener('click', () => { loadH2hStats(); loadH2hOrders(1); });
+document.getElementById('h2h-orders-filter').addEventListener('change', () => loadH2hOrders(1));
 document.getElementById('h2h-copy-secret-btn').addEventListener('click', () => {
   navigator.clipboard.writeText(document.getElementById('h2h-webhook-secret-value').textContent);
   Toast.success('Webhook secret disalin');
