@@ -220,13 +220,13 @@
           <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Link Postingan Channel</label>
           <input type="url" id="react-url" class="form-control" placeholder="https://whatsapp.com/channel/xxxx/123" style="margin-bottom:14px" autocomplete="off">
 
-          <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:8px">Pilih Reaksi (<span id="react-count">4</span>/6)</label>
+          <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:8px">Pilih Reaksi (<span id="react-count">4</span>/4)</label>
           <div class="react-emoji-grid" id="react-emoji-grid"></div>
           <div class="react-custom-row">
             <input type="text" id="react-custom" class="form-control" placeholder="Emoji sendiri, pisah koma: 🤩,💀,🫡" autocomplete="off">
             <button type="button" class="btn btn-outline" onclick="addCustomEmoji()"><i class="fas fa-plus"></i> Tambah</button>
           </div>
-          <div class="react-emoji-hint">Ketuk emoji untuk memilih / melepas. Minimal 1, maksimal 6.</div>
+          <div class="react-emoji-hint">Ketuk emoji untuk memilih / melepas. Minimal 1, maksimal 4.</div>
 
           <button class="btn btn-primary btn-full btn-lg" id="react-btn" onclick="sendReactWa()"><i class="fas fa-paper-plane"></i> Kirim React Sekarang</button>
           <div id="react-result"></div>
@@ -429,7 +429,7 @@ async function generateNetflix() {
 
 // --- React WA ---
 let REACT_EMOJIS = ['🔥', '❤️', '🥶', '😱', '👍', '😂', '😮', '😢', '🙏', '🎉', '😍', '🤯'];
-const REACT_MAX = 6;
+const REACT_MAX = 4;
 let reactSelected = ['🔥', '❤️', '🥶', '😱'];
 
 function renderReactEmojis() {
