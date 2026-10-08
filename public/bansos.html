@@ -478,6 +478,29 @@ document.getElementById('react-custom').addEventListener('keydown', (ev) => {
   if (ev.key === 'Enter') { ev.preventDefault(); addCustomEmoji(); }
 });
 
+// Tombol dikunci selama jeda global (30 dtk) supaya user tidak spam klik.
+let reactCooldownTimer = null;
+function startReactCooldown(seconds) {
+  const btn = document.getElementById('react-btn');
+  if (!btn || !(seconds > 0)) return;
+  clearInterval(reactCooldownTimer);
+  const origHtml = '<i class="fas fa-paper-plane"></i> Kirim React Sekarang';
+  let left = Math.ceil(seconds);
+  btn.disabled = true;
+  const tick = () => {
+    if (left <= 0) {
+      clearInterval(reactCooldownTimer);
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+      return;
+    }
+    btn.innerHTML = `<i class="fas fa-clock"></i> Tunggu ${left} detik`;
+    left--;
+  };
+  tick();
+  reactCooldownTimer = setInterval(tick, 1000);
+}
+
 async function sendReactWa() {
   if (!Auth.requireLogin('Masuk atau daftar dulu untuk klaim bansos.')) return;
   const url = document.getElementById('react-url').value.trim();
@@ -499,9 +522,11 @@ async function sendReactWa() {
         <div class="bansos-result-row"><span class="bansos-result-label">Reaksi</span><span class="bansos-result-value">${(res.data?.reactions || []).map(escapeHtml).join(' ')}</span></div>
       </div>`;
     fetchStats();
+    startReactCooldown(res.data?.retry_after);
   } else {
     logMsg(res.message, 'error');
     Toast.error(res.message);
+    startReactCooldown(res.data?.retry_after);
   }
 }
 
