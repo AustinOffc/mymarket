@@ -1072,7 +1072,11 @@
               <label class="form-label">Bansos API Key <span id="bansos-api-key-status" class="text-xs text-muted"></span></label>
               <input type="password" class="form-control" id="bansos-api-key" placeholder="Kosongkan jika tidak diganti">
             </div>
-            <button type="submit" class="btn btn-primary" style="width:fit-content"><i class="fas fa-save"></i> Simpan API Key</button>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Bypass Key AM (Server 2 &amp; Bulk) <span id="bansos-am-bypass-status" class="text-xs text-muted"></span></label>
+              <input type="password" class="form-control" id="bansos-am-bypass-key" placeholder="Kosongkan jika tidak diganti (default: amfree_key)">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:fit-content"><i class="fas fa-save"></i> Simpan Pengaturan</button>
           </form>
         </div>
 
@@ -4065,6 +4069,8 @@ async function loadBansosSection() {
   const d = res.data || {};
   document.getElementById('bansos-api-key').value = '';
   document.getElementById('bansos-api-key-status').textContent = d.bansos_api_key_set ? '(sudah tersimpan)' : '(belum diatur)';
+  document.getElementById('bansos-am-bypass-key').value = '';
+  document.getElementById('bansos-am-bypass-status').textContent = d.am_bypass_key_set ? '(sudah tersimpan)' : '(memakai default)';
   const totals = d.totals || {};
   document.getElementById('bansos-total-am').textContent = totals.alightMotion ?? 0;
   document.getElementById('bansos-total-netflix').textContent = totals.netflix ?? 0;
@@ -4093,9 +4099,10 @@ async function loadBansosSection() {
 document.getElementById('bansos-api-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const key = document.getElementById('bansos-api-key').value.trim();
-  if (!key) { Toast.error('Isi API Key dulu'); return; }
-  const r = await API.post('/api/owner/bansos/settings', { bansos_api_key: key });
-  r.success ? (Toast.success('API Key Bansos tersimpan'), loadBansosSection()) : Toast.error(r.message || 'Gagal menyimpan');
+  const amKey = document.getElementById('bansos-am-bypass-key').value.trim();
+  if (!key && !amKey) { Toast.error('Isi API Key atau Bypass Key dulu'); return; }
+  const r = await API.post('/api/owner/bansos/settings', { bansos_api_key: key, am_bypass_key: amKey });
+  r.success ? (Toast.success('Pengaturan Bansos tersimpan'), loadBansosSection()) : Toast.error(r.message || 'Gagal menyimpan');
 });
 
 document.getElementById('bansos-ptero-form')?.addEventListener('submit', async (e) => {

@@ -27,6 +27,8 @@
     .bansos-stat-card .stat-value { font-family: var(--font-display); font-size: 30px; font-weight: 800; color: var(--primary); line-height: 1.1; }
     .bansos-stat-card .stat-quota { margin-top: 10px; font-family: var(--font-mono); }
 
+    .am-server-switch { display: flex; gap: 8px; }
+    .am-server-switch .btn { flex: 1; }
     .bansos-step { transition: opacity .2s; }
     .bansos-step.locked { opacity: .45; pointer-events: none; }
 
@@ -172,13 +174,20 @@
         <div id="tab-am" class="bansos-tab-content active">
           <div class="card-header" style="padding:0 0 14px 0;border:none"><span class="card-title">Verifikasi Alight Motion</span></div>
 
+          <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Pilih Server</label>
+          <div class="am-server-switch" style="margin-bottom:16px">
+            <button type="button" class="btn btn-primary" id="am-server-1" onclick="setAmServer(1)"><i class="fas fa-server"></i> Server 1</button>
+            <button type="button" class="btn btn-outline" id="am-server-2" onclick="setAmServer(2)"><i class="fas fa-server"></i> Server 2</button>
+          </div>
+
           <div id="am-step-1" class="bansos-step">
             <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Alamat Gmail</label>
             <input type="email" id="am-email" class="form-control" placeholder="user@gmail.com" style="margin-bottom:12px">
             <button class="btn btn-primary btn-full" id="am-send-btn" onclick="sendAmLink()"><i class="fas fa-paper-plane"></i> 1. Kirim Magic Link</button>
           </div>
 
-          <div id="am-step-2" class="bansos-step locked" style="margin-top:16px">
+          <p style="font-size:12.5px;color:var(--text-muted);margin:14px 0 0">Sudah punya magic link dari email? Langsung isi di bawah, tanpa perlu kirim magic link lagi.</p>
+          <div id="am-step-2" class="bansos-step" style="margin-top:10px">
             <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Tempel Magic Link dari Email</label>
             <input type="text" id="am-link" class="form-control" placeholder="https://alight-creative.firebaseapp.com/..." style="margin-bottom:12px">
             <button class="btn btn-success btn-full" id="am-verify-btn" onclick="verifyAm()"><i class="fas fa-check"></i> 2. Proses Verifikasi</button>
@@ -345,6 +354,13 @@ function setLoading(btn, loading) {
   btn.classList.toggle('btn-loading', loading);
 }
 
+let amServer = 1;
+function setAmServer(n) {
+  amServer = n === 2 ? 2 : 1;
+  document.getElementById('am-server-1').className = `btn ${amServer === 1 ? 'btn-primary' : 'btn-outline'}`;
+  document.getElementById('am-server-2').className = `btn ${amServer === 2 ? 'btn-primary' : 'btn-outline'}`;
+}
+
 async function sendAmLink() {
   if (!Auth.requireLogin('Masuk atau daftar dulu untuk klaim bansos.')) return;
   const email = document.getElementById('am-email').value.trim();
@@ -353,13 +369,12 @@ async function sendAmLink() {
   const btn = document.getElementById('am-send-btn');
   setLoading(btn, true);
   logMsg(`Memproses pengiriman link ke: ${email}...`, 'info');
-  const res = await API.post('/api/bansos/am/send', { email });
+  const res = await API.post('/api/bansos/am/send', { email, server: amServer });
   setLoading(btn, false);
 
   if (res.success) {
     logMsg(res.message, 'success');
     Toast.success(res.message);
-    document.getElementById('am-step-2').classList.remove('locked');
   } else {
     logMsg(res.message, 'error');
     Toast.error(res.message);
@@ -370,12 +385,13 @@ async function verifyAm() {
   if (!Auth.requireLogin('Masuk atau daftar dulu untuk klaim bansos.')) return;
   const email = document.getElementById('am-email').value.trim();
   const link = document.getElementById('am-link').value.trim();
+  if (!email) { Toast.warning('Harap masukkan alamat email.'); return; }
   if (!link) { Toast.warning('Harap masukkan magic link.'); return; }
 
   const btn = document.getElementById('am-verify-btn');
   setLoading(btn, true);
   logMsg('Memverifikasi akun Alight Motion...', 'info');
-  const res = await API.post('/api/bansos/am/verify', { email, link });
+  const res = await API.post('/api/bansos/am/verify', { email, link, server: amServer });
   setLoading(btn, false);
 
   if (res.success) {
