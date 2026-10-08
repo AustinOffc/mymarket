@@ -66,6 +66,8 @@
     }
     .react-emoji-chip:hover { border-color: var(--primary); }
     .react-emoji-chip.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .18); }
+    .react-custom-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .react-custom-row .form-control { flex: 1; min-width: 0; }
     .react-emoji-hint { font-size: 12.5px; color: var(--text-muted); margin-bottom: 16px; }
 
     .bulk-processing-box { text-align: center; padding: 26px 14px; }
@@ -147,11 +149,11 @@
           <div class="stat-label">Total Token Netflix Dibuat</div>
           <div class="stat-value" id="stat-netflix-total">0</div>
         </div>
-        <div class="card bansos-stat-card" style="grid-column:1/-1">
+        <div class="card bansos-stat-card" id="stat-react-card">
           <div class="stat-label">Total React WA Terkirim</div>
           <div class="stat-value" id="stat-react-total">0</div>
         </div>
-        <div class="card bansos-stat-card" id="stat-panel-card" style="grid-column:1/-1;display:none">
+        <div class="card bansos-stat-card" id="stat-panel-card" style="display:none">
           <div class="stat-label">Total Panel Gratis Diambil</div>
           <div class="stat-value" id="stat-panel-total">0</div>
         </div>
@@ -220,6 +222,10 @@
 
           <label class="form-label" style="display:block;font-size:13px;font-weight:600;margin-bottom:8px">Pilih Reaksi (<span id="react-count">4</span>/6)</label>
           <div class="react-emoji-grid" id="react-emoji-grid"></div>
+          <div class="react-custom-row">
+            <input type="text" id="react-custom" class="form-control" placeholder="Emoji sendiri, pisah koma: 🤩,💀,🫡" autocomplete="off">
+            <button type="button" class="btn btn-outline" onclick="addCustomEmoji()"><i class="fas fa-plus"></i> Tambah</button>
+          </div>
           <div class="react-emoji-hint">Ketuk emoji untuk memilih / melepas. Minimal 1, maksimal 6.</div>
 
           <button class="btn btn-primary btn-full btn-lg" id="react-btn" onclick="sendReactWa()"><i class="fas fa-paper-plane"></i> Kirim React Sekarang</button>
@@ -321,6 +327,8 @@ async function fetchStats() {
 
   document.getElementById('stat-panel-total').textContent = res.data.totals.panel ?? 0;
   document.getElementById('stat-panel-card').style.display = res.data.ptero_enabled ? '' : 'none';
+  // Panel nonaktif -> kartu React melebar penuh supaya grid tidak bolong
+  document.getElementById('stat-react-card').style.gridColumn = res.data.ptero_enabled ? '' : '1/-1';
 
   const pteroBtn = document.getElementById('tab-btn-ptero');
   if (res.data.ptero_enabled) {
@@ -420,7 +428,7 @@ async function generateNetflix() {
 }
 
 // --- React WA ---
-const REACT_EMOJIS = ['🔥', '❤️', '🥶', '😱', '👍', '😂', '😮', '😢', '🙏', '🎉', '😍', '🤯'];
+let REACT_EMOJIS = ['🔥', '❤️', '🥶', '😱', '👍', '😂', '😮', '😢', '🙏', '🎉', '😍', '🤯'];
 const REACT_MAX = 6;
 let reactSelected = ['🔥', '❤️', '🥶', '😱'];
 
@@ -445,6 +453,30 @@ document.getElementById('react-emoji-grid').addEventListener('click', (ev) => {
   renderReactEmojis();
 });
 renderReactEmojis();
+
+// Emoji custom: user ketik sendiri, dipisah koma. Emoji valid otomatis masuk grid & terpilih.
+const REACT_EMOJI_RE = /^\p{Extended_Pictographic}(\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*$/u;
+function addCustomEmoji() {
+  const input = document.getElementById('react-custom');
+  const parts = input.value.split(/[,，、]/).map(x => x.trim()).filter(Boolean);
+  if (!parts.length) { Toast.warning('Ketik emoji dulu, pisahkan dengan koma.'); return; }
+  let added = 0, invalid = 0, full = false;
+  for (const e of parts) {
+    if (e.length > 16 || !REACT_EMOJI_RE.test(e)) { invalid++; continue; }
+    if (!REACT_EMOJIS.includes(e)) REACT_EMOJIS.push(e);
+    if (reactSelected.includes(e)) continue;
+    if (reactSelected.length >= REACT_MAX) { full = true; break; }
+    reactSelected.push(e);
+    added++;
+  }
+  renderReactEmojis();
+  if (full) Toast.warning(`Maksimal ${REACT_MAX} emoji, sisanya tidak dimasukkan.`);
+  else if (invalid) Toast.warning(`${invalid} input bukan emoji valid dan dilewati.`);
+  if (added || !invalid) input.value = '';
+}
+document.getElementById('react-custom').addEventListener('keydown', (ev) => {
+  if (ev.key === 'Enter') { ev.preventDefault(); addCustomEmoji(); }
+});
 
 async function sendReactWa() {
   if (!Auth.requireLogin('Masuk atau daftar dulu untuk klaim bansos.')) return;
