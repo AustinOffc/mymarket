@@ -382,6 +382,35 @@
           <p class="text-xs text-muted" style="padding:0 20px 20px;margin:-10px 0 0">Menyimpan tipe server baru akan otomatis menjalankan reinstall dan menghapus seluruh data di server.</p>
         </div>
 
+        <div class="card mb-16" id="manage-upgrade-wrap">
+          <div class="card-header"><span class="card-title"><i class="fas fa-arrow-up-right-dots" style="color:var(--primary)"></i> Upgrade Spek Server</span></div>
+          <div id="upgrade-unavailable" class="text-xs text-muted" style="display:none;padding:0 20px 20px"></div>
+          <div id="upgrade-body">
+            <form id="upgrade-form" style="padding:0 20px 12px;display:grid;gap:12px;max-width:420px">
+              <div class="text-xs text-muted" id="upgrade-current">-</div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">RAM (GB)</label>
+                <input type="number" class="form-control" id="upgrade-ram" step="1" inputmode="numeric">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">CPU (%) — kelipatan 50</label>
+                <input type="number" class="form-control" id="upgrade-cpu" step="50" inputmode="numeric">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Disk (GB)</label>
+                <input type="number" class="form-control" id="upgrade-disk" step="1" inputmode="numeric">
+              </div>
+              <div class="text-sm">Biaya upgrade: <b id="upgrade-cost">-</b></div>
+              <div class="text-xs text-muted" id="upgrade-renew-note">-</div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button type="submit" class="btn btn-primary" id="upgrade-btn"><i class="fas fa-arrow-up"></i> Upgrade Sekarang</button>
+                <button type="button" class="btn btn-outline" id="upgrade-unlimited-btn"><i class="fas fa-infinity"></i> Upgrade ke Unlimited</button>
+              </div>
+            </form>
+            <p class="text-xs text-muted" style="padding:0 20px 20px;margin:0">Spek hanya bisa dinaikkan. Harga mengikuti harga jual, dan perpanjangan berikutnya mengikuti harga spek terbaru. Restart server setelah upgrade supaya spek baru aktif.</p>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-header"><span class="card-title"><i class="fas fa-calendar" style="color:var(--primary)"></i> Perpanjang Server</span></div>
           <div style="padding:0 20px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
@@ -903,6 +932,7 @@ async function refreshManage() {
   pill.className = `status-pill ${p.status}`;
   pill.textContent = statusLabel(p.status);
   document.getElementById('manage-renew-price').textContent = formatRupiah(p.price);
+  populateUpgradeForm(p);
 
   // Dropdown "Ganti Tipe Server" HANYA diisi sekali per panel dibuka (di openManage/setelah
   // ganti tipe berhasil), TIDAK setiap polling 8 detik. Sebelumnya select ini di-rebuild di
@@ -1013,6 +1043,86 @@ document.getElementById('renew-btn').addEventListener('click', async () => {
   btnLoading(btn, false);
   if (res.success) { Toast.success(res.message); refreshManage(); loadMyPanels(); }
   else Toast.error(res.message);
+});
+
+// ── Upgrade Spek ──
+let upgradePanelFor = null;
+function sellPrice(p, ramGb, cpuPct, diskGb) {
+  if (!pricing) return 0;
+  return Math.round(ramGb * pricing.ram.pricePerUnit + (cpuPct / 50) * pricing.cpu.pricePerStep + diskGb * pricing.disk.pricePerUnit);
+}
+function currentPanelValue(p) {
+  if (p.unlimited) return pricing.unlimited.price;
+  return sellPrice(p, p.ram / 1024, p.cpu, p.disk / 1024);
+}
+function updateUpgradeCost() {
+  const p = myPanels.find((x) => x.id === currentPanelId);
+  if (!p || !pricing || p.unlimited) return;
+  const ram = Number(document.getElementById('upgrade-ram').value);
+  const cpu = Number(document.getElementById('upgrade-cpu').value);
+  const disk = Number(document.getElementById('upgrade-disk').value);
+  const costEl = document.getElementById('upgrade-cost');
+  const noteEl = document.getElementById('upgrade-renew-note');
+  if (!(ram > 0 && cpu > 0 && disk > 0)) { costEl.textContent = '-'; noteEl.textContent = '-'; return; }
+  const newVal = sellPrice(p, ram, cpu, disk);
+  const cost = newVal - currentPanelValue(p);
+  costEl.textContent = cost > 0 ? formatRupiah(cost) : 'Rp 0';
+  noteEl.textContent = `Harga perpanjangan setelah upgrade: ${formatRupiah(newVal)} / 30 hari`;
+}
+function populateUpgradeForm(p) {
+  const wrap = document.getElementById('manage-upgrade-wrap');
+  const body = document.getElementById('upgrade-body');
+  const msg = document.getElementById('upgrade-unavailable');
+  const blocked = !pricing ? 'Memuat tarif...'
+    : (p.panel_scope === 'reseller_personal' || p.panel_scope === 'reseller_buyer') ? 'Upgrade spek belum tersedia untuk panel reseller/partner.'
+    : p.unlimited ? 'Server Unlimited sudah di spek tertinggi.'
+    : p.status !== 'active' ? 'Server harus aktif untuk di-upgrade. Perpanjang dulu kalau sudah expired/suspend.'
+    : null;
+  wrap.style.display = '';
+  if (blocked) { body.style.display = 'none'; msg.style.display = 'block'; msg.textContent = blocked; upgradePanelFor = null; return; }
+  body.style.display = ''; msg.style.display = 'none';
+  // Isi nilai input HANYA sekali per panel dibuka (bukan tiap polling 8 detik), biar ketikan user tidak ke-reset.
+  if (upgradePanelFor === currentPanelId) return;
+  upgradePanelFor = currentPanelId;
+  const ramGb = p.ram / 1024, diskGb = p.disk / 1024;
+  const ramEl = document.getElementById('upgrade-ram'), cpuEl = document.getElementById('upgrade-cpu'), diskEl = document.getElementById('upgrade-disk');
+  ramEl.min = ramGb; ramEl.max = pricing.ram.max; ramEl.value = ramGb;
+  cpuEl.min = p.cpu; cpuEl.max = pricing.cpu.max; cpuEl.value = p.cpu;
+  diskEl.min = diskGb; diskEl.max = pricing.disk.max; diskEl.value = diskGb;
+  document.getElementById('upgrade-current').textContent = `Spek sekarang: ${ramGb} GB RAM / ${p.cpu}% CPU / ${diskGb} GB Disk`;
+  updateUpgradeCost();
+}
+['upgrade-ram', 'upgrade-cpu', 'upgrade-disk'].forEach((id) => document.getElementById(id).addEventListener('input', updateUpgradeCost));
+
+async function submitUpgrade(payload, confirmText, btn) {
+  if (!await showConfirm(confirmText, { title: 'Upgrade Spek', okText: 'Upgrade' })) return;
+  btnLoading(btn, true);
+  const res = await API.post(`/api/ptero/panels/${currentPanelId}/upgrade`, payload);
+  btnLoading(btn, false);
+  if (res.success) { Toast.success(res.message); upgradePanelFor = null; await loadMyPanels(); refreshManage(); }
+  else Toast.error(res.message);
+}
+document.getElementById('upgrade-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const p = myPanels.find((x) => x.id === currentPanelId);
+  if (!p) return;
+  const ram = Number(document.getElementById('upgrade-ram').value);
+  const cpu = Number(document.getElementById('upgrade-cpu').value);
+  const disk = Number(document.getElementById('upgrade-disk').value);
+  const cost = sellPrice(p, ram, cpu, disk) - currentPanelValue(p);
+  if (!(cost > 0)) return Toast.error('Naikkan minimal satu spek (RAM/CPU/Disk) dari spek sekarang');
+  submitUpgrade({ ram_gb: ram, cpu_pct: cpu, disk_gb: disk },
+    `Upgrade ke ${ram} GB RAM / ${cpu}% CPU / ${disk} GB Disk? Saldo terpotong ${formatRupiah(cost)}.`,
+    document.getElementById('upgrade-btn'));
+});
+document.getElementById('upgrade-unlimited-btn').addEventListener('click', () => {
+  const p = myPanels.find((x) => x.id === currentPanelId);
+  if (!p || !pricing) return;
+  const cost = pricing.unlimited.price - currentPanelValue(p);
+  if (!(cost > 0)) return Toast.error('Harga paket Unlimited tidak lebih tinggi dari spek kamu sekarang');
+  submitUpgrade({ mode: 'unlimited' },
+    `Upgrade ke paket Unlimited? Saldo terpotong ${formatRupiah(cost)}, perpanjangan jadi ${formatRupiah(pricing.unlimited.price)}.`,
+    document.getElementById('upgrade-unlimited-btn'));
 });
 
 init();
