@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dokumentasi H2H API — MyMarket</title>
+<title>Dokumentasi H2H API — {{brand.name}}</title>
 <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/notebook.css">
 <link rel="stylesheet" href="/fa/css/all.min.css" id="fa-local">
@@ -148,7 +148,7 @@ h4.sub { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-sp
       <section class="hero" id="intro">
         <div class="hero-eyebrow">H2H API v1 — Host to Host</div>
         <h1>Dokumentasi H2H API</h1>
-        <p class="hero-sub">Integrasikan sistem/toko kamu langsung ke katalog produk MyMarket: produk marketplace biasa dan Topup Game, lengkap dengan skema input per produk. Order otomatis dipotong dari saldo akunmu — kalau saldo kurang dan kamu menyertakan <code>nominal</code> di request, sistem otomatis membuatkan QRIS dan order akan lanjut diproses sendiri begitu QRIS-nya dibayar.</p>
+        <p class="hero-sub">Integrasikan sistem/toko kamu langsung ke katalog produk {{brand.name}}: produk marketplace biasa dan Topup Game, lengkap dengan skema input per produk. Order otomatis dipotong dari saldo akunmu — kalau saldo kurang dan kamu menyertakan <code>nominal</code> di request, sistem otomatis membuatkan QRIS dan order akan lanjut diproses sendiri begitu QRIS-nya dibayar.</p>
         <div class="hero-pills">
           <div class="pill"><i class="fas fa-link"></i> Base URL: <code>__H2H_ORIGIN__/api/h2h/v1</code></div>
           <div class="pill"><i class="fas fa-shield-halved"></i> Auth: header <code>X-API-Key</code></div>
@@ -160,18 +160,18 @@ h4.sub { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-sp
         <h2>Mulai Cepat</h2>
         <p class="lead">Empat langkah dari nol sampai order pertama berhasil.</p>
         <div class="flow">
-          <div class="flow-step"><div class="flow-n">1</div><div><b>Buat API Key.</b> Login ke akun MyMarket, buka menu <b>H2H API</b>, lalu klik generate. Key hanya tampil sekali — simpan di tempat aman (server, bukan di aplikasi klien).</div></div>
+          <div class="flow-step"><div class="flow-n">1</div><div><b>Buat API Key.</b> Login ke akun {{brand.name}}, buka menu <b>H2H API</b>, lalu klik generate. Key hanya tampil sekali — simpan di tempat aman (server, bukan di aplikasi klien).</div></div>
           <div class="flow-step"><div class="flow-n">2</div><div><b>Tes koneksi.</b> Panggil <code>GET /balance</code>. Kalau dapat saldo akunmu, Base URL dan API Key sudah benar.</div></div>
           <div class="flow-step"><div class="flow-n">3</div><div><b>Ambil katalog.</b> Panggil <code>GET /catalog</code> (dan <code>GET /catalog/topup/:category_key</code> untuk Topup Game) untuk mendapat <code>product_variant_id</code>, <code>service_code</code>, harga, dan field input yang wajib diisi.</div></div>
           <div class="flow-step"><div class="flow-n">4</div><div><b>Buat order.</b> Kirim <code>POST /order</code> dengan <code>ref_id</code> unik dari sistemmu, lalu pantau hasilnya lewat webhook atau <code>GET /order/:id</code>.</div></div>
         </div>
         <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl — tes koneksi</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl "__H2H_ORIGIN__/api/h2h/v1/balance" \
-  -H "X-API-Key: h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx"</code></pre></div>
+  -H "X-API-Key: h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx"</code></pre></div>
       </section>
 
       <section class="docs-section" id="baseurl">
         <h2>Base URL</h2>
-        <p class="lead">Semua endpoint H2H diakses lewat host API MyMarket berikut, selalu dengan HTTPS.</p>
+        <p class="lead">Semua endpoint H2H diakses lewat host API {{brand.name}} berikut, selalu dengan HTTPS.</p>
         <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">base url</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>__H2H_ORIGIN__/api/h2h/v1</code></pre></div>
         <div class="note warn"><i class="fas fa-triangle-exclamation"></i><div>Gunakan <strong>host API</strong> di atas, bukan domain website (tempat kamu login) dan bukan domain layanan lain. Kalau respons yang kamu terima berupa halaman HTML atau <code>404</code> dari host lain, hampir pasti Base URL-nya salah.</div></div>
         <p class="txt">Semua path di dokumentasi ini ditulis relatif terhadap Base URL. Contoh: <code>GET /balance</code> berarti <code>GET __H2H_ORIGIN__/api/h2h/v1/balance</code>.</p>
@@ -187,21 +187,21 @@ curl_setopt_array($curl, [
     CURLOPT_RETURNTRANSFER =&gt; true,
     CURLOPT_TIMEOUT        =&gt; 30,
     CURLOPT_HTTPHEADER     =&gt; [
-        "X-API-Key: h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx",
+        "X-API-Key: h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx",
     ],
 ]);
 $response = curl_exec($curl);
 curl_close($curl);
 $hasil = json_decode($response, true);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const res = await fetch("__H2H_ORIGIN__/api/h2h/v1/balance", {
-  headers: { "X-API-Key": "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx" },
+  headers: { "X-API-Key": "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx" },
 });
 const data = await res.json();</code></pre></div></div><div class="reqpanel" data-lang="java"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">java</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>HttpRequest request = HttpRequest.newBuilder()
         .uri(URI.create("__H2H_ORIGIN__/api/h2h/v1/balance"))
-        .header("X-API-Key", "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx")
+        .header("X-API-Key", "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx")
         .GET()
         .build();</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl "__H2H_ORIGIN__/api/h2h/v1/balance" \
-  -H "X-API-Key: h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx"</code></pre></div></div></div>
-        <div class="table-scroll"><table class="field-table"><tr><th>Header</th><th>Wajib</th><th>Ket.</th></tr><tr><td><code>X-API-Key</code></td><td>Ya</td><td>API Key H2H milikmu (diawali <code>h2h_mymarket_</code>)</td></tr><tr><td><code>Content-Type</code></td><td>Untuk POST</td><td><code>application/json</code></td></tr><tr><td><code>Accept</code></td><td>Disarankan</td><td><code>application/json</code></td></tr></table></div>
+  -H "X-API-Key: h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx"</code></pre></div></div></div>
+        <div class="table-scroll"><table class="field-table"><tr><th>Header</th><th>Wajib</th><th>Ket.</th></tr><tr><td><code>X-API-Key</code></td><td>Ya</td><td>API Key H2H milikmu (diawali <code>h2h_{{brand.h2hKeyPrefix}}_</code>)</td></tr><tr><td><code>Content-Type</code></td><td>Untuk POST</td><td><code>application/json</code></td></tr><tr><td><code>Accept</code></td><td>Disarankan</td><td><code>application/json</code></td></tr></table></div>
         <div class="note warn"><i class="fas fa-triangle-exclamation"></i><div>API Key hanya ditampilkan <strong>sekali</strong> saat digenerate/regenerate. Kalau hilang, generate ulang dari halaman akun — key lama otomatis nonaktif. Jangan pernah menaruh key di kode front-end, aplikasi mobile, atau repository publik; panggil API ini hanya dari server kamu.</div></div>
       </section>
 
@@ -221,7 +221,7 @@ const data = await res.json();</code></pre></div></div><div class="reqpanel" dat
           <div class="endpoint-body">
             <h4 class="sub">Contoh request</h4>
             <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
-$apiKey = "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx";
+$apiKey = "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx";
 
 $curl = curl_init();
 curl_setopt_array($curl, [
@@ -243,7 +243,7 @@ curl_close($curl);
 $hasil = json_decode($response, true);
 print_r($hasil);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const res = await fetch("__H2H_ORIGIN__/api/h2h/v1/catalog", {
   headers: {
-    "X-API-Key": "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "X-API-Key": "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx",
     "Accept": "application/json",
   },
 });
@@ -263,7 +263,7 @@ public class CatalogExample {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("__H2H_ORIGIN__/api/h2h/v1/catalog"))
                 .timeout(Duration.ofSeconds(30))
-                .header("X-API-Key", "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx")
+                .header("X-API-Key", "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx")
                 .header("Accept", "application/json")
                 .GET()
                 .build();
@@ -275,7 +275,7 @@ public class CatalogExample {
         System.out.println(response.body()); // parse pakai Jackson / Gson
     }
 }</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl "__H2H_ORIGIN__/api/h2h/v1/catalog" \
-  -H "X-API-Key: h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "X-API-Key: h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Accept: application/json"</code></pre></div></div></div>
             <h4 class="sub">Response</h4>
             <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{
@@ -330,7 +330,7 @@ public class CatalogExample {
             <div class="table-scroll"><table class="field-table"><tr><th>Parameter path</th><th>Tipe</th><th>Ket.</th></tr><tr><td><code>category_key</code><span class="req">wajib</span></td><td>string</td><td>Dari field <code>category_key</code> di endpoint Katalog, mis. <code>mobile-legends</code></td></tr></table></div>
             <h4 class="sub">Contoh request</h4>
             <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
-$apiKey = "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx";
+$apiKey = "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx";
 
 $curl = curl_init();
 curl_setopt_array($curl, [
@@ -352,7 +352,7 @@ curl_close($curl);
 $hasil = json_decode($response, true);
 print_r($hasil);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const res = await fetch("__H2H_ORIGIN__/api/h2h/v1/catalog/topup/mobile-legends", {
   headers: {
-    "X-API-Key": "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "X-API-Key": "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx",
     "Accept": "application/json",
   },
 });
@@ -372,7 +372,7 @@ public class TopupItemsExample {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("__H2H_ORIGIN__/api/h2h/v1/catalog/topup/mobile-legends"))
                 .timeout(Duration.ofSeconds(30))
-                .header("X-API-Key", "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx")
+                .header("X-API-Key", "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx")
                 .header("Accept", "application/json")
                 .GET()
                 .build();
@@ -384,7 +384,7 @@ public class TopupItemsExample {
         System.out.println(response.body()); // parse pakai Jackson / Gson
     }
 }</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl "__H2H_ORIGIN__/api/h2h/v1/catalog/topup/mobile-legends" \
-  -H "X-API-Key: h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "X-API-Key: h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Accept: application/json"</code></pre></div></div></div>
             <h4 class="sub">Response</h4>
             <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{
@@ -440,7 +440,7 @@ public class TopupItemsExample {
 
         <h4 class="sub">Contoh order PPOB (cURL)</h4>
         <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl -X POST __H2H_ORIGIN__/api/h2h/v1/order \
-  -H "X-API-Key: h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "X-API-Key: h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{"product_type":"ppob","category_key":"pulsa","product_code":"TSEL10","target_id":"081234567890","ref_id":"TRX-0001"}'</code></pre></div>
 
@@ -455,7 +455,7 @@ public class TopupItemsExample {
           <div class="endpoint-body">
             <h4 class="sub">Contoh request</h4>
             <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
-$apiKey = "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx";
+$apiKey = "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx";
 
 $curl = curl_init();
 curl_setopt_array($curl, [
@@ -477,7 +477,7 @@ curl_close($curl);
 $hasil = json_decode($response, true);
 print_r($hasil);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const res = await fetch("__H2H_ORIGIN__/api/h2h/v1/balance", {
   headers: {
-    "X-API-Key": "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "X-API-Key": "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx",
     "Accept": "application/json",
   },
 });
@@ -497,7 +497,7 @@ public class BalanceExample {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("__H2H_ORIGIN__/api/h2h/v1/balance"))
                 .timeout(Duration.ofSeconds(30))
-                .header("X-API-Key", "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx")
+                .header("X-API-Key", "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx")
                 .header("Accept", "application/json")
                 .GET()
                 .build();
@@ -509,7 +509,7 @@ public class BalanceExample {
         System.out.println(response.body()); // parse pakai Jackson / Gson
     }
 }</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl "__H2H_ORIGIN__/api/h2h/v1/balance" \
-  -H "X-API-Key: h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "X-API-Key: h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Accept: application/json"</code></pre></div></div></div>
             <h4 class="sub">Response</h4>
             <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">json · 200 OK</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>{ "success": true, "data": { "balance": 250000 } }</code></pre></div>
@@ -533,7 +533,7 @@ public class BalanceExample {
           <div class="endpoint-body">
             <h4 class="sub">Contoh request — topup game</h4>
             <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
-$apiKey = "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx";
+$apiKey = "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx";
 
 $payload = [
     "product_type" =&gt; "topup",
@@ -579,7 +579,7 @@ print_r($hasil);</code></pre></div></div><div class="reqpanel" data-lang="javasc
 const res = await fetch("__H2H_ORIGIN__/api/h2h/v1/order", {
   method: "POST",
   headers: {
-    "X-API-Key": "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "X-API-Key": "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx",
     "Content-Type": "application/json",
     "Accept": "application/json",
   },
@@ -610,7 +610,7 @@ public class OrderTopupExample {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("__H2H_ORIGIN__/api/h2h/v1/order"))
                 .timeout(Duration.ofSeconds(60))
-                .header("X-API-Key", "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx")
+                .header("X-API-Key", "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx")
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
@@ -623,7 +623,7 @@ public class OrderTopupExample {
         System.out.println(response.body()); // parse pakai Jackson / Gson
     }
 }</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl -X POST "__H2H_ORIGIN__/api/h2h/v1/order" \
-  -H "X-API-Key: h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "X-API-Key: h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
   "product_type": "topup",
@@ -635,7 +635,7 @@ public class OrderTopupExample {
 }'</code></pre></div></div></div>
             <h4 class="sub">Contoh request — produk general</h4>
             <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
-$apiKey = "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx";
+$apiKey = "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx";
 
 $payload = [
     "product_type" =&gt; "general",
@@ -677,7 +677,7 @@ print_r($hasil);</code></pre></div></div><div class="reqpanel" data-lang="javasc
 const res = await fetch("__H2H_ORIGIN__/api/h2h/v1/order", {
   method: "POST",
   headers: {
-    "X-API-Key": "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "X-API-Key": "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx",
     "Content-Type": "application/json",
     "Accept": "application/json",
   },
@@ -706,7 +706,7 @@ public class OrderGeneralExample {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("__H2H_ORIGIN__/api/h2h/v1/order"))
                 .timeout(Duration.ofSeconds(60))
-                .header("X-API-Key", "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx")
+                .header("X-API-Key", "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx")
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
@@ -719,7 +719,7 @@ public class OrderGeneralExample {
         System.out.println(response.body()); // parse pakai Jackson / Gson
     }
 }</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl -X POST "__H2H_ORIGIN__/api/h2h/v1/order" \
-  -H "X-API-Key: h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "X-API-Key: h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
   "product_type": "general",
@@ -779,7 +779,7 @@ public class OrderGeneralExample {
             <p class="txt">Kalau saldo akun tidak cukup untuk order (termasuk saldo <code>0</code>), sistem bisa otomatis membuatkan QRIS dan mengirimkannya di respons. Supaya QRIS dibuat, <strong>kamu wajib menyertakan field <code>nominal</code> di body request</strong>. Field ini opsional secara umum — hanya perlu dikirim kalau kamu ingin auto-QRIS berhasil dikirim.</p>
             <div class="table-scroll"><table class="field-table"><tr><th>Kondisi</th><th>Hasil</th></tr><tr><td>Saldo cukup</td><td>Order langsung diproses dari saldo. <code>nominal</code> diabaikan.</td></tr><tr><td>Saldo kurang/0 + <code>nominal</code> dikirim (&ge; harga order)</td><td>QRIS dibuat senilai <code>nominal</code>, respons <code>awaiting_payment</code> berisi <code>payment.qr_string</code> &amp; <code>payment.qr_image</code>. Setelah dibayar order lanjut otomatis; kelebihan nominal dari harga order masuk ke saldo akunmu.</td></tr><tr><td>Saldo kurang/0 + <code>nominal</code> tidak dikirim</td><td><code>success:false</code>, pesan minta menyertakan <code>nominal</code>. Order belum terbentuk, <code>ref_id</code> belum terpakai.</td></tr><tr><td>Saldo kurang/0 + <code>nominal</code> bukan angka bulat atau &lt; harga order</td><td><code>success:false</code>, order tidak dibuat.</td></tr></table></div>
             <div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl -X POST __H2H_ORIGIN__/api/h2h/v1/order \
-  -H "X-API-Key: h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "X-API-Key: h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{"product_type":"topup","category_key":"mobile-legends","service_code":"ML86","target_id":"123456789","zone_id":"1234","ref_id":"TRX-INVOICE-0001","nominal":20979}'</code></pre></div>
             <div class="note warn"><i class="fas fa-triangle-exclamation"></i><div>Cek harga akhir order dulu lewat katalog (sudah termasuk diskon H2H), lalu isi <code>nominal</code> sama dengan atau lebih besar dari harga itu.</div></div>
@@ -867,7 +867,7 @@ public class OrderGeneralExample {
             <div class="table-scroll"><table class="field-table"><tr><th>Parameter path</th><th>Tipe</th><th>Ket.</th></tr><tr><td><code>id</code><span class="req">wajib</span></td><td>string</td><td><code>id</code> order dari respons <code>/order</code>, <strong>atau</strong> <code>ref_id</code> milikmu</td></tr></table></div>
             <h4 class="sub">Contoh request (pakai ref_id)</h4>
             <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
-$apiKey = "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx";
+$apiKey = "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx";
 
 $curl = curl_init();
 curl_setopt_array($curl, [
@@ -889,7 +889,7 @@ curl_close($curl);
 $hasil = json_decode($response, true);
 print_r($hasil);</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>const res = await fetch("__H2H_ORIGIN__/api/h2h/v1/order/TRX-INVOICE-0001", {
   headers: {
-    "X-API-Key": "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "X-API-Key": "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx",
     "Accept": "application/json",
   },
 });
@@ -909,7 +909,7 @@ public class OrderStatusExample {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("__H2H_ORIGIN__/api/h2h/v1/order/TRX-INVOICE-0001"))
                 .timeout(Duration.ofSeconds(30))
-                .header("X-API-Key", "h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx")
+                .header("X-API-Key", "h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx")
                 .header("Accept", "application/json")
                 .GET()
                 .build();
@@ -921,7 +921,7 @@ public class OrderStatusExample {
         System.out.println(response.body()); // parse pakai Jackson / Gson
     }
 }</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>curl "__H2H_ORIGIN__/api/h2h/v1/order/TRX-INVOICE-0001" \
-  -H "X-API-Key: h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx" \
+  -H "X-API-Key: h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Accept: application/json"</code></pre></div></div></div>
             <h4 class="sub">Response</h4>
             <p class="txt">Bentuk <code>data</code> sama persis dengan respons <a href="#order">Buat Order</a>.</p>
@@ -1021,7 +1021,7 @@ const app = express();
 const WEBHOOK_SECRET = "whsec_xxxxxxxxxxxxxxxx"; // ditampilkan sekali saat webhook diatur
 
 // PENTING: pakai express.raw supaya body tetap mentah untuk verifikasi signature
-app.post("/webhook/mymarket", express.raw({ type: "application/json" }), (req, res) =&gt; {
+app.post("/webhook/{{brand.slug}}", express.raw({ type: "application/json" }), (req, res) =&gt; {
   const raw = req.body; // Buffer
   const expected = crypto.createHmac("sha256", WEBHOOK_SECRET).update(raw).digest("hex");
   const signature = req.get("X-H2H-Signature") || "";
@@ -1062,7 +1062,7 @@ public class H2hWebhookVerifier {
 
 // Contoh pemakaian di Spring Boot:
 //
-// @PostMapping("/webhook/mymarket")
+// @PostMapping("/webhook/{{brand.slug}}")
 // public ResponseEntity&lt;String&gt; webhook(
 //         @RequestBody String rawBody,
 //         @RequestHeader("X-H2H-Signature") String signature) throws Exception {
@@ -1077,7 +1077,7 @@ BODY='{"event":"order.success","data":{"ref_id":"TRX-INVOICE-0001","status":"suc
 
 SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$SECRET" | sed 's/^.* //')
 
-curl -X POST "https://domain-kamu.com/webhook/mymarket" \
+curl -X POST "https://domain-kamu.com/webhook/{{brand.slug}}" \
   -H "Content-Type: application/json" \
   -H "X-H2H-Event: order.success" \
   -H "X-H2H-Signature: $SIG" \
@@ -1092,7 +1092,7 @@ curl -X POST "https://domain-kamu.com/webhook/mymarket" \
         <h2>Contoh Integrasi Lengkap</h2>
         <p class="lead">Klien kecil siap pakai yang membungkus semua endpoint, menangani respons non-JSON, dan menunjukkan pola aman untuk order: simpan <code>ref_id</code> lebih dulu, lalu cek status bila koneksi putus.</p>
         <div class="reqgroup"><div class="reqtabs"><button type="button" class="reqtab active" data-lang="php">PHP</button><button type="button" class="reqtab" data-lang="javascript">JavaScript</button><button type="button" class="reqtab" data-lang="java">Java</button><button type="button" class="reqtab" data-lang="curl">cURL</button></div><div class="reqpanel active" data-lang="php"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">php</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>&lt;?php
-class MyMarketH2H
+class {{brand.h2hClient}}
 {
     private string $baseUrl = "__H2H_ORIGIN__/api/h2h/v1";
 
@@ -1142,7 +1142,7 @@ class MyMarketH2H
 }
 
 // ---- Pemakaian ----
-$api   = new MyMarketH2H("h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx");
+$api   = new {{brand.h2hClient}}("h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx");
 $refId = "TRX-" . date("YmdHis") . "-" . random_int(1000, 9999); // simpan di DB kamu SEBELUM request
 
 $res = $api-&gt;order([
@@ -1166,7 +1166,7 @@ if (!empty($res["network_error"])) {
         case "failed":           echo $order["result"]["message"]; break;
         case "awaiting_payment": /* tampilkan QR: $order["payment"]["qr_image"] */ break;
     }
-}</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>class MyMarketH2H {
+}</code></pre></div></div><div class="reqpanel" data-lang="javascript"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">javascript</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>class {{brand.h2hClient}} {
   constructor(apiKey, baseUrl = "__H2H_ORIGIN__/api/h2h/v1") {
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
@@ -1202,7 +1202,7 @@ if (!empty($res["network_error"])) {
 }
 
 // ---- Pemakaian ----
-const api = new MyMarketH2H("h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx");
+const api = new {{brand.h2hClient}}("h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx");
 const refId = `TRX-${Date.now()}`; // simpan di DB kamu SEBELUM request
 
 const res = await api.order({
@@ -1229,7 +1229,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
-public class MyMarketH2H {
+public class {{brand.h2hClient}} {
     private static final String BASE_URL = "__H2H_ORIGIN__/api/h2h/v1";
 
     private final String apiKey;
@@ -1237,7 +1237,7 @@ public class MyMarketH2H {
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
-    public MyMarketH2H(String apiKey) { this.apiKey = apiKey; }
+    public {{brand.h2hClient}}(String apiKey) { this.apiKey = apiKey; }
 
     private HttpResponse&lt;String&gt; send(String method, String path, String jsonBody) throws Exception {
         HttpRequest.Builder b = HttpRequest.newBuilder()
@@ -1260,7 +1260,7 @@ public class MyMarketH2H {
     public String status(String idOrRef) throws Exception { return send("GET", "/order/" + idOrRef, null).body(); }
 
     public static void main(String[] args) throws Exception {
-        MyMarketH2H api = new MyMarketH2H("h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx");
+        {{brand.h2hClient}} api = new {{brand.h2hClient}}("h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx");
         String refId = "TRX-" + System.currentTimeMillis(); // simpan di DB kamu SEBELUM request
 
         String json = "{"
@@ -1281,7 +1281,7 @@ public class MyMarketH2H {
     }
 }</code></pre></div></div><div class="reqpanel" data-lang="curl"><div class="code-wrap"><div class="code-header"><div class="code-header-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">curl</span><button type="button" class="copy-btn"><i class="fas fa-copy"></i> Copy</button></div><pre class="code-block"><code>#!/usr/bin/env bash
 API="__H2H_ORIGIN__/api/h2h/v1"
-KEY="h2h_mymarket_xxxxxxxxxxxxxxxxxxxxxxxx"
+KEY="h2h_{{brand.h2hKeyPrefix}}_xxxxxxxxxxxxxxxxxxxxxxxx"
 REF="TRX-$(date +%s)"
 
 # 1) Buat order

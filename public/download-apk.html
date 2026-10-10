@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Download APK — Austin Store Marketplace</title>
+  <title>Download APK — {{brand.storeName}} Marketplace</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/notebook.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
@@ -20,7 +20,7 @@
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>{{brand.storeName}}</span></div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Menu Utama</div>
@@ -73,7 +73,7 @@
             <div style="width:72px;height:72px;border-radius:20px;background:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;color:#fff">
               <i class="fas fa-mobile-screen-button"></i>
             </div>
-            <h2 style="margin:0 0 6px;font-size:20px">Aplikasi Austin Store</h2>
+            <h2 style="margin:0 0 6px;font-size:20px">Aplikasi {{brand.storeName}}</h2>
             <p class="text-muted text-sm" style="margin:0 0 20px">Unduh aplikasi resmi untuk pengalaman transaksi yang lebih cepat &amp; praktis langsung dari HP Anda.</p>
 
             <div id="apk-empty" style="display:none">
@@ -141,7 +141,7 @@
 
                 <div class="dash-announcement dash-announcement-warning">
           <i class="fas fa-triangle-exclamation"></i>
-          <span>Karena file diunduh di luar Google Play Store, sistem Android mungkin menampilkan peringatan instalasi. File ini disediakan resmi oleh Austin Store dan aman untuk dipasang.</span>
+          <span>Karena file diunduh di luar Google Play Store, sistem Android mungkin menampilkan peringatan instalasi. File ini disediakan resmi oleh {{brand.storeName}} dan aman untuk dipasang.</span>
         </div>
 
       </div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Profil — Austin Store Marketplace</title>
+  <title>Profil — {{brand.storeName}} Marketplace</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/notebook.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
@@ -20,7 +20,7 @@
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>{{brand.storeName}}</span></div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Menu Utama</div>
@@ -229,7 +229,7 @@
           <input type="file" class="form-control" id="sa-idcard" accept="image/*">
           <div class="text-xs text-muted" style="margin-top:6px">
             Letakkan KTP di atas kertas putih polos. Di kertas yang sama, tuliskan tangan teks
-            <b>"SELLER MYMARKET"</b> beserta tanda tangan kamu, lalu foto semuanya dalam satu bingkai.
+            <b>"SELLER {{brand.nameUpper}}"</b> beserta tanda tangan kamu, lalu foto semuanya dalam satu bingkai.
           </div>
         </div>
       </div>

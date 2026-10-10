@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detail Produk — Austin Store</title>
+  <title>Detail Produk — {{brand.storeName}}</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/notebook.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
@@ -72,7 +72,7 @@
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>Austin Store</span></div>
+      <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-store"></i></div><span>{{brand.storeName}}</span></div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Menu Utama</div>
@@ -210,7 +210,7 @@ async function init() {
 
 function render() {
   document.getElementById('pd-content').style.display = 'block';
-  document.title = `${product.name} — Austin Store`;
+  document.title = `${product.name} — {{brand.storeName}}`;
 
   document.getElementById('pd-image-wrap').innerHTML = `
     <div class="pd-image-wrap-rel">

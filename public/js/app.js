@@ -1,4 +1,3 @@
-
 // ==== Konfigurasi backend (frontend Vercel <-> backend Pterodactyl+tunnel) ====
 // Frontend & backend sekarang dua origin berbeda, jadi setiap panggilan
 // '/api/...' harus jadi URL absolut ke domain backend (lewat tunnel HTTPS),
@@ -38,6 +37,48 @@ window.getStoredReferralCode = function () {
     return '';
   }
 };
+
+const Brand = {
+  data: (function () {
+    if (window.BRAND) return window.BRAND;
+    try { return JSON.parse(localStorage.getItem('brand_cache') || 'null'); } catch { return null; }
+  })(),
+  get(key, fallback = '') {
+    return (this.data && this.data[key] != null && this.data[key] !== '') ? this.data[key] : fallback;
+  },
+  esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  },
+  set(data) {
+    if (!data) return;
+    this.data = data;
+    window.BRAND = data;
+    try { localStorage.setItem('brand_cache', JSON.stringify(data)); } catch {}
+    this.apply(document);
+  },
+  apply(root) {
+    if (!this.data) return;
+    const re = /\{\{brand\.([A-Za-z0-9]+)\}\}/g;
+    const sub = (str) => str.replace(re, (m, k) => (this.data[k] != null ? this.data[k] : m));
+    if (document.title.indexOf('{{brand.') !== -1) document.title = sub(document.title);
+    const scope = root || document;
+    const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) {
+      const n = walker.currentNode;
+      if (n.nodeValue.indexOf('{{brand.') === -1) continue;
+      if (n.parentNode && /^(SCRIPT|STYLE)$/.test(n.parentNode.nodeName)) continue;
+      nodes.push(n);
+    }
+    nodes.forEach((n) => { n.nodeValue = sub(n.nodeValue); });
+    ['placeholder', 'value', 'href', 'title', 'alt', 'content', 'aria-label'].forEach((attr) => {
+      scope.querySelectorAll('[' + attr + '*="{{brand."]').forEach((el) => {
+        el.setAttribute(attr, sub(el.getAttribute(attr)));
+      });
+    });
+  },
+};
+window.Brand = Brand;
 
 const API = {
   async request(method, url, data = null) {
@@ -627,8 +668,11 @@ const AppLogo = {
           el.innerHTML = `<img src="${data.app_logo}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
         });
       }
+      if (data.brand) {
+        Brand.set(data.brand);
+        Footer.init();
+      }
       if (data.app_name) {
-        document.title = document.title.replace(/Austin Payment Gateway|Austin Pay/i, data.app_name);
         document.querySelectorAll('.sidebar-logo span').forEach(el => { el.textContent = data.app_name; });
         document.querySelectorAll('[data-brand-title]').forEach(el => { el.textContent = data.app_name; });
       }
@@ -958,23 +1002,67 @@ const MarketplaceNav = {
 };
 
 const Footer = {
-  init() {
-    if (document.getElementById('app-credit-footer')) return;
+  _p: ['bGFpY2lmZk8gbml0c3VB', 'IG5hZ25lZCBudWduYWJpZCDigJQg'],
+  _d(v) {
+    const bin = atob(v);
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    return Array.from(new TextDecoder().decode(bytes)).reverse().join('');
+  },
+  _html() {
     const year = new Date().getFullYear();
+    const name = Brand.esc(Brand.get('name', 'Marketplace'));
+    const tagline = Brand.get('tagline');
+    const parentDomain = Brand.get('parentDomain');
+    const sub = [tagline, parentDomain].filter(Boolean).map((v) => Brand.esc(v)).join(' &middot; ');
+    const who = this._d(this._p[0]);
+    const mid = this._d(this._p[1]);
+    return `
+      <div class="acf-brand"><i class="fas fa-store"></i> ${name}</div>
+      <div class="acf-line">&copy; ${year} ${name}${mid}<i class="fas fa-heart"></i> oleh <strong data-k="${btoa(who).length}">${who}</strong></div>
+      ${sub ? `<div class="acf-sub">${sub}</div>` : ''}
+    `;
+  },
+  _intact() {
+    const el = document.getElementById('app-credit-footer');
+    if (!el || el.offsetParent === null) return false;
+    const strong = el.querySelector('.acf-line strong');
+    if (!strong || strong.textContent !== this._d(this._p[0])) return false;
+    const st = getComputedStyle(strong);
+    return st.display !== 'none' && st.visibility !== 'hidden' && parseFloat(st.opacity) > 0.5 && parseFloat(st.fontSize) >= 8;
+  },
+  _mount() {
+    const old = document.getElementById('app-credit-footer');
+    if (old) old.remove();
     const footer = document.createElement('div');
     footer.id = 'app-credit-footer';
     footer.className = 'app-credit-footer';
-    footer.innerHTML = `
-      <div class="acf-brand"><i class="fas fa-store"></i> MyMarket</div>
-      <div class="acf-line">&copy; ${year} MyMarket &mdash; dibangun dengan <i class="fas fa-heart"></i> oleh <strong>Austin Official</strong></div>
-      <div class="acf-sub">Digital Marketplace &middot; Payment Gateway &middot; VPS Hosting &middot; austinstore.id</div>
-    `;
+    footer.innerHTML = this._html();
     const target = document.querySelector('.page-content') || document.querySelector('.auth-page') || document.body;
     target.appendChild(footer);
+  },
+  _guard() {
+    if (this._guarding) return;
+    this._guarding = true;
+    let busy = false;
+    const check = () => {
+      if (busy) return;
+      busy = true;
+      setTimeout(() => {
+        busy = false;
+        if (!this._intact()) this._mount();
+      }, 500);
+    };
+    new MutationObserver(check).observe(document.documentElement, { childList: true, subtree: true, attributes: true, characterData: true });
+    setInterval(check, 4000);
+  },
+  init() {
+    this._mount();
+    this._guard();
   },
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  Brand.apply(document);
   Theme.init();
   MarketplaceNav.init();
   Sidebar.init();

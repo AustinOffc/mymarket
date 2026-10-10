@@ -247,7 +247,7 @@ async function loadSellerApplyCard() {
 
   if (!application) {
     box.innerHTML = `
-      <div class="text-xs text-muted mb-8">Punya produk untuk dijual? Daftar jadi seller di Austin Store.</div>
+      <div class="text-xs text-muted mb-8">Punya produk untuk dijual? Daftar jadi seller di ${Brand.esc(Brand.get('storeName', 'Marketplace'))}.</div>
       <button class="btn btn-primary btn-sm" data-action="seller-apply-open"><i class="fas fa-store"></i> Daftar Jadi Seller</button>`;
   } else if (application.status === 'pending') {
     box.innerHTML = `<span class="badge badge-warning"><i class="fas fa-clock"></i> Menunggu Persetujuan Owner</span>

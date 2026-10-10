@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tools — Austin Store</title>
+  <title>Tools — {{brand.storeName}}</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/notebook.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
@@ -161,7 +161,7 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">
         <div class="logo-icon"><i class="fas fa-store"></i></div>
-        <span>Austin Store</span>
+        <span>{{brand.storeName}}</span>
       </div>
     </div>
     <nav class="sidebar-nav">
@@ -476,8 +476,8 @@
                 </div>
                 <div class="form-group" style="margin:0;grid-column:1/-1">
                   <label class="form-label">Username Watermark</label>
-                  <input type="text" class="form-control" id="ptp-username" placeholder="@yourusername" value="@austinofficial" maxlength="33" autocomplete="off">
-                  <div class="text-xs text-muted" style="margin-top:4px">Muncul di pesan penolakan protect: <code>©Protect By @username. Install protection? mymarket.id</code>. Kosongkan untuk memakai default <code>@austinofficial</code>.</div>
+                  <input type="text" class="form-control" id="ptp-username" placeholder="@yourusername" value="@{{brand.watermarkUsername}}" maxlength="33" autocomplete="off">
+                  <div class="text-xs text-muted" style="margin-top:4px">Muncul di pesan penolakan protect: <code>©Protect By @username. {{brand.protectSuffix}}</code>. Kosongkan untuk memakai default <code>@{{brand.watermarkUsername}}</code>.</div>
                 </div>
                 <div class="text-xs" style="grid-column:1/-1;color:#ef4444">
                   ⚠️ 23 file panel akan DITIMPA dengan versi protect (hanya admin ID 1 yang bisa akses penuh). File lama dibackup otomatis ke <code>/root</code> VPS dan dikembalikan sendiri kalau ada yang gagal.
@@ -738,7 +738,7 @@
                   </div>
                   <div class="form-group" style="margin:0">
                     <label class="form-label">Pesan Commit <span class="text-muted">(opsional)</span></label>
-                    <input type="text" class="form-control" id="gh-u-msg" maxlength="200" placeholder="Update via Austin Store Tools" autocomplete="off">
+                    <input type="text" class="form-control" id="gh-u-msg" maxlength="200" placeholder="Update via {{brand.storeName}} Tools" autocomplete="off">
                   </div>
                   <label class="gh-check" style="grid-column:1/-1"><input type="checkbox" id="gh-u-env"> <span>Sertakan file <code>.env</code> <span class="text-muted">(tidak disarankan)</span></span></label>
                   <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -1243,7 +1243,7 @@ function renderPteroEntry(prefix, type, data, ts) {
       Toast.success('Uninstall tema selesai');
     } else if (data.kind === 'protect-install') {
       appendPteroLine(prefix, 'cl-done', `[${ts}] ✅ PROTECT PANEL BERHASIL DIINSTALL (${data.fileCount} file)`);
-      appendPteroLine(prefix, 'cl-done', `Watermark: @${data.username} — Install protection? mymarket.id`);
+      appendPteroLine(prefix, 'cl-done', `Watermark: @${data.username} — {{brand.protectSuffix}}`);
       if (data.backupDir) appendPteroLine(prefix, 'cl-log', `Backup file lama: ${data.backupDir} (di VPS)`);
       appendPteroLine(prefix, 'cl-log', 'Buka panel lalu hard refresh (Ctrl+Shift+R). Login admin ID 1 untuk akses penuh.');
       Toast.success('Install protect selesai');

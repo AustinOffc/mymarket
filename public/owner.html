@@ -1116,7 +1116,7 @@
             <p class="text-xs text-muted" style="margin:-8px 0 0">Kalau dimatikan, menu ini langsung hilang dari tampilan user (tab tidak muncul di halaman Bansos) dan endpoint pembuatan panel ditolak.</p>
             <div class="form-group" style="margin:0">
               <label class="form-label">Domain / Link Login Panel</label>
-              <input type="text" class="form-control" id="bp-domain" placeholder="https://free.mymarket.web.id">
+              <input type="text" class="form-control" id="bp-domain" placeholder="https://free.{{brand.domain}}">
             </div>
             <div class="form-group" style="margin:0">
               <label class="form-label">Application API Key <span id="bp-apikey-status" class="text-xs text-muted"></span></label>
@@ -2007,10 +2007,6 @@
             <div class="card-header"><span class="card-title"><i class="fas fa-globe" style="color:var(--primary)"></i> Pengaturan Umum</span></div>
             <div class="card-body">
               <div id="settings-alert"></div>
-              <div class="form-group">
-                <label class="form-label">Nama Website</label>
-                <input type="text" class="form-control" id="set-app-name">
-              </div>
               <div class="form-group">
                 <label class="form-label">Mode Maintenance</label>
                 <select class="form-control" id="set-maintenance">
@@ -2975,7 +2971,6 @@ async function loadSettings() {
   const res = await API.get('/api/owner/settings');
   if (!res.success) return;
   const s = res.settings;
-  document.getElementById('set-app-name').value = s.app_name || '';
   document.getElementById('set-maintenance').value = s.maintenance_mode ? 'true' : 'false';
   document.getElementById('set-fee-dep').value = s.fee_deposit || 0;
   document.getElementById('set-fee-wd').value = s.fee_withdraw || 2500;
@@ -3107,7 +3102,6 @@ async function saveSettings() {
   const btn = document.getElementById('save-settings-btn');
   btnLoading(btn, true);
   const payload = {
-    app_name: document.getElementById('set-app-name').value,
     maintenance_mode: document.getElementById('set-maintenance').value === 'true',
     fee_deposit: parseInt(document.getElementById('set-fee-dep').value) || 0,
     fee_withdraw: parseInt(document.getElementById('set-fee-wd').value) || 0,

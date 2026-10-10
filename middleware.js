@@ -94,6 +94,37 @@ function cspHeader(nonce) {
   ].join('; ');
 }
 
+const BRAND_TTL_MS = 60 * 1000;
+const BRAND_TIMEOUT_MS = 1500;
+let brandCache = { data: null, at: 0 };
+
+async function loadBrand() {
+  const now = Date.now();
+  if (brandCache.data && now - brandCache.at < BRAND_TTL_MS) return brandCache.data;
+  try {
+    const res = await fetch(`${API_BASE_URL.replace(/\/+$/, '')}/api/public/branding`, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(BRAND_TIMEOUT_MS),
+    });
+    if (!res.ok) throw new Error('branding ' + res.status);
+    const json = await res.json();
+    if (json && json.brand) {
+      brandCache = { data: json.brand, at: now };
+      return json.brand;
+    }
+  } catch {}
+  return brandCache.data;
+}
+
+function applyBrand(html, brand, nonce) {
+  if (!brand) return html;
+  const replaced = html.replace(/\{\{brand\.([A-Za-z0-9]+)\}\}/g, (match, key) => (
+    brand[key] != null ? String(brand[key]) : match
+  ));
+  const payload = JSON.stringify(brand).replace(/</g, '\\u003c');
+  return replaced.replace('<head>', () => `<head><script nonce="${nonce}">window.BRAND=${payload};</script>`);
+}
+
 function randomNonce() {
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
@@ -131,13 +162,15 @@ export default async function middleware(req) {
   const nonce = randomNonce();
   const html = await res.text();
   const withNonce = html.split('<script>').join(`<script nonce="${nonce}">`);
+  const brand = await loadBrand();
+  const branded = applyBrand(withNonce, brand, nonce);
 
   const headers = new Headers(res.headers);
   headers.set('Content-Security-Policy', cspHeader(nonce));
   headers.set('X-Content-Type-Options', 'nosniff');
   headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-  return new Response(withNonce, { status: res.status, headers });
+  return new Response(branded, { status: res.status, headers });
 }
 
 export const config = {
