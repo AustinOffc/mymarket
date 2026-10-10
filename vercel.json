@@ -33,6 +33,8 @@
     { "source": "/tools/cekvps", "destination": "/tools.html" },
     { "source": "/tools/installtema", "destination": "/tools.html" },
     { "source": "/tools/uninstalltema", "destination": "/tools.html" },
+    { "source": "/tools/installprotect", "destination": "/tools.html" },
+    { "source": "/tools/uninstallprotect", "destination": "/tools.html" },
     { "source": "/tools/github", "destination": "/tools.html" },
     { "source": "/tools/downloader", "destination": "/tools.html" },
     { "source": "/tools/downloader/tiktok", "destination": "/tools.html" },

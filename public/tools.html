@@ -224,6 +224,12 @@
           <div class="tool-menu-item" data-tool="ptero-theme-reset" data-path="/tools/uninstalltema">
             <i class="fas fa-rotate-left"></i> Uninstall Tema (Reset Panel)
           </div>
+          <div class="tool-menu-item" data-tool="ptero-protect" data-path="/tools/installprotect">
+            <i class="fas fa-shield-halved"></i> Install Protect Panel
+          </div>
+          <div class="tool-menu-item" data-tool="ptero-protect-reset" data-path="/tools/uninstallprotect">
+            <i class="fas fa-shield"></i> Uninstall Protect Panel
+          </div>
           <div class="tool-menu-item" data-tool="vps-health" data-path="/tools/cekvps">
             <i class="fas fa-heart-pulse"></i> Cek Kesehatan VPS
           </div>
@@ -452,6 +458,91 @@
               </div>
               <div class="card-body">
                 <div class="ptero-console" id="ptu-console"><div class="cl-empty">Belum ada proses berjalan. Isi form di atas lalu klik "Mulai Uninstall Tema".</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-panel" id="tool-panel-ptero-protect">
+            <div class="card mb-16">
+              <div class="card-header"><span class="card-title"><i class="fas fa-shield-halved" style="color:var(--primary)"></i> Install Protect Panel (via SSH)</span></div>
+              <form id="ptero-protect-form" style="padding:0 20px 20px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">IP VPS (yang sudah ada panel)</label>
+                  <input type="text" class="form-control" id="ptp-ip" placeholder="1.2.3.4" autocomplete="off">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Password Root</label>
+                  <input type="password" class="form-control" id="ptp-password" placeholder="Password SSH root" autocomplete="new-password">
+                </div>
+                <div class="form-group" style="margin:0;grid-column:1/-1">
+                  <label class="form-label">Username Watermark</label>
+                  <input type="text" class="form-control" id="ptp-username" placeholder="@yourusername" value="@austinofficial" maxlength="33" autocomplete="off">
+                  <div class="text-xs text-muted" style="margin-top:4px">Muncul di pesan penolakan protect: <code>©Protect By @username. Install protection? mymarket.id</code>. Kosongkan untuk memakai default <code>@austinofficial</code>.</div>
+                </div>
+                <div class="text-xs" style="grid-column:1/-1;color:#ef4444">
+                  ⚠️ 23 file panel akan DITIMPA dengan versi protect (hanya admin ID 1 yang bisa akses penuh). File lama dibackup otomatis ke <code>/root</code> VPS dan dikembalikan sendiri kalau ada yang gagal.
+                </div>
+                <label style="display:flex;grid-column:1/-1;gap:8px;align-items:flex-start;font-size:13px">
+                  <input type="checkbox" id="ptp-confirm" required style="margin-top:3px">
+                  <span>Saya paham file panel akan diubah dan hanya admin ID 1 yang bisa mengakses menu yang diprotect.</span>
+                </label>
+                <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <button type="submit" class="btn btn-primary" id="ptp-submit-btn"><i class="fas fa-play"></i> Mulai Install Protect</button>
+                  <span class="text-xs text-muted">Proses sekitar 1-3 menit. Password tidak disimpan. Untuk mencabut protect, pakai Uninstall Protect Panel.</span>
+                </div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+                <span class="card-title"><i class="fas fa-terminal" style="color:var(--text-muted)"></i> Console Log</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="ptero-status-badge idle" id="ptp-status-badge">Idle</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="ptp-clear-console-btn"><i class="fas fa-broom"></i> Bersihkan</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="ptero-console" id="ptp-console"><div class="cl-empty">Belum ada proses berjalan. Isi form di atas lalu klik "Mulai Install Protect".</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-panel" id="tool-panel-ptero-protect-reset">
+            <div class="card mb-16">
+              <div class="card-header"><span class="card-title"><i class="fas fa-shield" style="color:var(--danger)"></i> Uninstall Protect Panel</span></div>
+              <form id="ptero-protect-reset-form" style="padding:0 20px 20px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">IP VPS (yang ada panel)</label>
+                  <input type="text" class="form-control" id="ptq-ip" placeholder="1.2.3.4" autocomplete="off">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Password Root</label>
+                  <input type="password" class="form-control" id="ptq-password" placeholder="Password SSH root" autocomplete="new-password">
+                </div>
+                <div class="text-xs" style="grid-column:1/-1;color:#ef4444">
+                  ⚠️ 23 file panel dikembalikan ke versi original Pterodactyl, sehingga semua protect dicabut. Modifikasi lain pada file yang sama (mis. dari tema) ikut tertimpa. File sebelumnya dibackup ke <code>/root</code> VPS.
+                </div>
+                <label style="display:flex;grid-column:1/-1;gap:8px;align-items:flex-start;font-size:13px">
+                  <input type="checkbox" id="ptq-confirm" required style="margin-top:3px">
+                  <span>Saya paham protect akan dicabut dan file panel dikembalikan ke original.</span>
+                </label>
+                <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <button type="submit" class="btn btn-primary" id="ptq-submit-btn"><i class="fas fa-play"></i> Mulai Uninstall Protect</button>
+                  <span class="text-xs text-muted">Proses sekitar 1-3 menit. Password tidak disimpan.</span>
+                </div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+                <span class="card-title"><i class="fas fa-terminal" style="color:var(--text-muted)"></i> Console Log</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="ptero-status-badge idle" id="ptq-status-badge">Idle</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="ptq-clear-console-btn"><i class="fas fa-broom"></i> Bersihkan</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="ptero-console" id="ptq-console"><div class="cl-empty">Belum ada proses berjalan. Isi form di atas lalu klik "Mulai Uninstall Protect".</div></div>
               </div>
             </div>
           </div>
@@ -735,13 +826,15 @@ const TOOLS = {
   'vps-health':    { path: '/tools/cekvps' },
   'ptero-theme':   { path: '/tools/installtema' },
   'ptero-theme-reset': { path: '/tools/uninstalltema' },
+  'ptero-protect': { path: '/tools/installprotect' },
+  'ptero-protect-reset': { path: '/tools/uninstallprotect' },
   'downloader':    { path: '/tools/downloader' },
   'github':        { path: '/tools/github' },
 };
 
 let toolsSocket = null;
 let currentPteroJobId = null;
-let currentPteroTarget = null; // 'pti' (install), 'ptw' (wings), 'vph' (cek VPS), 'ptt' (install tema), atau 'ptu' (uninstall tema) — nentuin console mana yang dipakai
+let currentPteroTarget = null; // 'pti' (install), 'ptw' (wings), 'vph' (cek VPS), 'ptt' (install tema), 'ptu' (uninstall tema), 'ptp' (install protect), atau 'ptq' (uninstall protect) — nentuin console mana yang dipakai
 let pteroAppliedLog = 0;   // berapa baris job.log yang sudah ditampilkan (buat sinkron, hindari duplikat)
 let pteroPollTimer = null; // fallback polling kalau event socket telat/tidak sampai sama sekali
 
@@ -1148,6 +1241,17 @@ function renderPteroEntry(prefix, type, data, ts) {
       if (data.backupFile) appendPteroLine(prefix, 'cl-log', `Backup   : ${data.backupFile}${data.backupDb ? ' + ' + data.backupDb : ''} (di VPS)`);
       appendPteroLine(prefix, 'cl-log', 'Buka panel lalu hard refresh (Ctrl+Shift+R).');
       Toast.success('Uninstall tema selesai');
+    } else if (data.kind === 'protect-install') {
+      appendPteroLine(prefix, 'cl-done', `[${ts}] ✅ PROTECT PANEL BERHASIL DIINSTALL (${data.fileCount} file)`);
+      appendPteroLine(prefix, 'cl-done', `Watermark: @${data.username} — Install protection? mymarket.id`);
+      if (data.backupDir) appendPteroLine(prefix, 'cl-log', `Backup file lama: ${data.backupDir} (di VPS)`);
+      appendPteroLine(prefix, 'cl-log', 'Buka panel lalu hard refresh (Ctrl+Shift+R). Login admin ID 1 untuk akses penuh.');
+      Toast.success('Install protect selesai');
+    } else if (data.kind === 'protect-uninstall') {
+      appendPteroLine(prefix, 'cl-done', `[${ts}] ✅ PROTECT PANEL BERHASIL DIUNINSTALL (${data.fileCount} file dikembalikan ke original)`);
+      if (data.backupDir) appendPteroLine(prefix, 'cl-log', `Backup file sebelumnya: ${data.backupDir} (di VPS)`);
+      appendPteroLine(prefix, 'cl-log', 'Buka panel lalu hard refresh (Ctrl+Shift+R).');
+      Toast.success('Uninstall protect selesai');
     } else if (data.url) {
       appendPteroLine(prefix, 'cl-done', `[${ts}] ✅ PANEL BERHASIL DIINSTALL`);
       appendPteroLine(prefix, 'cl-done', `URL      : ${data.url}`);
@@ -1589,6 +1693,29 @@ document.getElementById('ptero-theme-reset-form')?.addEventListener('submit', as
     password: document.getElementById('ptu-password').value,
     backup: document.getElementById('ptu-backup').checked,
   }, 'Mengirim permintaan uninstall tema (reset panel)...', 'Gagal memulai uninstall tema');
+});
+
+// ================= Tools > Install / Uninstall Protect Panel =================
+// Backend: POST /api/tools/ptero/protect/install | /protect/uninstall (job & console log
+// memakai mekanisme yang sama dengan tema: socket + polling job).
+document.getElementById('ptp-clear-console-btn')?.addEventListener('click', () => clearPteroConsole('ptp'));
+document.getElementById('ptq-clear-console-btn')?.addEventListener('click', () => clearPteroConsole('ptq'));
+
+document.getElementById('ptero-protect-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  await submitThemeJob('ptp', '/api/tools/ptero/protect/install', {
+    ip: document.getElementById('ptp-ip').value.trim(),
+    password: document.getElementById('ptp-password').value,
+    username: document.getElementById('ptp-username').value.trim(),
+  }, 'Mengirim permintaan install protect panel...', 'Gagal memulai install protect');
+});
+
+document.getElementById('ptero-protect-reset-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  await submitThemeJob('ptq', '/api/tools/ptero/protect/uninstall', {
+    ip: document.getElementById('ptq-ip').value.trim(),
+    password: document.getElementById('ptq-password').value,
+  }, 'Mengirim permintaan uninstall protect panel...', 'Gagal memulai uninstall protect');
 });
 
 // ================= Tools > Manajemen GitHub =================
