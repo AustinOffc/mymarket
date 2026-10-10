@@ -933,24 +933,37 @@
             <div class="content-section" id="section-nokos">
         <div class="card mb-16">
           <div class="card-header">
-            <span class="card-title"><i class="fas fa-plug" style="color:var(--primary)"></i> Koneksi API 3 Server</span>
+            <span class="card-title"><i class="fas fa-plug" style="color:var(--primary)"></i> Koneksi API 8 Server</span>
           </div>
-          <p class="text-xs text-muted" style="padding:0 20px 14px">Kredensial dari masing-masing provider. Field yang sudah tersimpan tidak ditampilkan lagi di sini — kosongkan kalau tidak ingin menggantinya. Ke buyer, ketiganya cuma tampil sebagai "Server 1/2/3".</p>
+          <p class="text-xs text-muted" style="padding:0 20px 14px">Server 1–5 memakai 1 API key Ditznesia; Server 6–8 memakai provider masing-masing (RumahOTP, RuangOTP, SMSCode). Field yang sudah tersimpan tidak ditampilkan lagi di sini — kosongkan kalau tidak ingin menggantinya. Ke buyer, semuanya cuma tampil sebagai "Server N".</p>
           <form id="nokos-api-form" style="padding:0 20px 20px;display:grid;gap:12px;max-width:480px">
             <div class="form-group">
-              <label class="form-label">Server 1 — RumahOTP API Key <span id="nokos-rumahotp-status" class="text-xs text-muted"></span></label>
+              <label class="form-label">Server 1–5 — Ditznesia API Key <span id="nokos-ditznesia-status" class="text-xs text-muted"></span></label>
+              <input type="password" class="form-control" id="nokos-ditznesia-key" placeholder="Kosongkan jika tidak diganti">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Server 6 — RumahOTP API Key <span id="nokos-rumahotp-status" class="text-xs text-muted"></span></label>
               <input type="password" class="form-control" id="nokos-rumahotp-key" placeholder="Kosongkan jika tidak diganti">
             </div>
             <div class="form-group">
-              <label class="form-label">Server 2 — RuangOTP User ID <span id="nokos-ruangotp-status" class="text-xs text-muted"></span></label>
+              <label class="form-label">Server 7 — RuangOTP User ID <span id="nokos-ruangotp-status" class="text-xs text-muted"></span></label>
               <input type="password" class="form-control" id="nokos-ruangotp-userid" placeholder="Kosongkan jika tidak diganti">
             </div>
             <div class="form-group">
-              <label class="form-label">Server 3 — SMSCode API Key <span id="nokos-smscode-status" class="text-xs text-muted"></span></label>
+              <label class="form-label">Server 8 — SMSCode API Key <span id="nokos-smscode-status" class="text-xs text-muted"></span></label>
               <input type="password" class="form-control" id="nokos-smscode-key" placeholder="Kosongkan jika tidak diganti">
             </div>
             <button type="submit" class="btn btn-primary" style="width:fit-content"><i class="fas fa-save"></i> Simpan Koneksi API</button>
           </form>
+          <div style="padding:0 20px 20px;max-width:480px;display:grid;gap:8px">
+            <label class="form-label">Webhook OTP Ditznesia</label>
+            <p class="text-xs text-muted" style="margin:0">Salin URL ini ke kolom Webhook URL OTP di halaman Profil Ditznesia. OTP yang masuk akan langsung diterima tanpa menunggu polling.</p>
+            <div style="display:flex;gap:8px">
+              <input type="text" class="form-control" id="nokos-ditznesia-webhook-url" readonly>
+              <button type="button" class="btn btn-outline btn-sm" id="nokos-webhook-copy"><i class="fas fa-copy"></i></button>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="nokos-webhook-regenerate" style="width:fit-content"><i class="fas fa-rotate"></i> Buat Ulang URL</button>
+          </div>
         </div>
 
         <div class="card mb-16">
@@ -3843,6 +3856,9 @@ async function loadNokosSection() {
   if (!res.success) { Toast.error(res.message); return; }
   const d = res.data;
 
+  document.getElementById('nokos-ditznesia-webhook-url').value = d.ditznesia_webhook_url || '';
+  document.getElementById('nokos-ditznesia-key').value = '';
+  document.getElementById('nokos-ditznesia-status').textContent = d.ditznesia_key_set ? '(sudah tersimpan)' : '(belum diatur)';
   document.getElementById('nokos-rumahotp-key').value = '';
   document.getElementById('nokos-rumahotp-status').textContent = d.rumahotp_key_set ? '(sudah tersimpan)' : '(belum diatur)';
   document.getElementById('nokos-ruangotp-userid').value = '';
@@ -3887,12 +3903,36 @@ async function loadNokosServerToggles() {
 document.getElementById('nokos-api-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const body = {
+    ditznesia_key: document.getElementById('nokos-ditznesia-key').value.trim(),
     rumahotp_key: document.getElementById('nokos-rumahotp-key').value.trim(),
     ruangotp_user_id: document.getElementById('nokos-ruangotp-userid').value.trim(),
     smscode_key: document.getElementById('nokos-smscode-key').value.trim(),
   };
   const r = await API.post('/api/owner/nokos/settings', body);
   r.success ? (Toast.success(r.message), loadNokosSection()) : Toast.error(r.message);
+});
+
+document.getElementById('nokos-webhook-copy')?.addEventListener('click', async () => {
+  const input = document.getElementById('nokos-ditznesia-webhook-url');
+  if (!input.value) return;
+  try {
+    await navigator.clipboard.writeText(input.value);
+    Toast.success('URL webhook disalin');
+  } catch {
+    input.select();
+    Toast.error('Salin manual: tekan Ctrl+C');
+  }
+});
+
+document.getElementById('nokos-webhook-regenerate')?.addEventListener('click', async () => {
+  if (!confirm('Buat ulang URL webhook? URL lama langsung tidak berlaku dan Webhook URL OTP di Ditznesia harus diperbarui.')) return;
+  const r = await API.post('/api/owner/nokos/webhook/regenerate', {});
+  if (r.success) {
+    document.getElementById('nokos-ditznesia-webhook-url').value = r.data?.ditznesia_webhook_url || '';
+    Toast.success(r.message);
+  } else {
+    Toast.error(r.message);
+  }
 });
 
 document.getElementById('nokos-margin-form')?.addEventListener('submit', async (e) => {

@@ -300,6 +300,14 @@ async function selectServer(serverKey) {
   offers = [];
   document.getElementById('offer-list').innerHTML = '<div class="loading-spinner"></div>';
 
+  const flow = (SERVERS.find((x) => x.key === serverKey) || {}).flow;
+  if (flow === 'country-first') {
+    // Ditznesia (Server 1-5): negara (per server) -> layanan (per negara) -> daftar nomor.
+    await loadCountriesForServer({ keepSelection: false });
+    return;
+  }
+
+  // Provider lama (Server 6-8): layanan dulu -> negara -> daftar nomor.
   const svcRes = await API.get(`/api/nokos/services?server=${encodeURIComponent(serverKey)}`);
   if (!svcRes.success || !svcRes.data || !svcRes.data.length) {
     document.getElementById('offer-list').innerHTML = renderApiError('fas fa-triangle-exclamation', svcRes.message || 'Gagal memuat daftar layanan server ini', svcRes);
@@ -344,12 +352,71 @@ async function loadCountriesForCurrentService({ keepSelection }) {
   await loadOffers();
 }
 
-document.getElementById('country-input').addEventListener('input', (e) => {
+async function loadCountriesForServer({ keepSelection }) {
+  const countryInput = document.getElementById('country-input');
+  const serviceInput = document.getElementById('service-input');
+  const prevCountryId = keepSelection ? curCountryId : null;
+  countryInput.disabled = true;
+  serviceInput.disabled = true;
+  document.getElementById('offer-list').innerHTML = '<div class="loading-spinner"></div>';
+
+  const res = await API.get(`/api/nokos/countries?server=${encodeURIComponent(curServer)}`);
+  if (!res.success || !res.data || !res.data.length) {
+    countries = [];
+    document.getElementById('offer-list').innerHTML = renderApiError('fas fa-triangle-exclamation', res.message || 'Gagal memuat daftar negara', res);
+    document.getElementById('offer-pager').style.display = 'none';
+    return;
+  }
+  countries = res.data;
+  document.getElementById('country-datalist').innerHTML = countries.map((c) => `<option value="${escapeAttr(c.name)}">`).join('');
+  countryInput.disabled = false;
+
+  let target = prevCountryId ? countries.find((c) => c.id === prevCountryId) : null;
+  if (!target) target = countries[0];
+  curCountryId = target.id;
+  curCountryName = target.name;
+  countryInput.value = target.name;
+
+  await loadServicesForCurrentCountry({ keepSelection });
+}
+
+async function loadServicesForCurrentCountry({ keepSelection }) {
+  const serviceInput = document.getElementById('service-input');
+  const prevServiceId = keepSelection ? curServiceId : null;
+  serviceInput.disabled = true;
+  document.getElementById('offer-list').innerHTML = '<div class="loading-spinner"></div>';
+
+  const svcRes = await API.get(`/api/nokos/services?server=${encodeURIComponent(curServer)}&country_id=${encodeURIComponent(curCountryId)}`);
+  if (!svcRes.success || !svcRes.data || !svcRes.data.length) {
+    services = [];
+    serviceInput.value = '';
+    curServiceId = curServiceName = null;
+    document.getElementById('offer-list').innerHTML = renderApiError('fas fa-triangle-exclamation', svcRes.message || 'Gagal memuat daftar layanan negara ini', svcRes);
+    document.getElementById('offer-pager').style.display = 'none';
+    return;
+  }
+  services = svcRes.data;
+  document.getElementById('service-datalist').innerHTML = services.map((s) => `<option value="${escapeAttr(s.name)}">`).join('');
+  serviceInput.disabled = false;
+
+  let target = prevServiceId ? services.find((s) => s.id === prevServiceId) : null;
+  if (!target) target = services[0];
+  curServiceId = target.id;
+  curServiceName = target.name;
+  serviceInput.value = target.name;
+
+  await loadOffers();
+}
+
+const isCountryFirst = () => (SERVERS.find((x) => x.key === curServer) || {}).flow === 'country-first';
+
+document.getElementById('country-input').addEventListener('input', async (e) => {
   const match = countries.find((c) => c.name.toLowerCase() === e.target.value.trim().toLowerCase());
   if (!match || match.id === curCountryId) return;
   curCountryId = match.id;
   curCountryName = match.name;
-  loadOffers();
+  if (isCountryFirst()) await loadServicesForCurrentCountry({ keepSelection: true });
+  else loadOffers();
 });
 
 document.getElementById('service-input').addEventListener('input', async (e) => {
@@ -357,7 +424,7 @@ document.getElementById('service-input').addEventListener('input', async (e) => 
   if (!match || match.id === curServiceId) return;
   curServiceId = match.id;
   curServiceName = match.name;
-  if (curServer === 'smscode') {
+  if (isCountryFirst() || curServer === 'smscode') {
     await loadOffers();
   } else {
     await loadCountriesForCurrentService({ keepSelection: true });
@@ -578,7 +645,7 @@ function renderOtpPanel() {
 }
 
 let countdownTimer = null;
-const OTP_POLL_INTERVAL_MS = 9000;
+const OTP_POLL_INTERVAL_MS = 3000;
 function startPolling() {
   stopPolling();
   if (countdownTimer) clearInterval(countdownTimer);
