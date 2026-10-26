@@ -29,22 +29,26 @@
     @keyframes austinZap { 0%, 100% { opacity: 0; } 3% { opacity: 1; } 6% { opacity: 0; } 9% { opacity: 1; } 16% { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .austin-letters span { opacity: 1; transform: none; animation: none; } .austin-logo::after, .austin-bolt { animation: none; } }
     @media (max-width: 400px) { .topbar-title.austin-logo { font-size: 23px !important; min-width: 84px; padding: 2px 8px !important; } }
-    #dash-topup-games, #dash-top-selling, #dash-cheapest {
+    #dash-topup-games, #dash-apps {
       grid-template-columns: repeat(auto-fill, minmax(102px, 1fr));
       gap: 10px;
     }
     #dash-topup-games .game-tile .info,
-    #dash-top-selling .game-tile .info,
-    #dash-cheapest .game-tile .info { padding: 7px 8px 8px; }
+    #dash-apps .game-tile .info { padding: 7px 8px 8px; }
     #dash-topup-games .game-tile .info h4,
-    #dash-top-selling .game-tile .info h4,
-    #dash-cheapest .game-tile .info h4 { font-size: 13px; }
+    #dash-apps .game-tile .info h4 { font-size: 13px; }
     #dash-topup-games .game-tile .info span,
-    #dash-top-selling .game-tile .info span,
-    #dash-cheapest .game-tile .info span { font-size: 13px; }
+    #dash-apps .game-tile .info span { font-size: 13px; }
     #dash-topup-games .game-tile .thumb-fallback,
-    #dash-top-selling .game-tile .thumb-fallback,
-    #dash-cheapest .game-tile .thumb-fallback { font-size: 20px; }
+    #dash-apps .game-tile .thumb-fallback { font-size: 20px; }
+    #dash-apps .game-tile .thumb, #dash-apps .game-tile .thumb-fallback { aspect-ratio: 1 / 1; width: 100%; object-fit: cover; }
+    #dash-apps .game-tile .info span.app-price { display: block; margin-top: 3px; font-weight: 700; color: var(--primary); }
+    .news-list { display: flex; flex-direction: column; gap: 10px; }
+    .news-card { display: flex; gap: 12px; padding: 10px; text-decoration: none; color: inherit; }
+    .news-card .news-img { width: 96px; height: 72px; flex: none; object-fit: cover; border-radius: 8px; background: rgba(128,128,128,.15); }
+    .news-card .news-body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .news-card h4 { font-size: 14px; line-height: 1.3; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .news-card .news-meta { font-size: 12px; color: var(--text-muted); }
     #dash-topup-games .game-tile .info span.badge-topup {
       display: inline-flex; width: fit-content; margin-top: 4px;
       font-size: 13px; padding: 3px 9px; letter-spacing: .01em;
@@ -153,23 +157,16 @@
       </div>
       <div class="game-grid mb-24" id="dash-topup-games"></div>
 
-            <div class="section-row" style="margin:0 0 14px">
-        <div><span class="eyebrow">Populer</span><h2 style="font-size:16px">Produk Terlaris</h2></div>
-        <a href="/order" class="see-all">Lihat Semua <i class="fas fa-arrow-right"></i></a>
+            <div class="section-row" style="margin:0 0 14px" id="dash-apps-row">
+        <div><span class="eyebrow">Premium</span><h2 style="font-size:16px">Aplikasi Premium</h2></div>
+        <a href="/appprem" class="see-all">Semua Aplikasi <i class="fas fa-arrow-right"></i></a>
       </div>
-      <div class="game-grid mb-24" id="dash-top-selling"><div class="loading-spinner"></div></div>
+      <div class="game-grid mb-24" id="dash-apps"><div class="loading-spinner"></div></div>
 
-            <div class="section-row" style="margin:0 0 14px">
-        <div><span class="eyebrow">Populer</span><h2 style="font-size:16px">Harga Termurah</h2></div>
-        <a href="/order" class="see-all">Lihat Semua <i class="fas fa-arrow-right"></i></a>
+            <div class="section-row" style="margin:0 0 14px" id="dash-news-row">
+        <div><span class="eyebrow">Berita</span><h2 style="font-size:16px">Berita Dunia Game</h2></div>
       </div>
-      <div class="game-grid mb-24" id="dash-cheapest"><div class="loading-spinner"></div></div>
-
-            <div class="section-row" style="margin:0 0 14px">
-        <div><span class="eyebrow">Populer</span><h2 style="font-size:16px">Toko Rating Tertinggi</h2></div>
-        <a href="/order" class="see-all">Lihat Semua <i class="fas fa-arrow-right"></i></a>
-      </div>
-      <div class="seller-grid mb-24" id="dash-top-sellers"><div class="loading-spinner"></div></div>
+      <div class="news-list mb-24" id="dash-news"><div class="loading-spinner"></div></div>
     </div>
   </div>
 </div>
@@ -385,7 +382,7 @@ async function loadDashboard() {
   const data = await API.get('/api/user/dashboard');
   if (!data.success) return;
 
-  const { info_banners, announcements, marquee, banners, categories, topup_categories, top_selling, cheapest, top_sellers } = data;
+  const { info_banners, announcements, marquee, banners, categories, topup_categories } = data;
 
   const hasInfo = renderInfoModal(info_banners);
   currentInfoBannerIds = (info_banners || []).map(b => b.id).join(',');
@@ -479,65 +476,64 @@ async function loadDashboard() {
     topupGrid.innerHTML = '';
   }
 
-  const topSellingGrid = document.getElementById('dash-top-selling');
-  if (top_selling && top_selling.length) {
-    topSellingGrid.innerHTML = top_selling.map((p, i) => `
-      <div class="game-tile" data-product-id="${escapeAttr(p.id)}">
-        <div class="rank-badge">#${i + 1}</div>
-        ${p.image_url ? `<img class="thumb" src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}">` : `<div class="thumb-fallback"><i class="fas fa-box"></i></div>`}
+  loadDashApps();
+  loadDashNews();
+}
+
+async function loadDashApps() {
+  const row = document.getElementById('dash-apps-row');
+  const grid = document.getElementById('dash-apps');
+  try {
+    const res = await API.get('/api/user/dashboard/apps');
+    const apps = (res && res.success && res.data) || [];
+    if (!apps.length) { row.style.display = 'none'; grid.style.display = 'none'; return; }
+    grid.innerHTML = apps.map((a) => `
+      <div class="game-tile" data-app-key="${escapeAttr(a.key)}">
+        ${a.logo
+          ? `<img class="thumb" src="${escapeAttr(a.logo)}" alt="${escapeAttr(a.name)}" loading="lazy">`
+          : `<div class="thumb-fallback"><i class="fas fa-crown"></i></div>`}
         <div class="info">
-          <h4>${escapeHtml(p.name)}</h4>
-          <span>${formatRupiah(p.price)}</span>
-          <span class="sold-count">${p.sold_count} terjual · <a href="/toko/${encodeURIComponent(p.seller_id)}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:underline">${escapeHtml(p.seller_name)}</a></span>
+          <h4>${escapeHtml(a.name)}</h4>
+          <span class="app-price">Mulai ${formatRupiah(a.price)}</span>
         </div>
       </div>
     `).join('');
-    if (!topSellingGrid._bound) {
-      topSellingGrid.addEventListener('click', (e) => {
-        const tile = e.target.closest('[data-product-id]');
-        if (tile) location.href = `/product/${encodeURIComponent(tile.dataset.productId)}`;
-      });
-      topSellingGrid._bound = true;
+    if (!grid._bound) {
+      grid.addEventListener('click', () => { location.href = '/appprem'; });
+      grid._bound = true;
     }
-  } else {
-    topSellingGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-box-open"></i>Belum ada produk terjual</div>`;
+  } catch (e) {
+    row.style.display = 'none'; grid.style.display = 'none';
   }
+}
 
-  const cheapestGrid = document.getElementById('dash-cheapest');
-  if (cheapest && cheapest.length) {
-    cheapestGrid.innerHTML = cheapest.map(p => `
-      <div class="game-tile" data-product-id="${escapeAttr(p.id)}">
-        ${p.image_url ? `<img class="thumb" src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}">` : `<div class="thumb-fallback"><i class="fas fa-box"></i></div>`}
-        <div class="info">
-          <h4>${escapeHtml(p.name)}</h4>
-          <span class="price-tag">${formatRupiah(p.price)}</span>
-          <span><a href="/toko/${encodeURIComponent(p.seller_id)}" onclick="event.stopPropagation()" style="color:inherit;text-decoration:underline">${escapeHtml(p.seller_name)}</a></span>
+function timeAgoId(iso) {
+  if (!iso) return '';
+  const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (m < 1) return 'baru saja';
+  if (m < 60) return m + ' menit lalu';
+  if (m < 1440) return Math.floor(m / 60) + ' jam lalu';
+  return Math.floor(m / 1440) + ' hari lalu';
+}
+
+async function loadDashNews() {
+  const row = document.getElementById('dash-news-row');
+  const box = document.getElementById('dash-news');
+  try {
+    const res = await API.get('/api/news/games');
+    const items = (res && res.success && res.data) || [];
+    if (!items.length) { row.style.display = 'none'; box.style.display = 'none'; return; }
+    box.innerHTML = items.map((n) => `
+      <a class="card news-card" href="${escapeAttr(n.link)}" target="_blank" rel="noopener noreferrer">
+        ${n.image ? `<img class="news-img" src="${escapeAttr(n.image)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : ''}
+        <div class="news-body">
+          <h4>${escapeHtml(n.title)}</h4>
+          <span class="news-meta">${escapeHtml(n.source)}${n.date ? ' · ' + timeAgoId(n.date) : ''}</span>
         </div>
-      </div>
+      </a>
     `).join('');
-    if (!cheapestGrid._bound) {
-      cheapestGrid.addEventListener('click', (e) => {
-        const tile = e.target.closest('[data-product-id]');
-        if (tile) location.href = `/product/${encodeURIComponent(tile.dataset.productId)}`;
-      });
-      cheapestGrid._bound = true;
-    }
-  } else {
-    cheapestGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-box-open"></i>Belum ada produk tersedia</div>`;
-  }
-
-  const topSellersGrid = document.getElementById('dash-top-sellers');
-  if (top_sellers && top_sellers.length) {
-    topSellersGrid.innerHTML = top_sellers.map((s, i) => `
-      <div class="seller-tile" onclick="location.href='/toko/${encodeURIComponent(s.id)}'">
-        <div class="rank-badge">#${i + 1}</div>
-        <div class="seller-avatar">${s.avatar ? `<img src="${escapeHtml(s.avatar)}" alt="${escapeHtml(s.name)}">` : `<i class="fas fa-store"></i>`}</div>
-        <h4>${escapeHtml(s.name)}</h4>
-        <span class="star-rating"><i class="fas fa-star"></i> ${s.rating_average.toFixed(1)} <span class="text-muted">(${s.rating_count})</span></span>
-      </div>
-    `).join('');
-  } else {
-    topSellersGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-store-slash"></i>Belum ada toko dengan ulasan</div>`;
+  } catch (e) {
+    row.style.display = 'none'; box.style.display = 'none';
   }
 }
 
