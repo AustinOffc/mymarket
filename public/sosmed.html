@@ -235,7 +235,7 @@ async function loadCategories() {
   const reqId = ++smCategoriesReqId;
   catSelect.innerHTML = `<option value="">Memuat kategori...</option>`;
   const data = await API.get(`/api/socmed/categories?server=${currentServer()}`);
-  if (reqId !== smCategoriesReqId) return; // respons lama/basi, sudah ada request lebih baru
+  if (reqId !== smCategoriesReqId) return;
   if (!data.success || !data.data.length) {
     catSelect.innerHTML = `<option value="">Belum ada kategori tersedia</option>`;
     Toast.error(data.message || 'Gagal memuat kategori sosial media');
@@ -300,7 +300,7 @@ document.getElementById('sm-category').addEventListener('change', async (e) => {
   serviceSelect.disabled = true;
   serviceSelect.innerHTML = `<option value="">Memuat layanan...</option>`;
   const res = await API.get(`/api/socmed/categories/${encodeURIComponent(key)}/services?server=${currentServer()}`);
-  if (reqId !== smServicesReqId) return; // respons lama/basi, sudah ada request lebih baru
+  if (reqId !== smServicesReqId) return;
   if (!res.success || !res.data.items.length) {
     serviceSelect.innerHTML = `<option value="">Layanan tidak tersedia</option>`;
     Toast.error(res.message || 'Gagal memuat layanan');

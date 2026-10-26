@@ -116,7 +116,7 @@
       Toast.success(res.message);
       setTimeout(() => window.location.href = Auth.getSafeRedirect() || res.redirect, 500);
     } else {
-      alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ${res.message}</div>`;
+      alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ${escapeHtml(res.message)}</div>`;
     }
   }
 
@@ -166,7 +166,7 @@
       Toast.success('Registrasi berhasil!');
       setTimeout(() => window.location.href = Auth.getSafeRedirect() || res.redirect, 600);
     } else {
-      alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ${res.message}</div>`;
+      alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ${escapeHtml(res.message)}</div>`;
       if (window.turnstile) {
         turnstile.reset();
         document.getElementById('reg-btn').disabled = true;

@@ -1,23 +1,11 @@
-// ==== Konfigurasi backend (frontend Vercel <-> backend Pterodactyl+tunnel) ====
-// Frontend & backend sekarang dua origin berbeda, jadi setiap panggilan
-// '/api/...' harus jadi URL absolut ke domain backend (lewat tunnel HTTPS),
-// bukan path relatif lagi. Ini SATU-SATUNYA tempat yang perlu diubah kalau
-// domain tunnel/backend berganti.
-window.API_BASE_URL = ''; // GANTI sesuai domain tunnel backend Anda
+window.API_BASE_URL = '';
 function apiUrl(path) {
   if (!path) return window.API_BASE_URL;
-  if (/^https?:\/\//i.test(path)) return path; // sudah URL absolut, biarkan
+  if (/^https?:\/\//i.test(path)) return path;
   return window.API_BASE_URL.replace(/\/$/, '') + path;
 }
 window.apiUrl = apiUrl;
 
-// ==== Capture referral (?ref=<user_id>) ====
-// Ref bisa mendarat di halaman manapun (link referral biasanya ke landing/homepage),
-// jadi ditangkap di sini (dimuat semua halaman) lalu disimpan ke localStorage supaya
-// tetap kebawa walau user baru daftar beberapa halaman kemudian, bukan cuma kalau
-// dia langsung ke /register. Kadaluarsa 30 hari (referral yang terlalu lama dianggap
-// tidak relevan lagi). TIDAK ada reward apapun di sini — cuma nyimpen kode; reward
-// baru diberikan backend saat registrasi BENAR-BENAR berhasil (lihat auth.controller.js).
 (function captureReferral() {
   try {
     const params = new URLSearchParams(window.location.search);
@@ -26,7 +14,7 @@ window.apiUrl = apiUrl;
       localStorage.setItem('referral_code', ref);
       localStorage.setItem('referral_captured_at', String(Date.now()));
     }
-  } catch { /* localStorage bisa diblokir browser tertentu, abaikan saja */ }
+  } catch {  }
 })();
 window.getStoredReferralCode = function () {
   try {
@@ -235,7 +223,7 @@ const ImagePicker = {
 };
 document.addEventListener('DOMContentLoaded', () => ImagePicker.autoAttach());
 
-function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str == null ? '' : String(str); return d.innerHTML; }
+function escapeHtml(str) { return String(str == null ? '' : str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function escapeAttr(str) { return escapeHtml(str).replace(/"/g, '&quot;'); }
 
 function formatRupiah(amount, withPrefix = true) {
@@ -252,8 +240,6 @@ function formatDate(iso, withTime = true) {
   return d.toLocaleString('id-ID', opts);
 }
 
-// Render badge "Stok Panel: 8/70" (dipakai di halaman Order Panel & Reseller/Partner).
-// `slots` datang dari field `slots` pada response /api/ptero/pricing atau /api/reseller/pricing.
 function renderStockMeter(slots) {
   if (!slots || !Number.isFinite(Number(slots.max)) || Number(slots.max) <= 0) return '';
   const max = Number(slots.max);
@@ -268,8 +254,6 @@ function renderStockMeter(slots) {
     </div>`;
 }
 
-// Dropdown pilih server (Server 1 / Server 2) + stok masing-masing. Server yang stoknya habis atau
-// belum dikonfigurasi dinonaktifkan. onChange(slot) dipanggil tiap pilihan berubah (dipakai render meter stok).
 function setupServerSelect(selectId, servers, onChange) {
   const select = document.getElementById(selectId);
   if (!select) return;
@@ -454,7 +438,7 @@ const Auth = {
     document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = (user.role === 'owner' ? 'Owner' : (user.role === 'seller' ? 'Seller' : 'Buyer')) + (user.member_tier === 'gold' ? ' · Gold' : ''));
     document.querySelectorAll('[data-user-avatar]').forEach(el => {
       if (user.avatar) {
-        el.innerHTML = `<img src="${user.avatar}" alt="">`;
+        el.innerHTML = `<img src="${escapeHtml(user.avatar)}" alt="">`;
       } else {
         el.textContent = (user.full_name || user.username)[0].toUpperCase();
       }
@@ -537,20 +521,12 @@ document.addEventListener('click', e => {
   if (e.target.classList.contains('modal-overlay') && !e.target.classList.contains('gdlg-overlay')) e.target.classList.remove('open');
 });
 
-// Modals, the sidebar, dropdowns and side panels are all shown/hidden with a shared
-// '.open' class. When a page is restored from the browser back/forward cache (e.g.
-// swiping/tapping back), the DOM comes back exactly as it was left — so any overlay
-// that was open right before navigating away flashes back on top of the page. Since
-// the underlying page state (cart contents, auth, etc.) may also be stale on a bfcache
-// restore, force a fresh load instead of silently reusing the cached snapshot.
 window.addEventListener('pageshow', (e) => {
   if (!e.persisted) return;
   document.querySelectorAll('.open').forEach(el => el.classList.remove('open'));
   window.location.reload();
 });
 
-// Glass-themed replacement for native confirm()/alert() so popups match the app theme
-// instead of the browser's default (unstyled) dialog.
 const Dialog = {
   _build(opts) {
     const overlay = document.createElement('div');
@@ -665,7 +641,7 @@ const AppLogo = {
       if (!data.success) return;
       if (data.app_logo) {
         document.querySelectorAll('.logo-icon, .brand-icon').forEach(el => {
-          el.innerHTML = `<img src="${data.app_logo}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
+          el.innerHTML = `<img src="${escapeHtml(data.app_logo)}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
         });
       }
       if (data.brand) {
@@ -676,9 +652,6 @@ const AppLogo = {
         document.querySelectorAll('.sidebar-logo span').forEach(el => { el.textContent = data.app_name; });
         document.querySelectorAll('[data-brand-title]').forEach(el => { el.textContent = data.app_name; });
       }
-      // Menu sidebar yang disembunyikan owner lewat Owner > Pengaturan > Menu Sidebar.
-      // Sengaja hanya menyentuh sidebar menu utama (bukan panel admin/owner #admin-nav,
-      // dan bukan bottom-nav bawah yang isinya cuma shortcut akun).
       if (Array.isArray(data.hidden_menu)) {
         data.hidden_menu.forEach(href => {
           document.querySelectorAll('.sidebar-nav:not(#admin-nav) .nav-item[data-href="' + href + '"]')
@@ -691,7 +664,6 @@ const AppLogo = {
 
 const ScrollFX = {
   init() {
-    // Topbar gains elevation/depth once the page scrolls — no particles, just a subtle glass effect.
     const topbar = document.querySelector('.topbar');
     if (topbar) {
       const onScroll = () => topbar.classList.toggle('is-scrolled', window.scrollY > 8);
@@ -702,8 +674,6 @@ const ScrollFX = {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (!('IntersectionObserver' in window)) return;
 
-    // Reveal-on-scroll: only for elements that start off-screen, so above-the-fold
-    // content keeps using its existing load-in animation untouched.
     const selector = '.card, .stat-card, .game-tile, .cat-icon-tile, .seller-tile, .ticket-card, ' +
       '.order-card, .notif-item, .cs-panel-item, .trust-item, .info-banner-item, .wallet-hero';
     const vh = window.innerHeight;
@@ -897,8 +867,8 @@ const Notifications = {
       <div class="notif-item ${n.is_read ? '' : 'unread'}" data-id="${n.id}">
         <div class="notif-item-icon ${n.type}"><i class="fas ${typeIcon[n.type] || 'fa-bell'}"></i></div>
         <div class="notif-item-body">
-          <div class="notif-item-title">${n.title}</div>
-          <div class="notif-item-msg">${n.message}</div>
+          <div class="notif-item-title">${escapeHtml(n.title)}</div>
+          <div class="notif-item-msg">${escapeHtml(n.message)}</div>
           <div class="notif-item-time">${formatDate(n.createdAt)}</div>
         </div>
       </div>
@@ -935,7 +905,7 @@ const BottomNav = {
       const active = path === it.href;
       return `<button type="button" class="bottom-nav-item${active ? ' active' : ''}" data-href="${it.href}">
         <span class="bn-icon"><i class="fas ${it.icon}"></i></span>
-        <span class="bn-label">${it.label}</span>
+        <span class="bn-label">${escapeHtml(it.label)}</span>
       </button>`;
     }).join('');
     document.body.appendChild(nav);
@@ -995,7 +965,7 @@ const MarketplaceNav = {
       const el = document.createElement('div');
       el.className = 'nav-item' + (path === it.href ? ' active' : '');
       el.setAttribute('data-href', it.href);
-      el.innerHTML = `<span class="nav-icon"><i class="fas ${it.icon}"></i></span> ${it.label}`;
+      el.innerHTML = `<span class="nav-icon"><i class="fas ${it.icon}"></i></span> ${escapeHtml(it.label)}`;
       marketplaceItem.insertAdjacentElement('afterend', el);
     });
   },
@@ -1080,9 +1050,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// ==== Ripple: feedback taktil kecil tiap tombol .btn ditekan, biar UI tidak kaku ====
-// Dipasang di sini (app.js) supaya otomatis aktif di semua halaman yang sudah
-// memuat app.js, tanpa perlu ubah script per halaman.
 (function initRipple() {
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion) return;

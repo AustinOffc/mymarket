@@ -17,9 +17,6 @@
   <style>
     .tools-shell { display: grid; grid-template-columns: 240px 1fr; gap: 16px; align-items: start; }
     @media (max-width: 900px) { .tools-shell { grid-template-columns: 1fr; } }
-    /* Daftar Tools ada di samping cuma kalau layar cukup lebar (>900px, sama
-       kayak breakpoint .tools-shell di atas); di HP dia pindah ke atas panel
-       ini, jadi teks hint-nya ikut menyesuaikan supaya nggak salah arah. */
     .tool-empty-hint-top { display: none; }
     @media (max-width: 900px) {
       .tool-empty-hint-side { display: none; }
@@ -620,8 +617,7 @@
                 <span class="ptero-status-badge idle" id="gh-session-badge">Belum login</span>
               </div>
 
-              <!-- belum login -->
-              <div id="gh-login-view">
+<div id="gh-login-view">
                 <form id="gh-login-form" class="gh-grid" autocomplete="off">
                   <div class="form-group" style="margin:0">
                     <label class="form-label">Username GitHub</label>
@@ -642,8 +638,7 @@
                 <div class="gh-viewer" id="gh-viewer" style="display:none"></div>
               </div>
 
-              <!-- sudah login -->
-              <div id="gh-session-view" style="display:none">
+<div id="gh-session-view" style="display:none">
                 <div class="gh-viewer ok" id="gh-session-info"></div>
                 <div class="gh-grid">
                   <div class="form-group" style="margin:0">
@@ -814,12 +809,6 @@
 <script src="/js/custom-select.js"></script>
 <script src="/js/custom-picker.js"></script>
 <script>
-// ================= Tools > Install Pterodactyl (SSH) / Start Wings =================
-// Dua tool ini pakai backend & mesin SSH yang sama (services/pteroSsh.service.js di
-// server), tapi ditampilkan sebagai 2 entri terpisah di Daftar Tools, masing-masing
-// dengan halamannya sendiri (/tools/installpterodactyl dan /tools/startwings) dan
-// console log sendiri-sendiri. Backend membatasi cuma 1 job jalan per user dalam satu
-// waktu, jadi aman dipakai bergantian.
 const TOOLS = {
   'ptero-install': { path: '/tools/installpterodactyl' },
   'ptero-wings':   { path: '/tools/startwings' },
@@ -834,18 +823,10 @@ const TOOLS = {
 
 let toolsSocket = null;
 let currentPteroJobId = null;
-let currentPteroTarget = null; // 'pti' (install), 'ptw' (wings), 'vph' (cek VPS), 'ptt' (install tema), 'ptu' (uninstall tema), 'ptp' (install protect), atau 'ptq' (uninstall protect) — nentuin console mana yang dipakai
-let pteroAppliedLog = 0;   // berapa baris job.log yang sudah ditampilkan (buat sinkron, hindari duplikat)
-let pteroPollTimer = null; // fallback polling kalau event socket telat/tidak sampai sama sekali
+let currentPteroTarget = null;
+let pteroAppliedLog = 0;
+let pteroPollTimer = null;
 
-// PENTING: socket event di bawah ini sengaja TIDAK langsung merender payload-nya.
-// Kalau event socket ke-drop (koneksi socket gagal connect/reconnect, cookie auth
-// tidak ikut kebawa di handshake WS, dsb) sebelumnya console akan macet selamanya
-// di "Mengirim permintaan install..." walau job-nya sendiri sudah lanjut/selesai
-// di server. Jadi event socket cuma dipakai sebagai "sinyal cek job", lalu kita
-// tarik ulang log lengkapnya lewat GET /api/tools/ptero/jobs/:id (endpoint ini
-// memang sudah disediakan backend untuk kasus reconnect/ketinggalan log). Polling
-// interval di bawah jadi jaring pengaman kalau socket-nya gagal total.
 function connectToolsSocket() {
   if (toolsSocket || typeof io === 'undefined') return;
   toolsSocket = io(window.API_BASE_URL, { path: '/socket.io', withCredentials: true, reconnection: true });
@@ -856,7 +837,6 @@ function connectToolsSocket() {
   toolsSocket.on('tools:github:event', (payload) => {
     if (payload && payload.jobId === ghJobId) syncGhJob();
   });
-  // Sesi GitHub diakhiri dari sisi server (idle 10 menit / logout di tab lain / token dicabut).
   toolsSocket.on('tools:github:session', (payload) => {
     if (!ghSession || !payload) return;
     const msgs = {
@@ -866,8 +846,6 @@ function connectToolsSocket() {
     };
     ghEndSession(msgs[payload.state] || 'Sesi GitHub berakhir.', 'warning');
   });
-  // Kalau socket sempat putus lalu nyambung lagi di tengah job yang masih jalan,
-  // langsung sinkron supaya tidak ketinggalan log yang lewat selama putus.
   toolsSocket.on('connect', () => {
     if (currentPteroTarget && currentPteroJobId) syncPteroJob(currentPteroTarget, currentPteroJobId);
     if (ghJobId && ghBusy) syncGhJob();
@@ -884,9 +862,9 @@ function stopPteroPoll() {
 }
 
 async function syncPteroJob(prefix, jobId) {
-  if (jobId !== currentPteroJobId) return; // job lama/sudah diganti, abaikan
+  if (jobId !== currentPteroJobId) return;
   const res = await API.get(`/api/tools/ptero/jobs/${jobId}`);
-  if (!res || !res.success || !res.job) return; // transient error, coba lagi di poll berikutnya
+  if (!res || !res.success || !res.job) return;
   const job = res.job;
   for (let i = pteroAppliedLog; i < job.log.length; i++) {
     const entry = job.log[i];
@@ -1600,9 +1578,6 @@ document.getElementById('vps-health-form')?.addEventListener('submit', async (e)
   startPteroPoll('vph', res.jobId);
 });
 
-// ================= Tools > Install Tema / Uninstall Tema (Reset Panel) =================
-// Backend: POST /api/tools/ptero/theme/install | /theme/uninstall (job & console log
-// memakai mekanisme yang sama dengan Install Pterodactyl: socket + polling job).
 let themeCatalog = [];
 const THEME_GROUP_LABEL = {
   standard: 'Tema Standar',
@@ -1683,7 +1658,7 @@ document.getElementById('ptero-theme-form')?.addEventListener('submit', async (e
     linkGroup: document.getElementById('ptt-link-group').value.trim(),
     installBlueprint: document.getElementById('ptt-install-bp').checked,
     backup: document.getElementById('ptt-backup').checked,
-  }, `Mengirim permintaan install tema ${t.name}...`, 'Gagal memulai install tema');
+  }, `Mengirim permintaan install tema ${escapeHtml(t.name)}...`, 'Gagal memulai install tema');
 });
 
 document.getElementById('ptero-theme-reset-form')?.addEventListener('submit', async (e) => {
@@ -1695,9 +1670,6 @@ document.getElementById('ptero-theme-reset-form')?.addEventListener('submit', as
   }, 'Mengirim permintaan uninstall tema (reset panel)...', 'Gagal memulai uninstall tema');
 });
 
-// ================= Tools > Install / Uninstall Protect Panel =================
-// Backend: POST /api/tools/ptero/protect/install | /protect/uninstall (job & console log
-// memakai mekanisme yang sama dengan tema: socket + polling job).
 document.getElementById('ptp-clear-console-btn')?.addEventListener('click', () => clearPteroConsole('ptp'));
 document.getElementById('ptq-clear-console-btn')?.addEventListener('click', () => clearPteroConsole('ptq'));
 
@@ -1718,37 +1690,28 @@ document.getElementById('ptero-protect-reset-form')?.addEventListener('submit', 
   }, 'Mengirim permintaan uninstall protect panel...', 'Gagal memulai uninstall protect');
 });
 
-// ================= Tools > Manajemen GitHub =================
-// Buat repo dari ZIP, update repo dari ZIP, dan kelola repo (branch, commit, file,
-// visibilitas, rename, hapus). Semua lewat backend (/api/tools/github/*).
-// User LOGIN sekali (username + token) -> token disimpan sementara di memori SERVER,
-// bukan di browser (browser hanya mengingat username). Logout manual atau otomatis
-// setelah 10 menit tanpa aktivitas.
-// Upload/update jalan sebagai job di server; progresnya ditarik lewat polling + sinyal
-// socket, sama seperti Install Pterodactyl.
 const GH_API = '/api/tools/github';
 let ghJobId = null;
 let ghApplied = 0;
 let ghPollTimer = null;
 let ghPollFails = 0;
 let ghBusy = false;
-let ghMBusy = false;       // kunci aksi di tab Kelola supaya tidak dobel klik
+let ghMBusy = false;
 let ghRepos = [];
 let ghPage = 1;
 let ghHasMore = false;
-let ghSel = null;          // repo yang sedang dikelola
+let ghSel = null;
 let ghBranches = [];
 let ghBrowse = { path: '', crumbs: [], items: [] };
 
-// --- sesi login ---
 const GH_SESSION_CODE = 'GH_SESSION_REQUIRED';
-const GH_PING_EVERY_MS = 30 * 1000;   // maksimal 1 ping ke server per 30 detik saat user aktif
-let ghSession = null;                 // { username, login, name } kalau sedang login
-let ghIdleMs = 10 * 60 * 1000;        // diganti nilai dari server saat login
-let ghDeadline = 0;                   // epoch ms kapan auto logout (digeser tiap ada aktivitas)
+const GH_PING_EVERY_MS = 30 * 1000;
+let ghSession = null;
+let ghIdleMs = 10 * 60 * 1000;
+let ghDeadline = 0;
 let ghTickTimer = null;
 let ghLastPing = 0;
-let ghDirty = false;                  // ada aktivitas yang belum dikabarkan ke server
+let ghDirty = false;
 
 const ghEl = (id) => document.getElementById(id);
 const ghVal = (id) => (ghEl(id)?.value || '').trim();
@@ -1762,8 +1725,6 @@ function ghCreds(needUser = true) {
   return { username };
 }
 
-// Kalau server bilang sesi sudah tidak ada (idle / logout di tab lain / token dicabut),
-// kembalikan UI ke form login.
 function ghCheckSessionLost(res) {
   if (res && res.code === GH_SESSION_CODE) {
     ghEndSession(res.message || 'Sesi GitHub berakhir. Login lagi.', 'warning');
@@ -1783,7 +1744,7 @@ function setGhBusy(b) {
   ['gh-create-btn', 'gh-update-btn'].forEach((id) => { const el = ghEl(id); if (el) el.disabled = b; });
 }
 
-let ghUploadWhat = 'ZIP';   // label progress: 'ZIP' atau 'file'
+let ghUploadWhat = 'ZIP';
 function ghSetProgress(pct) {
   const wrap = ghEl('gh-up-wrap');
   if (pct === null) { wrap.style.display = 'none'; return; }
@@ -1799,7 +1760,6 @@ function ghSwitchTab(name) {
   if (name === 'manage' && !ghRepos.length && ghSession) ghLoadRepos(true);
 }
 
-// ---------- sesi login / logout / auto-logout ----------
 function ghFmtClock(ms) {
   const t = Math.max(0, Math.ceil(ms / 1000));
   return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
@@ -1812,7 +1772,6 @@ function ghSetBadge(loggedIn) {
   b.textContent = loggedIn ? 'Login' : 'Belum login';
 }
 
-// Tampilkan UI "sudah login" + mulai hitung mundur.
 function ghStartSession(viewer, session, ownerName, notes) {
   ghSession = { username: session.username || ownerName, login: viewer.login, name: viewer.name || null };
   ghIdleMs = session.idleTimeoutMs || ghIdleMs;
@@ -1833,7 +1792,6 @@ function ghStartSession(viewer, session, ownerName, notes) {
   ghTick();
 }
 
-// Kembalikan UI ke form login dan bersihkan semua data repo yang sempat dimuat.
 function ghEndSession(message, kind = 'warning') {
   const had = !!ghSession;
   ghSession = null;
@@ -1861,15 +1819,14 @@ function ghEndSession(message, kind = 'warning') {
   try {
     const savedUser = localStorage.getItem('gh_tool_username');
     if (savedUser && !ghVal('gh-login-username')) ghEl('gh-login-username').value = savedUser;
-  } catch (e) { /* abaikan */ }
+  } catch (e) {  }
 
   if (had && message) Toast.show(message, kind);
 }
 
-// Dipanggil tiap detik: update hitung mundur & auto logout kalau idle habis.
 function ghTick() {
   if (!ghSession) return;
-  if (ghBusy) { ghMarkActive(); }   // upload/update sedang jalan = user sedang menunggu, bukan idle
+  if (ghBusy) { ghMarkActive(); }
   const now = Date.now();
   if (ghDirty && now - ghLastPing >= GH_PING_EVERY_MS) { ghDirty = false; ghLastPing = now; ghPing(); }
   const left = ghDeadline - now;
@@ -1881,7 +1838,6 @@ function ghTick() {
   }
 }
 
-// Ada aktivitas user -> geser batas auto logout 10 menit dari sekarang.
 function ghMarkActive() {
   if (!ghSession) return;
   ghDeadline = Date.now() + ghIdleMs;
@@ -1899,7 +1855,7 @@ async function ghAutoLogout() {
   if (!ghSession) return;
   const idleMin = Math.round(ghIdleMs / 60000);
   ghEndSession(`Auto logout GitHub: ${idleMin} menit tanpa aktivitas.`, 'warning');
-  API.post(`${GH_API}/logout`);   // hapus token dari memori server (best effort)
+  API.post(`${GH_API}/logout`);
 }
 
 async function ghLogout() {
@@ -1930,12 +1886,11 @@ async function ghLogin(e) {
     box.textContent = `❌ ${(res && res.message) || 'Login gagal.'}`;
     return;
   }
-  // token sudah di server, buang dari form
   ghEl('gh-token').value = '';
   ghEl('gh-token').type = 'password';
   ghEl('gh-token-eye').innerHTML = '<i class="fas fa-eye"></i>';
   box.style.display = 'none';
-  try { localStorage.setItem('gh_tool_username', username); } catch (err) { /* abaikan */ }
+  try { localStorage.setItem('gh_tool_username', username); } catch (err) {  }
 
   const v = res.viewer;
   const notes = [];
@@ -1956,7 +1911,6 @@ async function ghLogin(e) {
   if (ghEl('gh-sub-manage').classList.contains('active')) ghLoadRepos(true);
 }
 
-// Pulihkan sesi kalau halaman di-refresh (token ada di server, bukan di browser).
 async function ghRestoreSession() {
   const res = await API.get(`${GH_API}/session`);
   if (res && res.success && res.loggedIn) {
@@ -1964,13 +1918,11 @@ async function ghRestoreSession() {
   }
 }
 
-// Aktivitas user di halaman ini = reset hitung mundur.
 ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'wheel', 'click'].forEach((evt) => {
   document.addEventListener(evt, ghMarkActive, { passive: true, capture: true });
 });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) ghTick(); });
 
-// ---------- upload / update (job) ----------
 function ghUpload(path, form) {
   return new Promise((resolve) => {
     const xhr = new XMLHttpRequest();
@@ -2062,7 +2014,7 @@ function renderGhEntry(type, d, ts) {
     const a = ghEl('gh-result-link');
     a.href = ghSafeUrl(d.url);
     a.style.display = 'inline-flex';
-    ghRepos = []; // daftar di tab Kelola dimuat ulang saat dibuka lagi
+    ghRepos = [];
     Toast.success(d.action === 'create' ? 'Repository berhasil dibuat' : 'Update repository selesai');
   } else if (type === 'error') {
     stopGhPoll();
@@ -2138,7 +2090,6 @@ ghEl('gh-update-form')?.addEventListener('submit', async (e) => {
   await ghStartJob(`${GH_API}/update`, form);
 });
 
-// ---------- Upload file langsung (tanpa ZIP) ----------
 let ghPickCtx = null;
 
 function ghPickFiles(ctx) {
@@ -2185,12 +2136,11 @@ ghEl('gh-file-input')?.addEventListener('change', async () => {
   picked.forEach((f) => form.append('files', f, f.name));
 
   ghUploadWhat = 'file';
-  const wasBrowsing = !!ghEl('gh-detail-body')?.querySelector('.gh-crumbs');   // daftar file sedang tampil
+  const wasBrowsing = !!ghEl('gh-detail-body')?.querySelector('.gh-crumbs');
   const browsePath = ghBrowse ? ghBrowse.path : '';
   await ghStartJob(`${GH_API}/update-file`, form);
   ghUploadWhat = 'ZIP';
   ghEl('ghc-console')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  // segarkan daftar file setelah job selesai
   if (wasBrowsing) {
     const t = setInterval(() => {
       if (ghBusy) return;
@@ -2201,7 +2151,6 @@ ghEl('gh-file-input')?.addEventListener('change', async () => {
   }
 });
 
-// ---------- tab Kelola: daftar repo ----------
 function ghRenderRepoList() {
   const box = ghEl('gh-repo-list');
   if (!ghRepos.length) { box.innerHTML = ghState('Belum ada repository.'); ghEl('gh-more-btn').style.display = 'none'; return; }
@@ -2265,7 +2214,6 @@ function ghUpdateVisBtn() {
 const ghBase = () => ({ owner: ghSel.owner, repo: ghSel.name });
 const ghDetail = () => ghEl('gh-detail-body');
 
-// ---------- Kelola: branch ----------
 async function ghShowBranches() {
   ghDetail().innerHTML = ghState('<i class="fas fa-spinner fa-spin"></i> Memuat branch...');
   const res = await ghManage('branches', ghBase());
@@ -2287,7 +2235,6 @@ async function ghShowBranches() {
     </div>`;
 }
 
-// ---------- Kelola: commit ----------
 async function ghShowCommits() {
   ghDetail().innerHTML = ghState('<i class="fas fa-spinner fa-spin"></i> Memuat commit...');
   const res = await ghManage('commits', ghBase());
@@ -2301,12 +2248,11 @@ async function ghShowCommits() {
   </div>`).join('');
 }
 
-// ---------- Kelola: telusuri file ----------
 async function ghShowFiles(path) {
   ghDetail().innerHTML = ghState('<i class="fas fa-spinner fa-spin"></i> Memuat file...');
   const res = await ghManage('contents', { ...ghBase(), path: path || '', branch: ghSel.defaultBranch });
   if (!res.success) {
-    if (path) { ghShowFiles(''); return; } // folder sudah tidak ada -> balik ke root
+    if (path) { ghShowFiles(''); return; }
     ghDetail().innerHTML = ghState(escapeHtml(res.message), true);
     return;
   }
@@ -2326,7 +2272,6 @@ async function ghShowFiles(path) {
     ${rows || ghState('Folder kosong.')}`;
 }
 
-// ---------- Kelola: aksi repo ----------
 async function ghRepoAction(act) {
   if (!ghSel) return;
   if (act === 'files') return ghShowFiles('');
@@ -2334,7 +2279,6 @@ async function ghRepoAction(act) {
   if (act === 'commits') return ghShowCommits();
 
   if (act === 'upload-file') {
-    // upload ke folder yang sedang dibuka di tab File (kosong = root repo)
     ghPickFiles({ dir: (ghBrowse && ghBrowse.path) || '', replacePath: '', multiple: true });
     return;
   }
@@ -2410,7 +2354,6 @@ async function ghRepoAction(act) {
   }
 }
 
-// ---------- event wiring ----------
 ghEl('gh-detail-actions')?.addEventListener('click', async (e) => {
   const btn = e.target.closest('[data-gh-act]');
   if (!btn || ghMBusy) return;
@@ -2497,7 +2440,7 @@ ghEl('gh-token-eye')?.addEventListener('click', () => {
 try {
   const savedUser = localStorage.getItem('gh_tool_username');
   if (savedUser && ghEl('gh-login-username') && !ghEl('gh-login-username').value) ghEl('gh-login-username').value = savedUser;
-} catch (e) { /* abaikan */ }
+} catch (e) {  }
 
 async function init() {
   const res = await Auth.check();

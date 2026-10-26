@@ -1,4 +1,3 @@
-/* Notebook theme helper — dekorasi paku/selotip, tanpa mengubah logika halaman. */
 (function () {
   function decorate(root) {
     (root || document).querySelectorAll('.wallet-hero:not([data-nb]), .auth-card:not([data-nb])').forEach(function (el) {

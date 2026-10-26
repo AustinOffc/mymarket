@@ -1,9 +1,3 @@
-/*
- * Custom Select — pengganti tampilan dropdown native <select> agar ikut tema situs.
- * <select> asli TETAP ada di DOM (disembunyikan visual) supaya semua script halaman
- * yang sudah pakai select.value / select.innerHTML / select.disabled / addEventListener('change')
- * / atribut onchange="..." tetap berfungsi tanpa perlu diubah.
- */
 (function () {
   var SELECTOR = 'select';
 
@@ -67,8 +61,6 @@
     });
   }
 
-  // Positions the (body-portaled) panel against the trigger's live viewport rect, so it
-  // always floats correctly regardless of which ancestor cards use backdrop-filter/transform.
   function positionPanel(csel) {
     var rect = csel._trigger.getBoundingClientRect();
     var panel = csel._panel;
@@ -130,30 +122,17 @@
     var panel = document.createElement('div');
     panel.className = 'csel-panel';
     panel.setAttribute('role', 'listbox');
-    // Portaled to <body> (not appended inside wrap) so it renders above ancestors that
-    // create their own stacking context (e.g. cards using backdrop-filter), which would
-    // otherwise trap it behind later sibling content despite its high z-index.
     document.body.appendChild(panel);
 
     var csel = { el: wrap, _native: native, _trigger: trigger, _panel: panel };
     wrap._cselInstance = csel;
 
     csel._outsideHandler = function (e) {
-      // Panel di-portal ke <body>, JADI BUKAN anak dari `wrap` — harus dicek terpisah,
-      // kalau tidak, setiap sentuhan/tap di dalam panel pilihan sendiri (mousedown pada
-      // opsi) dianggap "klik di luar" dan menutup panel SEBELUM tap-nya sempat terdaftar
-      // sebagai pilihan. Inilah sebab dropdown bisa dibuka & discroll tapi tidak bisa
-      // benar-benar memilih opsi.
       if (!wrap.contains(e.target) && !panel.contains(e.target)) closePanel(csel);
     };
     csel._keyHandler = function (e) {
       if (e.key === 'Escape') { closePanel(csel); trigger.focus(); }
     };
-    // Panel is fixed-position against the trigger's viewport rect; if the page (or any
-    // scrollable ancestor) scrolls or the viewport resizes while open, close it so it
-    // doesn't drift away from the trigger. But ignore scroll events that originate from
-    // scrolling inside the panel's own option list (its long list is scrollable) —
-    // those shouldn't close the panel.
     csel._scrollHandler = function (e) {
       if (e.target && panel.contains(e.target)) return;
       closePanel(csel);
@@ -178,22 +157,12 @@
       }
     });
 
-    // Menangkap perubahan yang dilakukan script halaman (innerHTML baru, disabled toggle, dst.)
     var mo = new MutationObserver(function () {
       syncTrigger(csel);
       if (wrap.classList.contains('open')) buildPanel(csel);
     });
     mo.observe(native, { attributes: true, attributeFilter: ['disabled'], childList: true, subtree: true });
 
-    // BUG FIX: script halaman yang mengisi form dari API (mis. loadPpobSection() set
-    // `select.value = d.margin.highType`) mengubah PROPERTY JS, bukan atribut DOM —
-    // jadi MutationObserver di atas TIDAK ke-trigger dan syncTrigger() tidak pernah
-    // dipanggil ulang. Akibatnya kotak dropdown yang tertutup nyangkut menampilkan
-    // opsi default lama (mis. "Persen (%)") walau value asli <select> sudah benar
-    // ("Nominal Tetap (Rp)") — checkmark di panel benar, tapi teks di kotak salah.
-    // Fix: timpa setter `value` & `selectedIndex` bawaan <select> supaya SETIAP kali
-    // di-set lewat cara apapun (termasuk `select.value = ...` langsung dari script
-    // lain), tampilan ikut sync otomatis — tidak lagi bergantung ke event/atribut.
     var proto = Object.getPrototypeOf(native);
     var valueDesc = Object.getOwnPropertyDescriptor(proto, 'value')
       || (window.HTMLSelectElement && Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value'));
@@ -229,8 +198,6 @@
     (root || document).querySelectorAll(SELECTOR).forEach(enhance);
   }
 
-  // Panels live in <body>, detached from their .csel wrap, so when a wrap is removed
-  // (e.g. a dynamically-rendered row gets torn down) its orphaned panel needs manual cleanup.
   function cleanupRemoved(node) {
     if (node.nodeType !== 1) return;
     var wraps = node.classList && node.classList.contains('csel') ? [node] : (node.querySelectorAll ? Array.prototype.slice.call(node.querySelectorAll('.csel')) : []);

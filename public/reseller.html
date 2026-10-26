@@ -448,8 +448,8 @@ let pricing = null;
 let myPanels = [];
 let currentPanelId = null;
 let manageTimer = null;
-let stackSelectPopulatedFor = null; // id panel yang dropdown "Ganti Tipe Server"-nya sudah diisi
-let personalMethod = 'new'; // 'new' = akun baru, 'merge' = tambah server ke akun yang sudah ada
+let stackSelectPopulatedFor = null;
+let personalMethod = 'new';
 let buyerMethod = 'new';
 
 async function init() {
@@ -551,8 +551,6 @@ function showView(name) {
   });
 });
 
-// Toggle "Panel Baru" (pisah) vs "Gabung ke Akun yang Sudah Ada" di form Panel Pribadi & Panel
-// Buyer — persis pola yang sama dengan "Metode Order" di halaman Order Panel biasa.
 document.getElementById('personal-method-tabs').addEventListener('click', (e) => {
   const btn = e.target.closest('.builder-tab-btn');
   if (!btn) return;
@@ -577,11 +575,6 @@ document.getElementById('buyer-method-tabs').addEventListener('click', (e) => {
   if (isMerge) populateCreateMergeSelect('buyer-merge-account-select', 'buyer-merge-account-empty');
 });
 
-// Kelompokkan panel milik reseller/partner ini sendiri berdasarkan panel_username (1 username = 1
-// akun Pterodactyl, pribadi maupun buyer) supaya dropdown "Gabung ke Akun yang Sudah Ada" di form
-// Panel Pribadi/Panel Buyer menampilkan akun, bukan per-server. Beda dengan dropdown "Gabung ke
-// Akun Panel Lain" di halaman Kelola Server (populateManageMergeSelect), di sini tidak ada server
-// yang perlu disingkirkan karena servernya memang belum dibuat.
 function populateCreateMergeSelect(selectId, emptyId) {
   const select = document.getElementById(selectId);
   const emptyMsg = document.getElementById(emptyId);
@@ -677,8 +670,6 @@ function alertCredential(panel) {
   showAlert(`Username: ${panel.panel_username}\nPassword: ${panel.panel_password}\n\nCatat baik-baik, password tidak akan ditampilkan lagi.`, { title: 'Panel Berhasil Dibuat' });
 }
 
-// Isi body.username (panel baru) ATAU body.merge_into_panel_id (gabung akun) sesuai method yang
-// lagi aktif. Balikin null kalau validasinya gagal (pesan error sudah ditampilkan via Toast).
 function buildPanelIdentityFields(method, selectId, usernameInputId) {
   if (method === 'merge') {
     const accId = document.getElementById(selectId).value;
@@ -831,7 +822,7 @@ document.getElementById('back-to-list-btn').addEventListener('click', () => show
 
 async function openManage(id) {
   currentPanelId = id;
-  stackSelectPopulatedFor = null; // panel baru dibuka -> dropdown wajib diisi ulang sekali
+  stackSelectPopulatedFor = null;
   document.querySelectorAll('.rs-tab-btn').forEach((b) => b.classList.remove('active'));
   document.querySelectorAll('.rs-view').forEach((v) => v.classList.remove('active'));
   document.getElementById('view-manage').classList.add('active');
@@ -842,9 +833,6 @@ async function openManage(id) {
   manageTimer = setInterval(refreshManage, 8000);
 }
 
-// Dropdown "Gabung ke Akun Panel Lain" — daftar akun lain milik reseller/partner ini sendiri
-// (dikelompokkan per panel_username, baik panel pribadi maupun panel buyer), TAPI akun milik
-// server yang sedang dibuka (ptero_user_id sama) disingkirkan karena server itu sudah di akun tsb.
 function populateManageMergeSelect() {
   const wrap = document.getElementById('manage-merge-wrap');
   const select = document.getElementById('manage-merge-select');
@@ -907,12 +895,6 @@ async function refreshManage() {
   document.getElementById('manage-renew-price').textContent = formatRupiah(p.price);
   document.getElementById('manage-renew-card').style.display = scope === 'reseller_personal' ? 'none' : 'block';
 
-  // Dropdown "Ganti Tipe Server" HANYA diisi sekali per panel dibuka (di openManage/setelah
-  // ganti tipe berhasil), TIDAK setiap polling 8 detik. Sebelumnya select ini di-rebuild di
-  // setiap tick polling, yang merusak/menutup paksa picker native saat user sedang memilih.
-  // Rebuild berdasarkan document.activeElement juga gagal karena di WebView Android, select
-  // tetap "focused" setelah disentuh sekali sehingga rebuild malah terkunci permanen (kosong
-  // selamanya). Solusi final: isi sekali per currentPanelId, titik.
   if (stackSelectPopulatedFor !== currentPanelId) {
     populateStackSelect(p);
   }

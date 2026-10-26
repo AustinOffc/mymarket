@@ -1336,7 +1336,6 @@ done</code></pre></div></div></div>
 </div>
 
 <script>
-/* Copy */
 document.addEventListener('click', function (e) {
   var btn = e.target.closest('.copy-btn');
   if (!btn) return;
@@ -1353,7 +1352,6 @@ document.addEventListener('click', function (e) {
   }
 });
 
-/* Tab bahasa: pilihan bahasa berlaku ke SEMUA contoh di halaman & diingat */
 function setLang(lang) {
   document.querySelectorAll('.reqtab').forEach(function (t) { t.classList.toggle('active', t.dataset.lang === lang); });
   document.querySelectorAll('.reqpanel').forEach(function (p) { p.classList.toggle('active', p.dataset.lang === lang); });
@@ -1390,7 +1388,6 @@ try {
     .catch(function () { apply(window.location.origin); });
 })();
 
-/* Scroll spy */
 var navLinks = document.querySelectorAll('.docs-nav a');
 var sections = Array.prototype.slice.call(document.querySelectorAll('.docs-section, .hero'));
 window.addEventListener('scroll', function () {

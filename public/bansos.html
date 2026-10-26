@@ -333,7 +333,6 @@ async function fetchStats() {
 
   document.getElementById('stat-panel-total').textContent = res.data.totals.panel ?? 0;
   document.getElementById('stat-panel-card').style.display = res.data.ptero_enabled ? '' : 'none';
-  // Panel nonaktif -> kartu React melebar penuh supaya grid tidak bolong
   document.getElementById('stat-react-card').style.gridColumn = res.data.ptero_enabled ? '' : '1/-1';
 
   const pteroBtn = document.getElementById('tab-btn-ptero');
@@ -440,7 +439,6 @@ async function generateNetflix() {
   }
 }
 
-// --- React WA ---
 let REACT_EMOJIS = ['🔥', '❤️', '🥶', '😱', '👍', '😂', '😮', '😢', '🙏', '🎉', '😍', '🤯'];
 const REACT_MAX = 4;
 let reactSelected = ['🔥', '❤️', '🥶', '😱'];
@@ -467,7 +465,6 @@ document.getElementById('react-emoji-grid').addEventListener('click', (ev) => {
 });
 renderReactEmojis();
 
-// Emoji custom: user ketik sendiri, dipisah koma. Emoji valid otomatis masuk grid & terpilih.
 const REACT_EMOJI_RE = /^\p{Extended_Pictographic}(\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*$/u;
 function addCustomEmoji() {
   const input = document.getElementById('react-custom');
@@ -491,7 +488,6 @@ document.getElementById('react-custom').addEventListener('keydown', (ev) => {
   if (ev.key === 'Enter') { ev.preventDefault(); addCustomEmoji(); }
 });
 
-// Tombol dikunci selama jeda global (30 dtk) supaya user tidak spam klik.
 let reactCooldownTimer = null;
 function startReactCooldown(seconds) {
   const btn = document.getElementById('react-btn');
@@ -543,7 +539,6 @@ async function sendReactWa() {
   }
 }
 
-// --- Bulk AM ---
 let bulkPollTimer = null;
 let bulkLockCountdownTimer = null;
 let bulkAccountsCache = [];

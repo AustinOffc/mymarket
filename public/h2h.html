@@ -200,8 +200,8 @@
 <script src="/js/cs.js"></script>
 <script>
 let h2hHasKey = false;
-let h2hKeyPreview = null;   // preview dari server, dipakai untuk mendeteksi key berganti
-let h2hKeyPlain = null;     // key lengkap, hanya ada di memori halaman ini setelah tombol mata ditekan
+let h2hKeyPreview = null;
+let h2hKeyPlain = null;
 let h2hKeyVisible = false;
 let h2hCanReveal = false;
 
@@ -232,7 +232,6 @@ function renderH2hKey() {
     : 'Key ini dibuat sebelum fitur lihat-ulang ada. Klik "Generate Ulang API Key" sekali supaya key bisa dilihat kapan saja.';
 }
 
-// Ambil key lengkap dari server (sekali, lalu disimpan di memori halaman).
 async function ensureH2hKey() {
   if (h2hKeyPlain) return h2hKeyPlain;
   if (!h2hCanReveal) { h2hAlert('h2h-key-alert', 'Key ini dibuat sebelum fitur lihat-ulang ada. Klik Generate Ulang API Key sekali, setelah itu key bisa dilihat kapan saja.', 'danger'); return null; }
@@ -332,7 +331,6 @@ async function loadH2hStatus() {
   const d = res.data;
   h2hHasKey = !!d.key_preview;
 
-  // Key berganti (mis. di-generate dari perangkat lain) -> buang key lama dari memori halaman.
   if (d.key_preview !== h2hKeyPreview) { h2hKeyPlain = null; h2hKeyVisible = false; }
   h2hKeyPreview = d.key_preview || null;
   h2hCanReveal = !!d.can_reveal;
@@ -369,7 +367,6 @@ document.getElementById('h2h-generate-btn').addEventListener('click', async () =
   const r = await API.post('/api/h2h/key/generate');
   if (!r.success) { h2hAlert('h2h-key-alert', r.message); return; }
   h2hAlert('h2h-key-alert', r.message, 'success');
-  // Key baru langsung ditampilkan; set preview dulu supaya loadH2hStatus tidak menganggapnya "key berganti".
   h2hKeyPreview = r.data.preview;
   h2hKeyPlain = r.data.api_key;
   h2hKeyVisible = true;

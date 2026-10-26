@@ -476,8 +476,8 @@ let pricing = null;
 let myPanels = [];
 let currentPanelId = null;
 let manageTimer = null;
-let stackSelectPopulatedFor = null; // id panel yang dropdown "Ganti Tipe Server"-nya sudah diisi
-let orderMethod = 'new'; // 'new' = akun baru, 'merge' = tambah server ke akun yang sudah ada
+let stackSelectPopulatedFor = null;
+let orderMethod = 'new';
 
 async function init() {
   const res = await Auth.check();
@@ -488,7 +488,7 @@ async function init() {
 }
 
 document.querySelectorAll('.builder-tabs').forEach((tabs) => {
-  if (tabs.id === 'order-method-tabs') return; // ditangani terpisah di bawah
+  if (tabs.id === 'order-method-tabs') return;
   tabs.addEventListener('click', (e) => {
     const btn = e.target.closest('.builder-tab-btn');
     if (!btn) return;
@@ -510,8 +510,6 @@ document.getElementById('order-method-tabs').addEventListener('click', (e) => {
   if (isMerge) populateMergeAccountSelect();
 });
 
-// Kelompokkan panel milik user berdasarkan panel_username (1 username = 1 akun Pterodactyl)
-// supaya dropdown "Tambah Server (Gabung Akun)" menampilkan akun, bukan per-server.
 function populateMergeAccountSelect() {
   const select = document.getElementById('order-merge-account-select');
   const emptyMsg = document.getElementById('order-merge-account-empty');
@@ -591,8 +589,6 @@ function updateCustomPrice() {
   document.getElementById('custom-price').textContent = formatRupiah(price);
 }
 
-// Isi body.username (order baru) ATAU body.merge_into_panel_id (gabung akun) sesuai orderMethod
-// yang lagi aktif. Balikin null kalau validasinya gagal (pesan error sudah ditampilkan via Toast).
 function buildOrderIdentityFields(usernameInputId) {
   if (orderMethod === 'merge') {
     const select = document.getElementById('order-merge-account-select');
@@ -692,7 +688,6 @@ async function loadBuyRole() {
     </div>`;
 
   if (me.role === 'partner') {
-    // Already at the top tier — nothing left to buy or upgrade to.
     content.innerHTML = `
       <div class="unlimited-card">
         <div class="plan-name" style="font-weight:800;font-size:16px"><i class="fas fa-crown" style="color:var(--primary)"></i> Kamu adalah Partner</div>
@@ -703,8 +698,6 @@ async function loadBuyRole() {
   }
 
   if (me.role === 'reseller') {
-    // Reseller can self-upgrade to Partner instantly at a discounted price — wallet is
-    // debited and the role is upgraded automatically, no owner approval needed.
     content.innerHTML = `
       <div class="unlimited-card mb-16">
         <div class="plan-name" style="font-weight:800;font-size:16px"><i class="fas fa-crown" style="color:var(--primary)"></i> Kamu adalah Reseller</div>
@@ -865,7 +858,7 @@ document.getElementById('back-to-list-btn').addEventListener('click', () => show
 
 async function openManage(id) {
   currentPanelId = id;
-  stackSelectPopulatedFor = null; // panel baru dibuka -> dropdown wajib diisi ulang sekali
+  stackSelectPopulatedFor = null;
   document.querySelectorAll('.ptero-tab-btn').forEach((b) => b.classList.remove('active'));
   document.querySelectorAll('.ptero-view').forEach((v) => v.classList.remove('active'));
   document.getElementById('view-manage').classList.add('active');
@@ -876,9 +869,6 @@ async function openManage(id) {
   manageTimer = setInterval(refreshManage, 8000);
 }
 
-// Dropdown "Gabung ke Akun Panel Lain" di halaman Manage — daftar akun lain (dikelompokkan per
-// panel_username, sama seperti populateMergeAccountSelect) TAPI akun milik server yang sedang
-// dibuka (ptero_user_id sama) disingkirkan, karena server itu sudah ada di akun tsb.
 function populateManageMergeSelect() {
   const wrap = document.getElementById('manage-merge-wrap');
   const select = document.getElementById('manage-merge-select');
@@ -934,12 +924,6 @@ async function refreshManage() {
   document.getElementById('manage-renew-price').textContent = formatRupiah(p.price);
   populateUpgradeForm(p);
 
-  // Dropdown "Ganti Tipe Server" HANYA diisi sekali per panel dibuka (di openManage/setelah
-  // ganti tipe berhasil), TIDAK setiap polling 8 detik. Sebelumnya select ini di-rebuild di
-  // setiap tick polling, yang merusak/menutup paksa picker native saat user sedang memilih.
-  // Rebuild berdasarkan document.activeElement juga gagal karena di WebView Android, select
-  // tetap "focused" setelah disentuh sekali sehingga rebuild malah terkunci permanen (kosong
-  // selamanya). Solusi final: isi sekali per currentPanelId, titik.
   if (stackSelectPopulatedFor !== currentPanelId) populateStackSelect(p);
 
   const r = p.resources;
@@ -1045,7 +1029,6 @@ document.getElementById('renew-btn').addEventListener('click', async () => {
   else Toast.error(res.message);
 });
 
-// ── Upgrade Spek ──
 let upgradePanelFor = null;
 function sellPrice(p, ramGb, cpuPct, diskGb) {
   if (!pricing) return 0;
@@ -1081,7 +1064,6 @@ function populateUpgradeForm(p) {
   wrap.style.display = '';
   if (blocked) { body.style.display = 'none'; msg.style.display = 'block'; msg.textContent = blocked; upgradePanelFor = null; return; }
   body.style.display = ''; msg.style.display = 'none';
-  // Isi nilai input HANYA sekali per panel dibuka (bukan tiap polling 8 detik), biar ketikan user tidak ke-reset.
   if (upgradePanelFor === currentPanelId) return;
   upgradePanelFor = currentPanelId;
   const ramGb = p.ram / 1024, diskGb = p.disk / 1024;

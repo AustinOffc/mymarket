@@ -177,9 +177,6 @@
 <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
 <script src="/js/cs.js"></script>
 <script>
-// ---------------------------------------------------------------------------
-// Daftar Harga — alur: Kategori (bagian) -> Sub kategori -> (Jenis layanan) -> Filter cepat -> daftar
-// ---------------------------------------------------------------------------
 const SECTIONS = [
   { id: 'pulsa',   label: 'Pulsa & Data',       icon: 'mobile-screen-button', kind: 'ppob', keys: ['pulsa', 'paket_data', 'kuota', 'bulk_telkomsel'], filterLabel: 'Operator',
     note: 'Harga Member adalah harga yang kamu bayar di menu PPOB. Kolom H2H hanya terisi jika H2H API aktif untuk modul PPOB.' },
@@ -218,23 +215,19 @@ function platformOf(name) {
 }
 
 const PAGE = 100;
-const MANY = 14;           // lebih dari ini -> sub kategori pakai dropdown + pencarian
+const MANY = 14;
 const S = { section: null, sub: null, pick: null, filter: 'all', server: '1', items: [], limit: PAGE };
-const memo = {};           // cache per sesi halaman (katalog besar)
-let subsList = [];         // [{value,label,count}]
+const memo = {};
+let subsList = [];
 let pickList = [];
 let seq = 0;
-let ACTIVE = SECTIONS;       // bagian yang tidak kosong
+let ACTIVE = SECTIONS;
 let sosmedServers = [];
 
 const $ = (id) => document.getElementById(id);
 const cfg = () => SECTIONS.find((x) => x.id === S.section);
 
-function esc(str) {
-  const div = document.createElement('div');
-  div.textContent = str ?? '';
-  return div.innerHTML;
-}
+function esc(str) { return String(str == null ? '' : str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 async function api(url) {
   try { return await API.get(url); } catch (e) { return { success: false, message: 'Koneksi bermasalah, coba lagi' }; }
 }
@@ -250,7 +243,6 @@ function priceBadge(value, cls) {
   return `<span class="badge ${cls}" style="font-family:var(--font-mono)">${formatRupiah(value)}</span>`;
 }
 
-// ------------------------------------------------------------- render: bar
 function renderSections() {
   $('pl-sections').innerHTML = ACTIVE.map((x) =>
     `<button class="btn ${x.id === S.section ? 'btn-primary' : 'btn-outline'} btn-sm" data-section="${x.id}"><i class="fas fa-${x.icon}"></i> ${esc(x.label)}</button>`
@@ -310,7 +302,6 @@ function renderCrumb() {
   $('pl-crumb').innerHTML = parts.map((x, i) => (i === parts.length - 1 ? `<b>${esc(x)}</b>` : esc(x))).join(' › ');
 }
 
-// ----------------------------------------------------------- render: tabel
 function visibleRows() {
   const q = $('pl-search').value.trim().toLowerCase();
   let rows = S.items;
@@ -347,7 +338,6 @@ function renderRows() {
   const c = cfg();
   const rows = visibleRows();
   const hasH2h = S.items.some((it) => it.h2h_price !== null && it.h2h_price !== undefined);
-  // Kolom Gold hanya muncul kalau owner sudah mengisi potongan Gold untuk bagian ini.
   const hasGold = S.items.some((it) => it.gold_price !== null && it.gold_price !== undefined);
   const priceLabel = c.kind === 'sosmed' ? (hasGold ? 'Bronze / 1000' : 'Harga / 1000') : (hasGold ? 'Bronze' : 'Member');
   const infoLabel = c.kind === 'sosmed' ? 'Min / Max' : 'Status';
@@ -390,7 +380,6 @@ function refreshView() {
   renderRows();
 }
 
-// ----------------------------------------------------------- loader per jenis
 function loading() {
   $('pl-body').innerHTML = '<tr><td colspan="4"><div class="loading-spinner"></div></td></tr>';
   $('pl-count').textContent = '';
@@ -408,8 +397,6 @@ function resetLevels() {
   $('pl-crumb').textContent = '';
 }
 
-
-// Ambil daftar sub kategori sebuah bagian (tanpa memuat item). Sub kosong dibuang.
 async function loadSubs(c, server) {
   const out = { ok: true, msg: '', subs: [], items: [], cats: [] };
   let r;
@@ -447,7 +434,6 @@ async function loadSubs(c, server) {
   return out;
 }
 
-// Sembunyikan bagian (dan server sosmed) yang kosong, supaya tidak ada tombol yang buka halaman kosong.
 async function pruneEmpty() {
   const empty = new Set();
   await Promise.all(SECTIONS.map(async (c) => {
@@ -461,7 +447,7 @@ async function pruneEmpty() {
       return;
     }
     const x = await loadSubs(c);
-    if (x.empty && c.id !== 'game') empty.add(c.id);   // gagal muat (error) tidak dianggap kosong; Topup Game selalu tampil
+    if (x.empty && c.id !== 'game') empty.add(c.id);
   }));
   ACTIVE = SECTIONS.filter((c) => !empty.has(c.id));
   const servers = $('pl-servers');
@@ -523,7 +509,6 @@ async function openSub(value) {
     if (c.kind === 'appprem' && value === '*') S.items = S.items.map((it) => ({ ...it, sub: (memo.appprem.data.groups.find((g) => g.key === it.group) || {}).name || null }));
     if (c.kind === 'market' && value === '*') S.items = S.items.map((it) => ({ ...it, sub: (memo.market.data.groups.find((g) => g.key === it.group) || {}).name || null }));
   } else if (c.kind === 'sosmed') {
-    // sub = platform; pilih = jenis layanan di platform tsb
     pickList = (memo.sosmedCats || []).filter((d) => platformOf(d.name) === value).map((d) => ({ value: d.key, label: d.name }));
     renderPick();
     if (!pickList.length) return setMessage('Belum ada layanan');

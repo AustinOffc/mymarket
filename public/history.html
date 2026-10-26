@@ -211,10 +211,10 @@ function normalizeRow(source, row) {
     sub = row.target_id ? `ID: ${row.target_id}${row.zone_id ? ' (' + row.zone_id + ')' : ''}` : (row.category_name || '-');
   } else if (source === 'ppob') {
     title = `${row.category_name || 'PPOB'} — ${row.product_name || ''}`.replace(/^ — /, '');
-    sub = row.dest ? `Tujuan: ${row.dest}` : (row.category_name || '-');
+    sub = row.dest ? `Tujuan: ${escapeHtml(row.dest)}` : (row.category_name || '-');
   } else if (source === 'socmed') {
     title = row.service_name || row.category_name || 'Sosial Media';
-    sub = row.target ? `Target: ${row.target} • ${row.quantity || 0}x` : (row.category_name || '-');
+    sub = row.target ? `Target: ${escapeHtml(row.target)} • ${row.quantity || 0}x` : (row.category_name || '-');
   } else if (source === 'nokos') {
     title = row.service_name || 'Nomor OTP';
     sub = row.phone_number ? `${row.phone_number} • ${row.country_name || ''}` : (row.server_label || '-');
@@ -299,7 +299,7 @@ async function loadData(page = 1) {
   }
 
   if (search) {
-    rows = rows.filter(r => `${r.title} ${r.sub} ${r.id}`.toLowerCase().includes(search));
+    rows = rows.filter(r => `${escapeHtml(r.title)} ${r.sub} ${r.id}`.toLowerCase().includes(search));
   }
   if (statusFilter) {
     rows = rows.filter(r => r.statusGroup === statusFilter);
@@ -344,7 +344,7 @@ let currentDetail = null;
 
 async function openDetail(source, id) {
   const cfg = SOURCES[source];
-  document.getElementById('detail-title').innerHTML = `<i class="fas ${cfg.icon}" style="margin-right:8px;color:var(--primary)"></i>Detail ${cfg.label}`;
+  document.getElementById('detail-title').innerHTML = `<i class="fas ${cfg.icon}" style="margin-right:8px;color:var(--primary)"></i>Detail ${escapeHtml(cfg.label)}`;
   const body = document.getElementById('detail-body');
   const footer = document.getElementById('detail-footer');
   body.innerHTML = `<div class="loading-spinner"></div>`;

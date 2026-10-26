@@ -82,7 +82,6 @@
     .admin-sidebar [data-section="tools"].active               { background: rgba(167,139,250,.12); }
     .admin-sidebar [data-section="tools"].active::before       { background: #a78bfa; }
 
-    /* ---- Tools page (Owner > Tools) ---- */
     .tools-shell { display: grid; grid-template-columns: 240px 1fr; gap: 16px; align-items: start; }
     @media (max-width: 900px) { .tools-shell { grid-template-columns: 1fr; } }
     .tool-menu-item {
@@ -2106,6 +2105,10 @@
                 <input type="text" class="form-control" id="set-austinpay-url" placeholder="https://austinstore.id">
               </div>
               <div class="form-group">
+                <label class="form-label">Password Admin (konfirmasi)</label>
+                <input type="password" class="form-control" id="set-admin-password" placeholder="Wajib diisi hanya jika mengubah URL / API Key / Webhook Secret AustinPay" autocomplete="current-password">
+              </div>
+              <div class="form-group">
                 <label class="form-label">Webhook Signing Secret</label>
                 <input type="password" class="form-control" id="set-austinpay-webhook-secret" placeholder="Kosongkan kalau tidak ingin ganti">
                 <div class="text-xs text-muted" style="margin-top:6px">
@@ -2209,7 +2212,6 @@
     </div>
   </div>
 </div>
-
 
 <div class="modal-overlay" id="reject-modal">
   <div class="modal">
@@ -2407,7 +2409,6 @@
   </div>
 </div>
 
-
 <div class="modal-overlay" id="ppob-product-modal">
   <div class="modal">
     <div class="modal-header">
@@ -2460,7 +2461,6 @@
     </div>
   </div>
 </div>
-
 
 <div class="modal-overlay" id="pm-edit-modal">
   <div class="modal">
@@ -2656,7 +2656,7 @@ async function loadDashboard() {
           bodyColor: isDark ? '#cbd5e1' : '#334155',
           borderColor: isDark ? '#334155' : '#e2e8f0', borderWidth: 1,
           padding: 10, cornerRadius: 10, displayColors: true, boxPadding: 4,
-          callbacks: { label: ctx => `${ctx.dataset.label}: ${formatRupiah(ctx.parsed.y)}` },
+          callbacks: { label: ctx => `${escapeHtml(ctx.dataset.label)}: ${formatRupiah(ctx.parsed.y)}` },
         },
       },
       scales: {
@@ -2678,7 +2678,7 @@ async function loadDashboard() {
   const legendEl = document.getElementById('admin-chart-legend');
   const legendColors = ['#10b981', '#ef4444'];
   legendEl.innerHTML = adminChart.data.datasets.map((ds, i) => `
-    <span class="chart-legend-item" data-index="${i}" style="color:${legendColors[i]}">${ds.label}</span>
+    <span class="chart-legend-item" data-index="${i}" style="color:${legendColors[i]}">${escapeHtml(ds.label)}</span>
   `).join('');
 
   legendEl.querySelectorAll('.chart-legend-item').forEach(el => {
@@ -2705,12 +2705,12 @@ async function loadUsers(page = 1) {
   }
   tbody.innerHTML = res.data.map(u => `
     <tr>
-      <td><div style="font-weight:600">${u.full_name||u.username}</div><div style="font-size:13px;color:var(--text-muted)">@${u.username}</div></td>
-      <td class="text-sm">${u.email}</td>
+      <td><div style="font-weight:600">${u.full_name||u.username}</div><div style="font-size:13px;color:var(--text-muted)">@${escapeHtml(u.username)}</div></td>
+      <td class="text-sm">${escapeHtml(u.email)}</td>
       <td style="font-weight:600">${formatRupiah(u.balance)}</td>
       <td>${statusBadge(u.status)}</td>
       <td class="text-xs text-muted">${formatDate(u.createdAt, false)}</td>
-      <td><button class="btn btn-outline btn-sm" data-action="user-modal" data-id="${u.id}" data-username="${u.username}" data-status="${u.status}"><i class="fas fa-sliders-h"></i></button></td>
+      <td><button class="btn btn-outline btn-sm" data-action="user-modal" data-id="${u.id}" data-username="${escapeHtml(u.username)}" data-status="${u.status}"><i class="fas fa-sliders-h"></i></button></td>
     </tr>
   `).join('');
   renderPagination('users-pagination', res.page, res.pages, loadUsers);
@@ -2779,7 +2779,6 @@ async function adjustBalance(id) {
 }
 
 async function resetPassword(id, username) {
-  // Backend (requireAdminPassword) wajib menerima admin_password di body.
   const pwEl = document.getElementById('bal-admin-password');
   const admin_password = pwEl ? pwEl.value : '';
   if (!admin_password) return Toast.error('Isi Password Admin dulu untuk konfirmasi reset password');
@@ -2808,7 +2807,7 @@ async function loadDeposits(page = 1) {
   const tbody = document.getElementById('deposits-tbody');
   tbody.innerHTML = res.data.map(d => `
     <tr>
-      <td class="text-sm"><strong>${d.username}</strong></td>
+      <td class="text-sm"><strong>${escapeHtml(d.username)}</strong></td>
       <td><code style="font-size:13px">${(d.transaction_id||'').substring(0,20)}...</code></td>
       <td style="font-weight:600">${formatRupiah(d.amount)}</td>
       <td>${d.method||'QRIS'}</td>
@@ -2826,9 +2825,9 @@ async function loadWithdraws(page = 1) {
   const tbody = document.getElementById('withdraws-tbody');
   tbody.innerHTML = res.data.map(w => `
     <tr>
-      <td><strong>${w.username}</strong><br><span class="text-xs text-muted">${w.full_name||''}</span></td>
-      <td>${w.method}</td>
-      <td><code style="font-size:13px">${w.account_number}</code><br><span class="text-xs">${w.account_name}</span></td>
+      <td><strong>${escapeHtml(w.username)}</strong><br><span class="text-xs text-muted">${w.full_name||''}</span></td>
+      <td>${escapeHtml(w.method)}</td>
+      <td><code style="font-size:13px">${escapeHtml(w.account_number)}</code><br><span class="text-xs">${escapeHtml(w.account_name)}</span></td>
       <td style="font-weight:700">${formatRupiah(w.amount)}</td>
       <td>${statusBadge(w.status)}</td>
       <td class="text-xs text-muted">${formatDate(w.createdAt)}</td>
@@ -2880,7 +2879,7 @@ async function loadTransactions(page = 1) {
   const tbody = document.getElementById('transactions-tbody');
   tbody.innerHTML = res.data.map(t => `
     <tr>
-      <td class="text-sm">${t.username}</td>
+      <td class="text-sm">${escapeHtml(t.username)}</td>
       <td><span class="badge badge-secondary">${t.type}</span></td>
       <td class="text-sm cell-wrap">${t.description||'-'}</td>
       <td style="font-weight:600">${formatRupiah(t.amount)}</td>
@@ -2963,8 +2962,8 @@ async function sendFullBackup() {
   btn.disabled = false;
   btn.innerHTML = original;
   document.getElementById('backup-alert').innerHTML = res.success
-    ? `<div class="alert alert-success" style="margin-bottom:12px"><i class="fas fa-check-circle"></i> ${res.message}. Cek Telegram kamu.</div>`
-    : `<div class="alert alert-danger" style="margin-bottom:12px"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    ? `<div class="alert alert-success" style="margin-bottom:12px"><i class="fas fa-check-circle"></i> ${escapeHtml(res.message)}. Cek Telegram kamu.</div>`
+    : `<div class="alert alert-danger" style="margin-bottom:12px"><i class="fas fa-times-circle"></i> ${escapeHtml(res.message)}</div>`;
 }
 
 async function loadSettings() {
@@ -2977,9 +2976,10 @@ async function loadSettings() {
   document.getElementById('set-min-dep').value = s.min_deposit || 10000;
   document.getElementById('set-min-wd').value = s.min_withdraw || 10000;
   document.getElementById('set-austinpay-url').value = s.austinpay_base_url || '';
+  window.__loadedAustinpayUrl = s.austinpay_base_url || '';
 
   const preview = document.getElementById('current-logo-preview');
-  if (s.app_logo) preview.innerHTML = `<img src="${s.app_logo}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
+  if (s.app_logo) preview.innerHTML = `<img src="${escapeHtml(s.app_logo)}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
   else preview.innerHTML = `<i class="fas fa-bolt"></i>`;
 
   loadBanners();
@@ -2997,7 +2997,7 @@ async function loadSidebarMenu() {
     <label style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--border);cursor:pointer">
       <input type="checkbox" data-sidebar-menu-key="${it.key}" ${it.hidden ? '' : 'checked'} style="width:16px;height:16px;flex-shrink:0">
       <span class="nav-icon" style="width:20px;text-align:center;color:var(--text-muted)"><i class="fas ${it.icon}"></i></span>
-      <span style="flex:1;font-size:13.5px">${it.label}</span>
+      <span style="flex:1;font-size:13.5px">${escapeHtml(it.label)}</span>
       <span class="text-xs text-muted">${it.key}</span>
     </label>
   `).join('');
@@ -3013,10 +3013,10 @@ async function saveSidebarMenu() {
   const res = await API.post('/api/owner/sidebar-menu', { hidden });
   btnLoading(btn, false);
   if (res.success) {
-    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.success(res.message);
   } else {
-    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.error(res.message);
   }
 }
@@ -3030,7 +3030,7 @@ async function loadBanners() {
   }
   list.innerHTML = res.data.map(b => `
     <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px">
-      <img src="${b.image}" alt="" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0">
+      <img src="${escapeHtml(b.image)}" alt="" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0">
       <div style="flex:1;min-width:0">
         <div class="text-sm" style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.title || '(tanpa judul)'}</div>
         <div class="text-xs text-muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.link || '-'}</div>
@@ -3065,7 +3065,7 @@ async function addBanner() {
     document.getElementById('set-banner-url').value = '';
     loadBanners();
   } else {
-    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.error(res.message);
   }
 }
@@ -3085,15 +3085,15 @@ async function updateLogo() {
   const res = await API.post('/api/owner/settings/logo', { image_url: url });
   btnLoading(btn, false);
   if (res.success) {
-    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.success(res.message);
-    document.getElementById('current-logo-preview').innerHTML = `<img src="${res.logo_url}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
+    document.getElementById('current-logo-preview').innerHTML = `<img src="${escapeHtml(res.logo_url)}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
     document.querySelectorAll('.logo-icon').forEach(el => {
-      el.innerHTML = `<img src="${res.logo_url}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
+      el.innerHTML = `<img src="${escapeHtml(res.logo_url)}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
     });
     document.getElementById('set-logo-url').value = '';
   } else {
-    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.error(res.message);
   }
 }
@@ -3107,21 +3107,28 @@ async function saveSettings() {
     fee_withdraw: parseInt(document.getElementById('set-fee-wd').value) || 0,
     min_deposit: parseInt(document.getElementById('set-min-dep').value) || 10000,
     min_withdraw: parseInt(document.getElementById('set-min-wd').value) || 10000,
-    austinpay_base_url: document.getElementById('set-austinpay-url').value,
   };
+  const austinpayUrl = document.getElementById('set-austinpay-url').value;
+  if (austinpayUrl !== (window.__loadedAustinpayUrl || '')) payload.austinpay_base_url = austinpayUrl;
   const austinpay_key = document.getElementById('set-austinpay-key').value;
   if (austinpay_key) payload.austinpay_api_key = austinpay_key;
   const austinpay_webhook_secret = document.getElementById('set-austinpay-webhook-secret').value;
   if (austinpay_webhook_secret) payload.austinpay_webhook_secret = austinpay_webhook_secret;
+  if ('austinpay_base_url' in payload || 'austinpay_api_key' in payload || 'austinpay_webhook_secret' in payload) {
+    const pw = document.getElementById('set-admin-password').value;
+    if (!pw) { btnLoading(btn, false); Toast.error('Isi Password Admin untuk mengubah pengaturan AustinPay'); return; }
+    payload.admin_password = pw;
+  }
 
   const res = await API.post('/api/owner/settings', payload);
   btnLoading(btn, false);
+  const pwEl = document.getElementById('set-admin-password'); if (pwEl) pwEl.value = '';
   const alertBox = document.getElementById('settings-alert');
   if (res.success) {
-    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.success(res.message);
   } else {
-    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${escapeHtml(res.message)}</div>`;
   }
 }
 
@@ -3144,8 +3151,8 @@ async function loadSellerApplications() {
       <td class="text-sm">@${escapeHtml(a.applicant_username)}</td>
       <td class="text-sm">${escapeHtml(a.whatsapp)}</td>
       <td class="text-sm">
-        <a href="${a.selfie_photo}" target="_blank" rel="noopener">Selfie</a> /
-        <a href="${a.id_card_photo}" target="_blank" rel="noopener">KTP</a>
+        <a href="${escapeHtml(a.selfie_photo)}" target="_blank" rel="noopener">Selfie</a> /
+        <a href="${escapeHtml(a.id_card_photo)}" target="_blank" rel="noopener">KTP</a>
       </td>
       <td>${appStatusMap[a.status] || a.status}${a.status === 'rejected' && a.reject_reason ? `<div class="text-xs text-muted mt-8">${escapeHtml(a.reject_reason)}</div>` : ''}</td>
       <td class="text-xs">${formatDate(a.createdAt)}</td>
@@ -3209,7 +3216,7 @@ async function loadSellers() {
   }
   tbody.innerHTML = res.data.map(s => `
     <tr>
-      <td class="text-sm"><strong>@${s.username}</strong></td>
+      <td class="text-sm"><strong>@${escapeHtml(s.username)}</strong></td>
       <td class="text-sm">${s.full_name || '-'}</td>
       <td class="text-sm">${formatRupiah(s.balance)}</td>
       <td class="text-sm">${s.variant_count}</td>
@@ -3319,12 +3326,12 @@ async function loadCategories() {
       <td>
         <div style="display:flex;align-items:center;gap:4px">
           <div data-action="set-cat-image" data-id="${c.id}" style="cursor:pointer;width:40px;height:40px;border-radius:10px;overflow:hidden;background:var(--bg-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Klik untuk atur foto dari URL">
-            ${c.image ? `<img src="${c.image}" alt="" style="width:100%;height:100%;object-fit:cover">` : `<i class="fas fa-${c.icon || 'box'}" style="color:var(--text-muted)"></i>`}
+            ${c.image ? `<img src="${escapeHtml(c.image)}" alt="" style="width:100%;height:100%;object-fit:cover">` : `<i class="fas fa-${c.icon || 'box'}" style="color:var(--text-muted)"></i>`}
           </div>
           ${c.image ? `<button class="btn btn-outline btn-sm" data-action="remove-cat-image" data-id="${c.id}" style="padding:2px 6px;font-size:13px" title="Kembali ke ikon"><i class="fas fa-xmark"></i></button>` : ''}
         </div>
       </td>
-      <td class="text-sm"><span style="padding-left:${c.depth * 18}px">${c.depth > 0 ? '<i class="fas fa-turn-up fa-rotate-90" style="color:var(--text-muted);margin-right:6px;font-size:13px"></i>' : ''}<strong>${c.name}</strong></span></td>
+      <td class="text-sm"><span style="padding-left:${c.depth * 18}px">${c.depth > 0 ? '<i class="fas fa-turn-up fa-rotate-90" style="color:var(--text-muted);margin-right:6px;font-size:13px"></i>' : ''}<strong>${escapeHtml(c.name)}</strong></span></td>
       <td class="text-xs text-muted">${c.parent_id ? nameOf(c.parent_id) : '—'}</td>
       <td class="text-xs text-muted">${c.slug}</td>
       <td>${c.active ? statusBadge('active') : statusBadge('suspended')}</td>
@@ -3389,9 +3396,9 @@ async function loadTopupSection() {
   grid.innerHTML = d.categories.map(c => `
     <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;text-align:center">
       <div data-action="set-topup-image" data-key="${c.key}" style="cursor:pointer;width:100%;aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:var(--bg-soft);display:flex;align-items:center;justify-content:center;margin-bottom:8px" title="Klik untuk atur foto dari URL">
-        ${c.image ? `<img src="${c.image}" alt="" style="width:100%;height:100%;object-fit:cover">` : `<i class="fas fa-${c.icon || 'gamepad'}" style="font-size:26px;color:var(--text-muted)"></i>`}
+        ${c.image ? `<img src="${escapeHtml(c.image)}" alt="" style="width:100%;height:100%;object-fit:cover">` : `<i class="fas fa-${c.icon || 'gamepad'}" style="font-size:26px;color:var(--text-muted)"></i>`}
       </div>
-      <div class="text-sm" style="font-weight:600;margin-bottom:6px">${c.name}</div>
+      <div class="text-sm" style="font-weight:600;margin-bottom:6px">${escapeHtml(c.name)}</div>
       <div style="display:flex;gap:6px;justify-content:center">
         ${c.image ? `<button class="btn btn-outline btn-sm" data-action="remove-topup-image" data-key="${c.key}" style="padding:2px 6px;font-size:13px" title="Kembali ke ikon"><i class="fas fa-xmark"></i></button>` : ''}
         <button class="btn btn-outline btn-sm" data-action="toggle-topup-cat" data-key="${c.key}" data-active="${c.active}" style="padding:2px 6px;font-size:13px" title="${c.active ? 'Nonaktifkan' : 'Aktifkan'}"><i class="fas fa-power-off" style="color:${c.active ? 'var(--success)' : 'var(--text-muted)'}"></i></button>
@@ -3459,8 +3466,6 @@ document.getElementById('topup-margin-form')?.addEventListener('submit', async (
   const r = await API.post('/api/owner/topup/settings', body);
   r.success ? (Toast.success(r.message), loadTopupSection()) : Toast.error(r.message);
 });
-
-// ==== PPOB (OkeConnect) ====
 
 let ppobCategoriesCache = [];
 let ppobProductFilter = 'all';
@@ -3833,9 +3838,9 @@ async function loadSocmedOrders(page = 1) {
   tbody.innerHTML = res.data.map(o => `
     <tr>
       <td class="text-sm">${o.provider || ({ '2': 'MedanPedia', '3': 'Pusat Panel SMM' }[String(o.server)] || 'VIP Reseller')}</td>
-      <td class="text-sm">${o.category_name}</td>
+      <td class="text-sm">${escapeHtml(o.category_name)}</td>
       <td class="text-sm"><strong>${o.service_name}</strong></td>
-      <td class="text-xs text-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.target}</td>
+      <td class="text-xs text-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(o.target)}</td>
       <td class="text-sm">${o.quantity}</td>
       <td class="text-sm">${formatRupiah(o.price_sell)}</td>
       <td class="text-sm">${o.status}</td>
@@ -3873,7 +3878,7 @@ async function loadNokosServerToggles() {
   wrap.innerHTML = res.data.map(s => `
     <div style="display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px">
       <div>
-        <div style="font-weight:700;font-size:13px">${s.label} <span class="text-xs text-muted">(${s.provider})</span></div>
+        <div style="font-weight:700;font-size:13px">${escapeHtml(s.label)} <span class="text-xs text-muted">(${s.provider})</span></div>
         <div class="text-xs text-muted">${s.enabled ? 'Tampil ke buyer' : 'Disembunyikan dari buyer'}</div>
       </div>
       <button class="btn btn-outline btn-sm" data-action="toggle-nokos-server" data-key="${s.key}" data-enabled="${s.enabled}" style="padding:4px 10px">
@@ -4654,7 +4659,6 @@ document.getElementById('ptero-purge-node-confirm-btn')?.addEventListener('click
   }
 });
 
-// ===== Monitoring Panel (halaman khusus kelola semua panel) =====
 let pmSearchDebounce = null;
 let pmPanelsCache = [];
 
@@ -4949,8 +4953,6 @@ document.getElementById('reseller-settings-form')?.addEventListener('submit', as
   r.success ? (Toast.success(r.message), loadResellerSettings()) : Toast.error(r.message);
 });
 
-
-// ---------------------------------------------------------------- Member Gold
 let memberModules = [];
 
 function loadMemberSection() {
@@ -5123,7 +5125,7 @@ function populateParentSelect(selectEl, excludeId) {
   }
   const options = allCategories.filter(c => !descendants.has(c.id));
   selectEl.innerHTML = '<option value="">— Tidak ada (kategori utama) —</option>' +
-    options.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    options.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
 }
 
 function openCreateCategoryModal() {
@@ -5182,9 +5184,9 @@ async function loadStockOverview() {
   }
   tbody.innerHTML = res.data.map(v => `
     <tr>
-      <td class="text-sm"><strong>${v.variant_name}</strong></td>
-      <td class="text-sm">${v.category_name}</td>
-      <td class="text-sm">@${v.seller_name}</td>
+      <td class="text-sm"><strong>${escapeHtml(v.variant_name)}</strong></td>
+      <td class="text-sm">${escapeHtml(v.category_name)}</td>
+      <td class="text-sm">@${escapeHtml(v.seller_name)}</td>
       <td class="text-sm">${v.status === 'approved' ? formatRupiah(v.price) : '<span class="text-muted">Menunggu</span>'}</td>
       <td class="text-sm">${v.stock_available}</td>
       <td class="text-sm">${v.stock_sold}</td>
@@ -5202,8 +5204,8 @@ async function loadOrders(page = 1) {
   document.getElementById('orders-page-info').textContent = `${res.total} order`;
   tbody.innerHTML = res.data.map(o => `
     <tr>
-      <td class="text-sm"><strong>${o.variant_name}</strong></td>
-      <td class="text-sm">${o.category_name}</td>
+      <td class="text-sm"><strong>${escapeHtml(o.variant_name)}</strong></td>
+      <td class="text-sm">${escapeHtml(o.category_name)}</td>
       <td class="text-sm">${formatRupiah(o.price)}</td>
       <td class="text-sm">${formatRupiah(o.tax)}</td>
       <td class="text-sm">${formatRupiah(o.seller_earning)}</td>
@@ -5492,9 +5494,6 @@ document.getElementById('flashsale-form').addEventListener('submit', async (e) =
   loadFlashSaleSection(1);
 });
 
-
-// ===== Flash Sale Produk (owner) =====
-// Jenis produk -> kategori/game -> sub kategori -> daftar produk (pilih satu/lebih).
 const FSP_MODS = [
   { key: 'marketplace', name: 'Marketplace' },
   { key: 'topup', name: 'Topup Game' },
@@ -5505,11 +5504,11 @@ const FSP_LABELS = {
   topup: ['1. Pilih Game', '2. Pilih Sub Kategori / Server'],
   appprem: ['1. Pilih Aplikasi', '2. Pilih Sub Kategori'],
 };
-const fspSelected = new Map();   // key `${module}|${id}` -> { module, id, cat, name }
+const fspSelected = new Map();
 let fspTimer = null;
 let fspMod = 'marketplace';
-let fspCats = [];                // kategori marketplace (/api/categories)
-let fspL1 = [], fspL2 = [];      // level 1 & 2 untuk topup / appprem
+let fspCats = [];
+let fspL1 = [], fspL2 = [];
 let fspCat = null, fspSub = null, fspLast = [];
 const fspKey = (v) => `${v.module}|${v.id}`;
 
@@ -5672,7 +5671,6 @@ document.getElementById('fsp-cats').addEventListener('click', async (e) => {
     if (fspMod !== mod || fspCat !== cat) return;
     if (!res.success) { Toast.error(res.message || 'Gagal memuat sub kategori'); return; }
     fspL2 = res.data || [];
-    // Kalau cuma ada 1 sub kategori, langsung dipilih supaya daftar produk muncul.
     if (fspL2.length === 1) fspSub = fspL2[0].id;
     fspRenderCats(); fspSearch();
     return;
@@ -5834,14 +5832,14 @@ async function sendBroadcast() {
   btnLoading(btn, false);
 
   if (res.success) {
-    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.success(res.message);
     document.getElementById('bc-title').value = '';
     document.getElementById('bc-message').value = '';
     document.getElementById('bc-type').value = 'info';
     loadNotifHistory(1);
   } else {
-    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.error(res.message);
   }
 }
@@ -5858,12 +5856,12 @@ async function sendPushOnly() {
   btnLoading(btn, false);
 
   if (res.success) {
-    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.success(res.message);
     document.getElementById('bc-title').value = '';
     document.getElementById('bc-message').value = '';
   } else {
-    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.error(res.message);
   }
 }
@@ -5877,8 +5875,8 @@ async function loadNotifHistory(page = 1) {
   tbody.innerHTML = res.data.map(n => `
     <tr>
       <td><span class="badge ${typeBadge[n.type] || 'badge-secondary'}">${typeLabel[n.type] || n.type}</span></td>
-      <td class="text-sm" style="font-weight:600">${n.title}</td>
-      <td class="text-sm" style="max-width:300px;overflow:hidden;text-overflow:ellipsis">${n.message}</td>
+      <td class="text-sm" style="font-weight:600">${escapeHtml(n.title)}</td>
+      <td class="text-sm" style="max-width:300px;overflow:hidden;text-overflow:ellipsis">${escapeHtml(n.message)}</td>
       <td class="text-xs text-muted">${formatDate(n.createdAt)}</td>
       <td><button class="btn btn-danger btn-sm" data-action="delete-notif" data-id="${n.id}"><i class="fas fa-trash"></i></button></td>
     </tr>
@@ -5920,7 +5918,7 @@ async function loadCsRooms(page = 1) {
   } else {
     tbody.innerHTML = res.data.map(r => `
       <tr>
-        <td><div style="font-weight:600">${r.full_name}</div><div style="font-size:13px;color:var(--text-muted)">@${r.username}</div></td>
+        <td><div style="font-weight:600">${escapeHtml(r.full_name)}</div><div style="font-size:13px;color:var(--text-muted)">@${escapeHtml(r.username)}</div></td>
         <td class="text-sm" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.last_message || '-'}</td>
         <td>${r.status === 'open' ? '<span class="badge badge-success">Terbuka</span>' : '<span class="badge badge-danger">Ditutup</span>'}</td>
         <td class="text-xs text-muted">${r.assigned_admin ? 'Admin' : 'AI Assistant'}</td>
@@ -6126,10 +6124,10 @@ async function saveMarquee() {
   const res = await API.post('/api/owner/marquee', payload);
   const box = document.getElementById('marquee-alert');
   if (res.success) {
-    box.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+    box.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.success(res.message);
   } else {
-    box.innerHTML = `<div class="alert alert-danger"><i class="fas fa-circle-exclamation"></i> ${res.message}</div>`;
+    box.innerHTML = `<div class="alert alert-danger"><i class="fas fa-circle-exclamation"></i> ${escapeHtml(res.message)}</div>`;
   }
 }
 
@@ -6188,10 +6186,10 @@ async function saveInfoBanners() {
   if (res.success) {
     infoBannerItems = res.items;
     renderInfoBanners();
-    box.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+    box.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.success(res.message);
   } else {
-    box.innerHTML = `<div class="alert alert-danger"><i class="fas fa-circle-exclamation"></i> ${res.message}</div>`;
+    box.innerHTML = `<div class="alert alert-danger"><i class="fas fa-circle-exclamation"></i> ${escapeHtml(res.message)}</div>`;
   }
 }
 
@@ -6262,10 +6260,10 @@ async function saveAnnouncements() {
   if (res.success) {
     announcementItems = res.items;
     renderAnnouncements();
-    box.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+    box.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.success(res.message);
   } else {
-    box.innerHTML = `<div class="alert alert-danger"><i class="fas fa-circle-exclamation"></i> ${res.message}</div>`;
+    box.innerHTML = `<div class="alert alert-danger"><i class="fas fa-circle-exclamation"></i> ${escapeHtml(res.message)}</div>`;
   }
 }
 
@@ -6323,14 +6321,14 @@ async function uploadApk() {
     const response = await fetch(apiUrl('/api/owner/apk'), { method: 'POST', body: fd, credentials: 'include' });
     const res = await response.json();
     if (res.success) {
-      box.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+      box.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${escapeHtml(res.message)}</div>`;
       Toast.success(res.message);
       fileInput.value = '';
       document.getElementById('apk-form-version').value = '';
       document.getElementById('apk-form-notes').value = '';
       loadApkInfo();
     } else {
-      box.innerHTML = `<div class="alert alert-danger"><i class="fas fa-circle-exclamation"></i> ${res.message}</div>`;
+      box.innerHTML = `<div class="alert alert-danger"><i class="fas fa-circle-exclamation"></i> ${escapeHtml(res.message)}</div>`;
       Toast.error(res.message);
     }
   } catch (err) {
@@ -6350,10 +6348,9 @@ async function deleteApk() {
     box.innerHTML = '';
     loadApkInfo();
   } else {
-    box.innerHTML = `<div class="alert alert-danger"><i class="fas fa-circle-exclamation"></i> ${res.message}</div>`;
+    box.innerHTML = `<div class="alert alert-danger"><i class="fas fa-circle-exclamation"></i> ${escapeHtml(res.message)}</div>`;
   }
 }
-
 
 const H2H_MODULE_LABELS = {
   general: 'Produk Marketplace', topup: 'Topup Game', nokos: 'Nomor OTP',

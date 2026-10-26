@@ -302,12 +302,10 @@ async function selectServer(serverKey) {
 
   const flow = (SERVERS.find((x) => x.key === serverKey) || {}).flow;
   if (flow === 'country-first') {
-    // Ditznesia (Server 1-5): negara (per server) -> layanan (per negara) -> daftar nomor.
     await loadCountriesForServer({ keepSelection: false });
     return;
   }
 
-  // Provider lama (Server 6-8): layanan dulu -> negara -> daftar nomor.
   const svcRes = await API.get(`/api/nokos/services?server=${encodeURIComponent(serverKey)}`);
   if (!svcRes.success || !svcRes.data || !svcRes.data.length) {
     document.getElementById('offer-list').innerHTML = renderApiError('fas fa-triangle-exclamation', svcRes.message || 'Gagal memuat daftar layanan server ini', svcRes);

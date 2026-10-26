@@ -1,27 +1,3 @@
-// Vercel Edge Middleware
-//
-// Backend lama (src/server.js) melakukan 2 hal saat mengirim HTML:
-//   1. Menyisipkan nonce unik ke setiap <script> inline lalu memasang
-//      Content-Security-Policy berbasis nonce itu.
-//   2. Menutup halaman /austinganteng/* dan /withdraw dari role yang salah
-//      (requireOwner / requireNotBuyer) sebelum HTML dikirim.
-// File ini mereplikasi kedua perilaku itu di edge, karena sekarang HTML
-// disajikan sebagai file statis oleh Vercel, bukan di-render Express lagi.
-//
-// PENTING - baca sebelum deploy:
-// - Set env var JWT_SECRET di project Vercel dengan NILAI YANG SAMA PERSIS
-//   dengan JWT_SECRET backend (config/settings.js), supaya cookie auth_token
-//   bisa diverifikasi di sini.
-// - Set env var API_BASE_URL ke domain tunnel backend (dipakai untuk
-//   connect-src di CSP).
-// - Cek "matcher" di bawah cocok dengan struktur folder public/ Anda.
-// - Ini HANYA gerbang tampilan (UX), sama seperti desain asli: tidak
-//   memeriksa revocation token ke database (edge tidak connect ke Postgres).
-//   Proteksi data sesungguhnya tetap 100% di setiap endpoint /api/* backend
-//   (requireOwner/requireNotBuyer versi penuh, dengan cek DB) yang TIDAK
-//   berubah sama sekali oleh migrasi ini.
-// - API middleware Vercel berkembang cukup cepat; cocokkan detail import
-//   `@vercel/edge` di bawah dengan dokumentasi resmi Vercel saat deploy.
 
 import { next } from '@vercel/edge';
 import { jwtVerify } from 'jose';
@@ -54,8 +30,6 @@ const OWNER_PAGE_ROUTES = new Set([
 
 const NOT_BUYER_ROUTES = new Set(['/withdraw', '/seller/withdraw']);
 
-// Menu Tools (Install Pterodactyl via SSH, dst) — khusus user yang sudah
-// daftar/login, peran apa pun (bukan cuma buyer, dan bukan cuma owner).
 const AUTH_REQUIRED_ROUTES = new Set(['/tools', '/tools/installpterodactyl', '/tools/startwings', '/tools/cekvps', '/tools/installtema', '/tools/uninstalltema', '/tools/installprotect', '/tools/uninstallprotect', '/tools/github', '/tools/downloader', '/tools/downloader/tiktok', '/tools/downloader/instagram', '/tools/downloader/facebook', '/tools/downloader/capcut']);
 
 function getCookie(req, name) {
@@ -82,15 +56,30 @@ async function getRole(req) {
   }
 }
 
+function apiOrigins() {
+  try {
+    const u = new URL(API_BASE_URL);
+    return `${u.origin} wss://${u.host}`;
+  } catch {
+    return "'self'";
+  }
+}
+
 function cspHeader(nonce) {
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' cdn.jsdelivr.net cdnjs.cloudflare.com static.cloudflareinsights.com challenges.cloudflare.com accounts.google.com`,
-    "style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net",
-    "font-src 'self' fonts.gstatic.com cdn.jsdelivr.net data:",
+    `script-src 'self' 'nonce-${nonce}' https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/ https://cdn.jsdelivr.net/npm/chart.js@4/ https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/ https://static.cloudflareinsights.com https://challenges.cloudflare.com https://accounts.google.com`,
+    "script-src-attr 'none'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net/npm/@fortawesome/",
+    "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net/npm/@fortawesome/ data:",
     "img-src 'self' data: https:",
-    `connect-src 'self' ${API_BASE_URL} wss: challenges.cloudflare.com accounts.google.com`,
-    "frame-src 'self' challenges.cloudflare.com accounts.google.com",
+    `connect-src 'self' ${apiOrigins()} https://challenges.cloudflare.com https://accounts.google.com`,
+    "frame-src 'self' https://challenges.cloudflare.com https://accounts.google.com",
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'none'",
+    "form-action 'self'",
+    "upgrade-insecure-requests",
   ].join('; ');
 }
 
@@ -135,8 +124,6 @@ export default async function middleware(req) {
   const url = new URL(req.url);
   const pathname = url.pathname;
 
-  // Sama seperti backend lama: tolak akses langsung ke *.html mentah
-  // supaya orang cuma bisa lewat clean URL (/dashboard, bukan /dashboard.html).
   if (pathname.toLowerCase().endsWith('.html')) {
     return new Response('Not Found', { status: 404 });
   }
@@ -174,7 +161,5 @@ export default async function middleware(req) {
 }
 
 export const config = {
-  // Jalan di semua path KECUALI aset statis (yang sudah dilayani langsung
-  // dari filesystem oleh Vercel dan tidak butuh nonce/role-check).
   matcher: ['/((?!css/|js/|img/|uploads/|favicon|sw\\.js|manifest\\.json).*)'],
 };

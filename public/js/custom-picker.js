@@ -1,11 +1,3 @@
-/*
- * Custom Picker — pengganti popup bawaan browser agar ikut tema situs:
- *   1) <input type="date"> / <input type="datetime-local">  -> kalender tema
- *   2) <input list="..."> (datalist)                          -> daftar saran tema
- * Input asli TETAP ada di DOM (disembunyikan visual) dengan format value yang sama
- * (YYYY-MM-DD / YYYY-MM-DDTHH:mm), jadi script halaman yang membaca/menulis .value,
- * atau memasang listener 'input'/'change', tetap jalan tanpa perubahan.
- */
 (function () {
   var MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
   var MON_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -28,7 +20,6 @@
     return withTime ? s + 'T' + pad(p.h) + ':' + pad(p.mi) : s;
   }
 
-  /* ================= Date / datetime-local ================= */
   var openDt = null;
 
   function closeDt() {
@@ -142,7 +133,7 @@
     native.dataset.cdtDone = '1';
     var withTime = native.type === 'datetime-local';
     native.dataset.ctype = native.type;
-    native.type = 'text'; // cegah popup bawaan; format value tetap sama (kita yang menulisnya)
+    native.type = 'text';
 
     var wrap = document.createElement('div');
     wrap.className = 'cdt';
@@ -216,7 +207,6 @@
       if (cur) commitDt(c, currentFromPanel(c, cur.d), false);
     });
 
-    // script halaman yang set `input.value = ...` langsung harus ikut menyegarkan tampilan
     Object.defineProperty(native, 'value', {
       configurable: true,
       get: function () { return inputValueDesc.get.call(native); },
@@ -226,7 +216,6 @@
     syncDt(c);
   }
 
-  /* ================= Datalist suggestions ================= */
   var openDl = null;
 
   function closeDl() {
@@ -252,7 +241,7 @@
       row.innerHTML = '<span></span>';
       row.firstChild.textContent = o.value + (label && label !== o.value ? ' — ' + label : '');
       row.addEventListener('mousedown', function (e) {
-        e.preventDefault(); // jangan blur dulu
+        e.preventDefault();
         c.input.value = o.value;
         c.input.dispatchEvent(new Event('input', { bubbles: true }));
         c.input.dispatchEvent(new Event('change', { bubbles: true }));
@@ -282,7 +271,7 @@
     if (!id) return;
     input.dataset.cdlDone = '1';
     input.dataset.cdlList = id;
-    input.removeAttribute('list'); // matikan dropdown datalist bawaan browser
+    input.removeAttribute('list');
     input.setAttribute('autocomplete', 'off');
     var panel = document.createElement('div');
     panel.className = 'csel-panel cdl-panel';
@@ -297,7 +286,6 @@
     window.addEventListener('scroll', function (e) { if (openDl === c && !(e.target && panel.contains(e.target))) closeDl(); }, true);
   }
 
-  /* ================= Bootstrap ================= */
   var SEL = 'input[type="date"], input[type="datetime-local"]';
   function enhanceAll(root) {
     (root || document).querySelectorAll(SEL).forEach(enhanceDt);

@@ -1,11 +1,3 @@
-/* ============================================================
-   NOTEBOOK THEME
-   Dimuat SETELAH style.css di semua halaman. Menimpa token warna, font,
-   dan komponen supaya tampil seperti buku catatan di aplikasi Flutter:
-   kertas krem bergaris + garis margin merah, tinta hitam hangat,
-   border "digambar tangan", sticky note kuning, selotip & paku merah.
-   Palet = lib/core/constants.dart · Komponen = lib/widgets/paper_kit.dart
-   ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
 :root, [data-theme="light"] {
@@ -69,7 +61,6 @@
   --wobble: 7px 5px 8px 4px / 5px 8px 4px 7px;
 }
 
-/* "Buku catatan malam" */
 [data-theme="dark"] {
   --paper: #1D1A16;
   --paper-line: #34302A;
@@ -101,7 +92,6 @@
   --info-light: rgba(157,183,255,.14);
 }
 
-/* ---------- Dasar: kertas bergaris + garis margin ---------- */
 html, body { background-color: var(--paper); }
 body {
   font-family: var(--font-body);
@@ -134,7 +124,6 @@ code, pre, kbd, .mono { font-family: var(--font-mono); }
 ::-webkit-scrollbar-thumb { background: var(--nb-border); border-radius: 0; border: 2px solid var(--paper); }
 ::-webkit-scrollbar-track { background: var(--paper-header); }
 
-/* ---------- Sidebar = halaman indeks buku ---------- */
 .sidebar {
   background: var(--paper-header); backdrop-filter: none; -webkit-backdrop-filter: none;
   border-right: 2px solid var(--nb-border);
@@ -179,7 +168,6 @@ code, pre, kbd, .mono { font-family: var(--font-mono); }
 }
 .sidebar-overlay { backdrop-filter: none; background: rgba(29,27,24,.45); }
 
-/* ---------- Topbar = header buku catatan ---------- */
 .topbar {
   background: var(--paper-header); backdrop-filter: none; -webkit-backdrop-filter: none;
   border-bottom: 2px solid var(--nb-border); box-shadow: none;
@@ -198,7 +186,6 @@ code, pre, kbd, .mono { font-family: var(--font-mono); }
 #theme-toggle { display: inline-flex !important; }
 .notif-badge { background: var(--primary); color: #fff; border: 1.5px solid var(--nb-border); box-shadow: none; }
 
-/* ---------- Kartu = kertas catatan ---------- */
 .card, .stat-card, .order-card, .ticket-card, .game-tile, .seller-tile, .cat-icon-tile, .auth-card,
 .notif-panel, .cs-panel, .modal, .gdlg, .chat-window, .method-btn, .trust-item, .qr-box, .csel-panel, .cdt-panel {
   background: var(--bg-card); border: 1.6px solid var(--nb-border); border-radius: var(--wobble);
@@ -218,7 +205,6 @@ code, pre, kbd, .mono { font-family: var(--font-mono); }
 .game-tile .thumb-fallback, .game-tile img { border-bottom: 1.4px solid var(--nb-border); }
 .divider { border-color: var(--border-soft); border-top-style: dashed; }
 
-/* Dekorasi: paku merah & selotip (ditambahkan notebook.js) */
 .nb-pin, .nb-tape { position: relative; overflow: visible; }
 .nb-pin::after {
   content: ''; position: absolute; top: -12px; left: 50%; width: 18px; height: 18px; transform: translateX(-50%);
@@ -232,7 +218,6 @@ code, pre, kbd, .mono { font-family: var(--font-mono); }
   clip-path: polygon(0 0,100% 0,98% 25%,100% 50%,98% 75%,100% 100%,0 100%,2% 75%,0 50%,2% 25%);
 }
 
-/* ---------- Tombol: border tinta tebal, font tulisan tangan ---------- */
 .btn {
   font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 0;
   border: 1.8px solid var(--nb-border); border-radius: 8px; box-shadow: 2px 3px 0 var(--nb-shadow);
@@ -257,7 +242,6 @@ code, pre, kbd, .mono { font-family: var(--font-mono); }
 .see-all { font-family: var(--font-display); font-size: 21px; font-weight: 700; color: var(--primary); text-decoration: underline wavy; text-underline-offset: 4px; }
 a:hover { color: inherit; }
 
-/* ---------- Judul seksi: stabilo + stempel ---------- */
 .section-row h2, .section-row .section-title {
   display: inline; font-size: 28px !important; line-height: 1.3;
   background: linear-gradient(transparent 58%, rgba(255,242,122,.85) 58% 92%, transparent 92%); padding: 0 4px;
@@ -268,7 +252,6 @@ a:hover { color: inherit; }
   color: var(--primary); border: 1.4px dashed var(--primary); padding: 2px 8px; margin-bottom: 4px; background: transparent;
 }
 
-/* ---------- Form ---------- */
 .form-label { font-family: var(--font-body); font-weight: 700; font-size: 15px; color: var(--text); }
 .form-control, .csel-trigger, .market-search, .input-addons, .chat-input-row input, select, textarea, input[type=text], input[type=password], input[type=email], input[type=number], input[type=search], input[type=tel], input[type=url] {
   font-family: var(--font-body);
@@ -292,7 +275,6 @@ a:hover { color: inherit; }
 .csel-option:hover, .csel-option.active, .csel-option.selected { background: var(--sticky); color: var(--ink); }
 input[type=checkbox], input[type=radio] { accent-color: var(--primary); }
 
-/* ---------- Badge / alert / status = InkPill ---------- */
 .badge { font-family: var(--font-body); font-weight: 700; border: 1.2px solid currentColor; border-radius: 5px; padding: 1px 9px; letter-spacing: 0; }
 .badge-primary { background: var(--primary-light); color: var(--primary); }
 .badge-success { background: var(--success-light); color: var(--success); }
@@ -314,13 +296,11 @@ input[type=checkbox], input[type=radio] { accent-color: var(--primary); }
 .banner-slide { border: 1.8px solid var(--nb-border); border-radius: var(--wobble); box-shadow: 3px 4px 0 var(--nb-shadow); }
 .banner-slide h3 { font-family: var(--font-display); font-size: 26px; }
 
-/* ---------- Tabel ---------- */
 .table-wrapper { border: 1.6px solid var(--nb-border); border-radius: var(--wobble); box-shadow: 3px 4px 0 var(--nb-shadow); background: var(--bg-card); }
 .table th { background: var(--paper-header); color: var(--text); border-bottom: 2px solid var(--nb-border); font-family: var(--font-display); font-size: 19px; letter-spacing: 0; text-transform: none; }
 .table td { border-bottom: 1.2px dashed var(--border-soft); color: var(--text); }
 .table tr:hover td { background: rgba(255,242,122,.28); }
 
-/* ---------- Modal / dialog / toast ---------- */
 .modal-overlay, .gdlg-overlay { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(29,27,24,.5); }
 .modal, .gdlg { border-width: 2px; box-shadow: 5px 6px 0 var(--nb-shadow); }
 .modal-header, .modal-footer { border-color: var(--border-soft); border-style: dashed; }
@@ -329,17 +309,14 @@ input[type=checkbox], input[type=radio] { accent-color: var(--primary); }
 .toast { background: var(--ink); color: var(--paper); border: 1.5px solid var(--ink); border-radius: 6px; font-family: var(--font-body); backdrop-filter: none; box-shadow: 3px 4px 0 var(--nb-shadow); }
 [data-theme="dark"] .toast { background: #F3EEE2; color: #1D1B18; }
 
-/* ---------- Paginasi = nomor halaman ---------- */
 .page-btn { background: var(--bg-card); color: var(--text); border: 1.5px solid var(--nb-border); border-radius: 5px; font-family: var(--font-body); font-weight: 700; box-shadow: 2px 2px 0 var(--nb-shadow); }
 .page-btn:hover { background: var(--sticky); color: var(--ink); border-color: var(--nb-border); }
 .page-btn.active { background: var(--primary); color: #fff; }
 .pagination-info { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
 
-/* ---------- Bottom nav (mobile) ---------- */
 .bottom-nav { background: var(--paper-header); backdrop-filter: none; border-top: 2px solid var(--nb-border); }
 .bottom-nav a.active, .bottom-nav .active { color: var(--ink); background: var(--sticky); }
 
-/* ---------- Wallet / hero: kartu tinta gelap seperti app ---------- */
 .wallet-hero {
   background: linear-gradient(135deg, #3A362F, #1D1B18); color: #F3EEE2; border: 2px solid var(--ink);
   border-radius: var(--wobble); box-shadow: 4px 5px 0 var(--nb-shadow);
@@ -350,7 +327,6 @@ input[type=checkbox], input[type=radio] { accent-color: var(--primary); }
 .wallet-hero .btn { background: var(--sticky); color: var(--ink); border-color: var(--ink); }
 .wallet-hero .btn-white, .wallet-hero .btn-outline { background: transparent; color: #F3EEE2; border-color: #F3EEE2; }
 
-/* ---------- Chat / CS widget ---------- */
 .chat-fab { background: var(--primary); color: #fff; border: 2px solid var(--nb-border); border-radius: var(--wobble); box-shadow: 3px 4px 0 var(--nb-shadow); }
 .chat-window-header, .cs-panel-header { background: var(--paper-header); color: var(--text); border-bottom: 2px solid var(--nb-border); }
 .chat-window-header-title, .cs-panel-title { font-family: var(--font-display); font-size: 22px; }
@@ -361,13 +337,11 @@ input[type=checkbox], input[type=radio] { accent-color: var(--primary); }
 .chat-time, .chat-msg-time, .notif-item-time { font-family: var(--font-mono); font-size: 12px; }
 .notif-item:hover { background: rgba(255,242,122,.3); }
 
-/* ---------- Auth ---------- */
 .auth-page { background: transparent; }
 .auth-card { border-width: 2px; box-shadow: 5px 6px 0 var(--nb-shadow); position: relative; overflow: visible; }
 .auth-logo h1 { font-family: var(--font-display); font-size: 40px; line-height: 1; }
 .auth-logo p { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
 
-/* ---------- Lain-lain ---------- */
 .loading-spinner { border: 3px solid var(--border-soft); border-top-color: var(--primary); }
 .stock-meter-track { background: var(--nb-subtle); border: 1.2px solid var(--nb-border); border-radius: 3px; }
 .stock-meter-fill { background: repeating-linear-gradient(45deg, var(--primary) 0 6px, var(--primary-dark) 6px 12px); border-radius: 0; box-shadow: none; }
@@ -390,14 +364,7 @@ input[type=checkbox], input[type=radio] { accent-color: var(--primary); }
 }
 
 
-/* ============================================================
-   PERBAIKAN v2 — teks tajam + daftar produk 3 kolom di HP
-   ============================================================ */
 
-/* 1) Teks blur: penyebab utamanya (a) font tulisan tangan hanya punya bobot
-   regular, jadi "bold" dipalsukan browser dan jadi buram, (b) ukuran terlalu kecil,
-   (c) elemen yang dimiringkan. Di sini bold palsu dimatikan; penekanan diganti
-   garis tipis tepat di huruf (text-stroke) yang tetap tajam. */
 html { font-synthesis: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   font-size: 17px; text-rendering: optimizeLegibility;
@@ -417,11 +384,9 @@ strong, b, th, label, .fw-600, .fw-700, .form-label, .badge, .p-name, .stat-labe
 .form-control, .csel-trigger, .market-search input, select, textarea { font-size: 17px; }
 .text-muted, .text-xs, .text-sm { color: var(--text-muted); }
 .text-xs { font-size: 13px; } .text-sm { font-size: 14.5px; }
-/* teks mono kecil (tanggal, ukuran, kode) tetap tegas */
 .form-hint, .stat-sub, .pagination-info, .eyebrow, .nav-section-label, .sidebar-user-role,
 .chat-msg-time, .notif-item-time, .app-credit-footer { font-size: 12.5px; font-weight: 500; }
 
-/* 2) Daftar produk 3 kolom ke samping di HP (desktop tidak diubah). */
 @media (max-width: 768px) {
   .ppob-product-grid,
   .variant-grid,

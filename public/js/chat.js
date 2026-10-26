@@ -173,7 +173,7 @@ const LiveChat = {
 
     const isMine = this.currentUser && msg.user_id === this.currentUser.id;
     const initial = (msg.full_name || msg.username || '?')[0].toUpperCase();
-    const avatarHtml = msg.avatar ? `<img src="${msg.avatar}" alt="">` : initial;
+    const avatarHtml = msg.avatar ? `<img src="${escapeHtml(msg.avatar)}" alt="">` : initial;
     const canDelete = this.currentUser && this.currentUser.role === 'owner';
     const time = new Date(msg.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
@@ -269,11 +269,7 @@ const LiveChat = {
   },
 };
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
+function escapeHtml(str) { return String(str == null ? '' : str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 document.addEventListener('DOMContentLoaded', () => {
   LiveChat.init();

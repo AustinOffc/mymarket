@@ -234,7 +234,7 @@ function scheduleCheck() {
   const seq = ++checkSeq;
   checkTimer = setTimeout(async () => {
     const res = await API.get(`/api/subdomain/check?domain=${encodeURIComponent(d.domain)}&name=${encodeURIComponent(name)}`);
-    if (seq !== checkSeq) return; // hasil basi (input sudah berubah)
+    if (seq !== checkSeq) return;
     if (!res.success) { setHint(res.message || 'Gagal mengecek ketersediaan', 'bad'); return; }
     setHint(res.available ? `✓ ${name}.${d.domain} tersedia` : `✗ ${res.message}`, res.available ? 'ok' : 'bad');
   }, 500);
@@ -365,7 +365,6 @@ document.getElementById('ip-modal-save').addEventListener('click', async () => {
   loadHistory(1);
 });
 
-// Tombol salin dibuat lewat JS -> pakai event delegation (CSP tidak mengizinkan onclick inline dinamis).
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-copy]');
   if (btn) copyText(btn.dataset.copy, 'Subdomain');

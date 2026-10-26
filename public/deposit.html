@@ -241,7 +241,7 @@ async function createDeposit() {
   btnLoading(btn, false);
 
   if (!res.success) {
-    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${escapeHtml(res.message)}</div>`;
     return;
   }
 

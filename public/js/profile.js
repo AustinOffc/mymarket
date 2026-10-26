@@ -12,10 +12,6 @@ async function init() {
   loadGoogleLinkCard(res.user);
 }
 
-// Fix temuan #8 (laporan audit keamanan): dulu akun Google auto-tertaut ke akun lokal
-// manapun yang emailnya sama, tanpa konfirmasi apapun. Sekarang penautan cuma bisa
-// lewat sini (butuh sesi login yang sudah terbukti pakai password) lewat endpoint baru
-// /api/auth/link-google.
 async function loadGoogleLinkCard(user) {
   const statusEl = document.getElementById('google-link-status');
   const boxEl = document.getElementById('google-link-box');
@@ -70,7 +66,7 @@ async function onGoogleLinkCredential(response) {
     Toast.success(res.message);
     loadGoogleLinkCard({ ...userData, google_id: 'linked' });
   } else {
-    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> ${escapeHtml(res.message)}</div>`;
   }
 }
 
@@ -108,7 +104,7 @@ function populateForm(user, wallet) {
 
   const avatarEl = document.getElementById('profile-avatar');
   if (user.avatar) {
-    avatarEl.innerHTML = `<img src="${user.avatar}" alt="">`;
+    avatarEl.innerHTML = `<img src="${escapeHtml(user.avatar)}" alt="">`;
   } else {
     avatarEl.textContent = (user.full_name || user.username)[0].toUpperCase();
   }
@@ -135,10 +131,10 @@ async function saveProfile() {
 
   btnLoading(btn, false);
   if (res.success) {
-    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${escapeHtml(res.message)}</div>`;
     Toast.success(res.message);
   } else {
-    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${escapeHtml(res.message)}</div>`;
   }
 }
 
@@ -160,13 +156,13 @@ async function changePassword() {
   btnLoading(btn, false);
 
   if (res.success) {
-    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${escapeHtml(res.message)}</div>`;
     document.getElementById('old_password').value = '';
     document.getElementById('new_password').value = '';
     document.getElementById('confirm_password').value = '';
     Toast.success(res.message);
   } else {
-    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${escapeHtml(res.message)}</div>`;
   }
 }
 
@@ -181,9 +177,9 @@ async function uploadAvatar(input) {
 
   if (res.success) {
     const avatarEl = document.getElementById('profile-avatar');
-    avatarEl.innerHTML = `<img src="${res.avatar}" alt="">`;
+    avatarEl.innerHTML = `<img src="${escapeHtml(res.avatar)}" alt="">`;
     document.querySelectorAll('[data-user-avatar]').forEach(el => {
-      el.innerHTML = `<img src="${res.avatar}" alt="">`;
+      el.innerHTML = `<img src="${escapeHtml(res.avatar)}" alt="">`;
     });
     Toast.success('Foto profil diperbarui!');
   } else {
@@ -337,7 +333,7 @@ async function submitSellerApply() {
     closeSellerApplyModal();
     loadSellerApplyCard();
   } else {
-    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${res.message}</div>`;
+    alertBox.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ${escapeHtml(res.message)}</div>`;
   }
 }
 

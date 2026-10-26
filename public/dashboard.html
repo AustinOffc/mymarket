@@ -192,7 +192,6 @@
 <script src="/js/cs.js"></script>
 <script>
 const OFFLINE_THRESHOLD_MS = 10 * 60 * 1000; 
-// Banner geser otomatis tiap 4 detik, berhenti sementara saat disentuh / di-hover, lanjut lagi setelahnya.
 let bannerTimer = null;
 function startBannerAutoplay(strip) {
   clearInterval(bannerTimer);
@@ -216,8 +215,6 @@ function startBannerAutoplay(strip) {
   }, 4000);
 }
 
-
-// ===== Flash Sale: carousel berjalan pelan ke kiri, berhenti saat disentuh / di-hover =====
 let fsItems = [], fsOffset = 0, fsRaf = null, fsSig = '';
 function fsFmt(ms) {
   const t = Math.max(0, Math.floor(ms / 1000));
@@ -225,10 +222,8 @@ function fsFmt(ms) {
   const p = (n) => String(n).padStart(2, '0');
   return { d, h: p(h), m: p(m), s: p(s), text: (d > 0 ? d + 'h ' : '') + p(h) + ':' + p(m) + ':' + p(s) };
 }
-// Harga coret: nilai dari server (harga normal + markup per produk yang diatur owner). Tampilan saja, harga bayar tidak berubah.
 function fsStrikePrice(it) { return it.price_strike != null ? it.price_strike : it.price_before; }
 function fsCardHtml(it) {
-  // Bar stok: mulai penuh (100%) lalu berkurang sesuai jumlah terjual
   const pct = it.max_uses ? Math.max(0, Math.min(100, Math.round(((it.max_uses - it.used_count) / it.max_uses) * 100))) : null;
   return `
     <div class="fs-card" data-fs-id="${escapeAttr(it.id)}" data-fs-link="${escapeAttr(it.link || '')}" data-fs-end="${escapeAttr(it.ends_at)}">
@@ -276,7 +271,7 @@ function fsStartScroll(vp) {
   if (!half) return;
   fsBindInteraction(vp);
   let pos = vp.scrollLeft, last = performance.now();
-  const SPEED = 28; // px per detik — pelan
+  const SPEED = 28;
   const step = (t) => {
     const dt = Math.min(0.1, (t - last) / 1000); last = t;
     if (fsPaused && Date.now() >= fsResumeAt) { fsPaused = false; pos = vp.scrollLeft; }
@@ -310,10 +305,9 @@ async function loadFlashSale() {
   const once = fsItems.map(fsCardHtml).join('');
   vp.innerHTML = once;
   vp.scrollLeft = 0; vp.dataset.fsHalf = '';
-  // Gandakan isi supaya putarannya mulus tanpa jeda, hanya kalau memang melebihi lebar layar.
   if (vp.scrollWidth > vp.clientWidth + 8) {
     const gap = 12;
-    const half = vp.scrollWidth + gap - 14; // lebar 1 set + jarak antar kartu (padding kanan tidak dihitung)
+    const half = vp.scrollWidth + gap - 14;
     vp.insertAdjacentHTML('beforeend', once);
     vp.dataset.fsHalf = String(half);
   }
@@ -342,11 +336,7 @@ var infoModalBody = document.getElementById('info-modal-body');
 function openInfoModal() { infoModalOverlay.classList.add('open'); }
 function closeInfoModal() { infoModalOverlay.classList.remove('open'); }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str == null ? '' : String(str);
-  return div.innerHTML;
-}
+function escapeHtml(str) { return String(str == null ? '' : str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 function renderInfoModal(items) {
   if (!items || !items.length) { infoModalBody.innerHTML = ''; return false; }

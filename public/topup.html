@@ -228,7 +228,7 @@ let currentTypes = [];
 let activeType = null;
 let currentNote = '';
 let selectedItem = null; 
-let flashMap = {}; // kode item topup -> { price_before, price_strike, price_after, label } dari carousel flash sale
+let flashMap = {};
 
 async function loadFlashMap() {
   try {
@@ -265,7 +265,6 @@ async function init() {
     const cat = topupCategories.find(c => c.key === openKey);
     if (cat) {
       await openCategory(cat);
-      // Datang dari carousel Flash Sale beranda: langsung buka item + form order-nya.
       const vSlug = params.get('variant');
       const itemCode = params.get('item');
       if (vSlug && itemCode) {
