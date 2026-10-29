@@ -1342,6 +1342,42 @@ function dlTrigger(href) {
   setTimeout(() => a.remove(), 1000);
 }
 
+// Unduh audio via fetch -> blob supaya nama file selalu .mp3 dan error server terbaca (bukan tersimpan jadi .txt)
+async function dlDownloadAudio(href, label, btn) {
+  if (btn && btn.dataset.busy === '1') return;
+  if (btn) { btn.dataset.busy = '1'; btn.style.opacity = '0.6'; }
+  try {
+    const res = await fetch(apiUrl(href), { credentials: 'include' });
+    if (!res.ok) {
+      let msg = 'Gagal mengunduh audio.';
+      try { const j = await res.json(); if (j && j.message) msg = j.message; } catch (e) {}
+      throw new Error(msg);
+    }
+    const buf = await res.blob();
+    const serverType = (res.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+    const type = /^audio\//.test(serverType) ? serverType : 'audio/mpeg';
+    const ext = type === 'audio/mp4' ? 'm4a' : type === 'audio/aac' ? 'aac' : type === 'audio/ogg' ? 'ogg' : type === 'audio/wav' ? 'wav' : type === 'audio/flac' ? 'flac' : 'mp3';
+    let name = '';
+    const cd = res.headers.get('content-disposition') || '';
+    const m = cd.match(/filename="?([^";]+)"?/i);
+    if (m) name = m[1].replace(/\.[a-z0-9]+$/i, '');
+    if (!name) name = 'audio_' + Date.now().toString(36);
+    const url = URL.createObjectURL(new Blob([buf], { type }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${name}.${ext}`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 4000);
+    Toast.success('Audio berhasil diunduh');
+  } catch (err) {
+    Toast.error(err.message || 'Gagal mengunduh audio.');
+  } finally {
+    if (btn) { btn.dataset.busy = '0'; btn.style.opacity = ''; }
+  }
+}
+
 function dlItemIcon(kind) {
   return kind === 'audio' ? 'music' : kind === 'image' ? 'image' : 'video';
 }
@@ -1381,7 +1417,7 @@ function dlRenderResult(d) {
     html.push('<div class="dl-actions">');
     actionItems.forEach((it) => {
       const cls = it.primary ? 'btn btn-primary' : 'btn btn-outline';
-      html.push(`<a class="${cls}" href="${escapeHtml(it.downloadUrl)}" download><i class="fas fa-download"></i> ${escapeHtml(it.label)}</a>`);
+      html.push(`<a class="${cls}" href="${escapeHtml(it.downloadUrl)}" ${it.kind === 'audio' ? 'data-dl-audio="1"' : 'download'}><i class="fas fa-download"></i> ${escapeHtml(it.label)}</a>`);
     });
     html.push('</div>');
   }
@@ -1406,6 +1442,13 @@ function dlRenderResult(d) {
 
   card.style.display = '';
   body.innerHTML = html.join('');
+
+  body.querySelectorAll('a[data-dl-audio]').forEach((el) => {
+    el.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      dlDownloadAudio(el.getAttribute('href'), el.textContent.trim(), el);
+    });
+  });
 
   const allBtn = document.getElementById('dl-all-btn');
   if (allBtn) {
