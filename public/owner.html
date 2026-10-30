@@ -1104,6 +1104,7 @@
             <div class="stat-card"><div class="stat-icon indigo"><i class="fas fa-clapperboard"></i></div><div class="stat-info"><div class="stat-label">Alight Motion Terklaim</div><div class="stat-value" id="bansos-total-am">-</div></div></div>
             <div class="stat-card"><div class="stat-icon red"><i class="fas fa-tv"></i></div><div class="stat-info"><div class="stat-label">Netflix Terklaim</div><div class="stat-value" id="bansos-total-netflix">-</div></div></div>
             <div class="stat-card"><div class="stat-icon green"><i class="fas fa-server"></i></div><div class="stat-info"><div class="stat-label">Panel Gratis Diambil</div><div class="stat-value" id="bansos-total-panel">-</div></div></div>
+            <div class="stat-card"><div class="stat-icon indigo"><i class="fas fa-crown"></i></div><div class="stat-info"><div class="stat-label">Akun VIU Dibuat</div><div class="stat-value" id="bansos-total-viu">-</div></div></div>
           </div>
         </div>
         <div class="card mb-16">
@@ -4123,6 +4124,7 @@ async function loadBansosSection() {
   document.getElementById('bansos-total-am').textContent = totals.alightMotion ?? 0;
   document.getElementById('bansos-total-netflix').textContent = totals.netflix ?? 0;
   document.getElementById('bansos-total-panel').textContent = totals.panel ?? 0;
+  document.getElementById('bansos-total-viu').textContent = totals.viu ?? 0;
 
   const pr = await API.get('/api/owner/bansos/ptero/settings');
   if (!pr.success) { Toast.error(pr.message || 'Gagal memuat konfigurasi Panel Gratis'); return; }

@@ -348,7 +348,6 @@ async function fetchStats() {
 
   document.getElementById('stat-panel-total').textContent = res.data.totals.panel ?? 0;
   document.getElementById('stat-panel-card').style.display = res.data.ptero_enabled ? '' : 'none';
-  document.getElementById('stat-react-card').style.gridColumn = res.data.ptero_enabled ? '' : '1/-1';
 
   const pteroBtn = document.getElementById('tab-btn-ptero');
   if (res.data.ptero_enabled) {
