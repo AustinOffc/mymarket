@@ -1349,11 +1349,12 @@ async function dlDownloadAudio(href, label, btn) {
   try {
     const res = await fetch(apiUrl(href), { credentials: 'include' });
     if (!res.ok) {
-      let msg = 'Gagal mengunduh audio.';
+      let msg = `Gagal mengunduh audio (HTTP ${res.status}).`;
       try { const j = await res.json(); if (j && j.message) msg = j.message; } catch (e) {}
       throw new Error(msg);
     }
     const buf = await res.blob();
+    if (!buf || !buf.size) throw new Error('File audio kosong dari server.');
     const serverType = (res.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
     const type = /^audio\//.test(serverType) ? serverType : 'audio/mpeg';
     const ext = type === 'audio/mp4' ? 'm4a' : type === 'audio/aac' ? 'aac' : type === 'audio/ogg' ? 'ogg' : type === 'audio/wav' ? 'wav' : type === 'audio/flac' ? 'flac' : 'mp3';
