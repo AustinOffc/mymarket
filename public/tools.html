@@ -1424,7 +1424,7 @@ function dlRenderResult(d) {
     html.push('<div class="dl-actions">');
     actionItems.forEach((it) => {
       const cls = it.primary ? 'btn btn-primary' : 'btn btn-outline';
-      html.push(`<a class="${cls}" href="${escapeHtml(it.downloadUrl)}" ${it.kind === 'audio' ? `data-dl-audio="1" data-direct="${escapeHtml(it.directUrl || '')}"` : 'download'}><i class="fas fa-download"></i> ${escapeHtml(it.label)}</a>`);
+      html.push(`<a class="${cls}" href="${escapeHtml(it.downloadUrl)}" ${it.kind === 'audio' ? `data-dl-audio="1"` : 'download'}><i class="fas fa-download"></i> ${escapeHtml(it.label)}</a>`);
     });
     html.push('</div>');
   }
