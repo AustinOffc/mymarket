@@ -156,6 +156,10 @@
           <div class="stat-label">Total Panel Gratis Diambil</div>
           <div class="stat-value" id="stat-panel-total">0</div>
         </div>
+        <div class="card bansos-stat-card">
+          <div class="stat-label">Total Akun VIU Dibuat</div>
+          <div class="stat-value" id="stat-viu-total">0</div>
+        </div>
       </div>
 
       <div class="bansos-tabs">
@@ -164,6 +168,7 @@
         <button class="btn btn-outline" id="tab-btn-react" onclick="switchTab('react')"><i class="fas fa-comment-dots"></i> React WA</button>
         <button class="btn btn-outline" id="tab-btn-ptero" onclick="switchTab('ptero')" style="display:none"><i class="fas fa-server"></i> Panel Gratis</button>
         <button class="btn btn-outline" id="tab-btn-netflix" onclick="switchTab('netflix')"><i class="fas fa-tv"></i> Netflix Token</button>
+        <button class="btn btn-outline" id="tab-btn-viu" onclick="switchTab('viu')"><i class="fas fa-crown"></i> VIU Premium</button>
       </div>
 
       <div class="card" style="padding:20px">
@@ -247,6 +252,15 @@
           <div id="netflix-result"></div>
         </div>
 
+        <div id="tab-viu" class="bansos-tab-content">
+          <div class="card-header" style="padding:0 0 14px 0;border:none"><span class="card-title">Generate Akun VIU Premium</span></div>
+          <p style="font-size:13px;color:var(--text-muted);margin:-6px 0 16px">
+            Tekan tombol di bawah untuk mendapatkan akun VIU Premium otomatis.
+          </p>
+          <button class="btn btn-primary btn-full btn-lg" id="viu-btn" onclick="generateViu()"><i class="fas fa-bolt"></i> Generate Akun Sekarang</button>
+          <div id="viu-result"></div>
+        </div>
+
         <div id="tab-ptero" class="bansos-tab-content">
           <div class="card-header" style="padding:0 0 14px 0;border:none"><span class="card-title">Buat Panel Gratis</span></div>
 
@@ -319,7 +333,7 @@ function logMsg(msg, type = 'info') {
 function switchTab(tabId) {
   document.querySelectorAll('.bansos-tab-content').forEach(el => el.classList.remove('active'));
   document.getElementById(`tab-${tabId}`).classList.add('active');
-  ['am', 'bulk', 'react', 'ptero', 'netflix'].forEach(t => {
+  ['am', 'bulk', 'react', 'ptero', 'netflix', 'viu'].forEach(t => {
     document.getElementById(`tab-btn-${t}`).className = `btn ${t === tabId ? 'btn-primary' : 'btn-outline'}`;
   });
 }
@@ -330,6 +344,7 @@ async function fetchStats() {
   document.getElementById('stat-am-total').textContent = res.data.totals.alightMotion ?? 0;
   document.getElementById('stat-netflix-total').textContent = res.data.totals.netflix ?? 0;
   document.getElementById('stat-react-total').textContent = res.data.totals.reactWa ?? 0;
+  document.getElementById('stat-viu-total').textContent = res.data.totals.viu ?? 0;
 
   document.getElementById('stat-panel-total').textContent = res.data.totals.panel ?? 0;
   document.getElementById('stat-panel-card').style.display = res.data.ptero_enabled ? '' : 'none';
@@ -430,7 +445,43 @@ async function generateNetflix() {
       <div class="bansos-result-box">
         <div class="bansos-result-row"><span class="bansos-result-label">Plan</span><span class="bansos-result-value">${escapeHtml(res.data.plan || '-')}</span></div>
         <div class="bansos-result-row"><span class="bansos-result-label">Kualitas</span><span class="bansos-result-value">${escapeHtml(res.data.quality || '-')}</span></div>
+        <div class="bansos-result-row"><span class="bansos-result-label">Negara</span><span class="bansos-result-value">${escapeHtml(res.data.country || '-')}</span></div>
+        <div class="bansos-result-row"><span class="bansos-result-label">Expired</span><span class="bansos-result-value">${escapeHtml(res.data.expires || '-')}</span></div>
         ${rows}
+      </div>`;
+    fetchStats();
+  } else {
+    logMsg(res.message, 'error');
+    Toast.error(res.message);
+  }
+}
+
+async function generateViu() {
+  if (!Auth.requireLogin('Masuk atau daftar dulu untuk klaim bansos.')) return;
+  const btn = document.getElementById('viu-btn');
+  setLoading(btn, true);
+  logMsg('Mengeksekusi generator akun VIU Premium...', 'info');
+  const res = await API.post('/api/bansos/viu/generate', {});
+  setLoading(btn, false);
+
+  if (res.success) {
+    logMsg(res.message, 'success');
+    Toast.success('Akun VIU Premium berhasil dibuat');
+    const emailEsc = String(res.data.email || '').replace(/'/g, "\\'");
+    const passEsc = String(res.data.password || '').replace(/'/g, "\\'");
+    document.getElementById('viu-result').innerHTML = `
+      <div class="bansos-result-box">
+        <div class="bansos-result-row">
+          <span class="bansos-result-label">Email</span>
+          <span class="bansos-result-value">${escapeHtml(res.data.email || '-')}</span>
+          <button type="button" class="bansos-copy-btn" onclick="copyText('${emailEsc}', 'Email')" title="Salin"><i class="fas fa-copy"></i></button>
+        </div>
+        <div class="bansos-result-row">
+          <span class="bansos-result-label">Password</span>
+          <span class="bansos-result-value">${escapeHtml(res.data.password || '-')}</span>
+          <button type="button" class="bansos-copy-btn" onclick="copyText('${passEsc}', 'Password')" title="Salin"><i class="fas fa-copy"></i></button>
+        </div>
+        <div class="bansos-result-row"><span class="bansos-result-label">Status</span><span class="badge badge-success">${res.data.is_new ? 'Akun Baru' : 'Akun Lama'}</span></div>
       </div>`;
     fetchStats();
   } else {
