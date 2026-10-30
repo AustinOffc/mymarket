@@ -1343,7 +1343,7 @@ function dlTrigger(href) {
 }
 
 // Unduh audio via fetch -> blob supaya nama file selalu .mp3 dan error server terbaca (bukan tersimpan jadi .txt)
-async function dlDownloadAudio(href, label, btn) {
+async function dlDownloadAudio(href, label, btn, directUrl) {
   if (btn && btn.dataset.busy === '1') return;
   if (btn) { btn.dataset.busy = '1'; btn.style.opacity = '0.6'; }
   try {
@@ -1373,7 +1373,13 @@ async function dlDownloadAudio(href, label, btn) {
     setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 4000);
     Toast.success('Audio berhasil diunduh');
   } catch (err) {
-    Toast.error(err.message || 'Gagal mengunduh audio.');
+    if (directUrl) {
+      // Server kena blokir sumber (403) -> buka link asli langsung dari browser user.
+      Toast.info ? Toast.info('Membuka audio langsung dari sumber…') : null;
+      window.open(directUrl, '_blank', 'noopener');
+    } else {
+      Toast.error(err.message || 'Gagal mengunduh audio.');
+    }
   } finally {
     if (btn) { btn.dataset.busy = '0'; btn.style.opacity = ''; }
   }
@@ -1398,7 +1404,7 @@ function dlRenderResult(d) {
   const statsHtml = (d.stats || []).filter((s) => DL_STATS[s.key]).map((s) => `<span class="dl-stat"><i class="fas fa-${DL_STATS[s.key][0]}"></i> ${escapeHtml(dlFmtNum(s.value))} ${escapeHtml(DL_STATS[s.key][1])}</span>`).join('');
   const authorText = [d.author && d.author.name, d.author && d.author.username ? `@${d.author.username}` : ''].filter(Boolean).join(' · ');
   html.push(`<div class="dl-head">
-    ${d.thumbnail ? `<img class="dl-cover" src="${escapeHtml(d.thumbnail)}" alt="" loading="lazy">` : ''}
+    ${d.thumbnail ? `<img class="dl-cover" src="${escapeHtml(d.thumbnail)}" alt="" loading="lazy"${d.thumbnailDirect ? ` data-direct="${escapeHtml(d.thumbnailDirect)}" onerror="if(this.dataset.direct){var u=this.dataset.direct;this.dataset.direct='';this.referrerPolicy='no-referrer';this.src=u;}"` : ''}>` : ''}
     <div class="dl-meta">
       <div class="dl-title">${escapeHtml(d.title || `Media ${d.platformName}`)}</div>
       ${authorText ? `<div class="dl-author">${escapeHtml(authorText)}</div>` : ''}
@@ -1418,7 +1424,7 @@ function dlRenderResult(d) {
     html.push('<div class="dl-actions">');
     actionItems.forEach((it) => {
       const cls = it.primary ? 'btn btn-primary' : 'btn btn-outline';
-      html.push(`<a class="${cls}" href="${escapeHtml(it.downloadUrl)}" ${it.kind === 'audio' ? 'data-dl-audio="1"' : 'download'}><i class="fas fa-download"></i> ${escapeHtml(it.label)}</a>`);
+      html.push(`<a class="${cls}" href="${escapeHtml(it.downloadUrl)}" ${it.kind === 'audio' ? `data-dl-audio="1" data-direct="${escapeHtml(it.directUrl || '')}"` : 'download'}><i class="fas fa-download"></i> ${escapeHtml(it.label)}</a>`);
     });
     html.push('</div>');
   }
@@ -1447,7 +1453,7 @@ function dlRenderResult(d) {
   body.querySelectorAll('a[data-dl-audio]').forEach((el) => {
     el.addEventListener('click', (ev) => {
       ev.preventDefault();
-      dlDownloadAudio(el.getAttribute('href'), el.textContent.trim(), el);
+      dlDownloadAudio(el.getAttribute('href'), el.textContent.trim(), el, el.getAttribute('data-direct'));
     });
   });
 
